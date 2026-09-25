@@ -1,0 +1,391 @@
+/* ─── RESET ──────────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ─── DESIGN TOKENS — Charte graphique SaamBiz ─────────────────────
+   Couleurs officielles :
+   Bleu Marine #0D1B3D · Jaune Or #F2B705 · Gris Clair #F2F4F7
+   Vert Succès #22C55E · Rouge Alerte #EF4444
+   Typographies : Poppins (titres) · Inter (textes)
+   ------------------------------------------------------------------ */
+:root {
+  /* Bleu marine — couleur principale */
+  --navy:        #0D1B3D;
+  --navy-dark:   #0A1530;
+  --navy-deep:   #060F26;
+  --navy-mid:    #1E3A78;
+  --navy-light:  #E8EDF7;
+  --navy-glow:   rgba(13, 27, 61, 0.14);
+
+  /* Jaune or — couleur d'accent */
+  --gold:        #F2B705;  /* sur fond bleu marine */
+  --gold-mid:    #FFC93C;  /* sur fond bleu marine, variante claire */
+  --gold-deep:   #B0850B;  /* dégradés de titres sur fond clair */
+  --gold-ink:    #8A6503;  /* texte or lisible sur fond clair */
+  --gold-light:  #FEF3D6;
+  --gold-ultra:  #FFFBF0;
+  --gold-glow:   rgba(242, 183, 5, 0.20);
+
+  /* Accents */
+  --emerald:     #22C55E;
+  --emerald-lt:  #DCFCE7;
+  --emerald-ink: #15803D;
+  --rose:        #EF4444;
+  --rose-lt:     #FEE2E2;
+  --rose-ink:    #B91C1C;
+
+  /* Neutres */
+  --white:       #FFFFFF;
+  --gray-bg:     #F7F9FC;
+  --gray-light:  #F2F4F7;
+  --gray:        #DCE2EC;
+  --gray-mid:    #BFC8D6;
+  --text-dark:   #0D1B3D;
+  --text-mid:    #2C3E63;
+  --text-light:  #5B6C8A;
+  --text-muted:  #93A1B8;
+
+  /* Typographies */
+  --font-display: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Ombres */
+  --shadow-xs: 0 1px 4px rgba(13, 27, 61, 0.07);
+  --shadow-sm: 0 2px 10px rgba(13, 27, 61, 0.10);
+  --shadow-md: 0 4px 24px rgba(13, 27, 61, 0.13);
+  --shadow-lg: 0 8px 40px rgba(13, 27, 61, 0.16);
+  --shadow-xl: 0 16px 56px rgba(13, 27, 61, 0.20);
+
+  /* Rayons */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   16px;
+  --radius-lg:   22px;
+  --radius-xl:   30px;
+  --radius-full: 999px;
+
+  /* Hauteur de la navbar — sert au décalage des ancres */
+  --nav-h: 78px;
+}
+
+/* ─── BASE ───────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  background: var(--white);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+/* Le texte reste sélectionnable ; seuls les éléments décoratifs ne le sont pas. */
+.dl-bg, .badge-dot, .proof-av, .kpi-sep { user-select: none; }
+
+button, a { cursor: pointer; font-family: inherit; }
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+h1, h2, h3, h4, h5 { font-family: var(--font-display); }
+
+/* Les sections servent de cibles d'ancre : on décale de la hauteur de la
+   navbar fixe pour que le titre ne passe pas dessous au clic dans le menu. */
+section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
+
+/* ─── ACCESSIBILITÉ ──────────────────────────────────────────────── */
+.skip-link {
+  position: fixed; top: 10px; left: 10px; z-index: 2000;
+  transform: translateY(-160%);
+  background: var(--navy); color: var(--white);
+  padding: 12px 20px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+/* Sur fond clair, l'anneau bleu marine ressort mieux que l'or. */
+.hero-section :focus-visible,
+.hiw-section :focus-visible,
+.faq-section :focus-visible,
+.vf-inner :focus-visible,
+.client-section :focus-visible,
+.payment-section :focus-visible,
+.navbar :focus-visible {
+  outline-color: var(--navy);
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ─── SECTION HEADER COMMONS ─────────────────────────────────────── */
+.section-header { text-align: center; margin-bottom: 44px; }
+.section-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 13px; border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+.section-badge svg { flex-shrink: 0; }
+.section-badge.navy   { background: var(--navy-light);  color: var(--navy);        border-color: rgba(13,27,61,0.10); }
+.section-badge.gold   { background: var(--gold-light);  color: var(--gold-ink);    border-color: rgba(242,183,5,0.35); }
+.section-badge.emerald{ background: var(--emerald-lt);  color: var(--emerald-ink); border-color: rgba(34,197,94,0.28); }
+.section-badge.rose   { background: var(--rose-lt);     color: var(--rose-ink);    border-color: rgba(239,68,68,0.25); }
+/* Variante posée sur un fond bleu marine */
+.on-dark .section-badge, .section-badge.on-dark {
+  background: rgba(242,183,5,0.16); color: var(--gold-mid);
+  border-color: rgba(242,183,5,0.28);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.3vw, 32px); font-weight: 700;
+  color: var(--text-dark); letter-spacing: -0.4px; margin-bottom: 12px;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+/* Mot mis en avant dans un titre — or plein, jamais de dégradé. */
+.title-accent { font-style: normal; color: var(--gold-deep); }
+.on-dark .title-accent { color: var(--gold-mid); }
+.section-sub {
+  font-size: 14.5px; color: var(--text-light);
+  max-width: 600px; margin: 0 auto; line-height: 1.75;
+  text-wrap: pretty;
+}
+
+/* ─── BRIQUES PARTAGÉES ──────────────────────────────────────────
+   Le langage visuel posé dans la section Vendeurs : carte blanche,
+   liste titre + description, bouton plein, ligne de réassurance et
+   pastilles flottantes. Les sections s'appuient dessus au lieu de
+   redéfinir les mêmes styles chacune de leur côté.                  */
+.panel {
+  background: var(--white);
+  border: 1px solid rgba(13,27,61,0.06);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(13,27,61,0.12), 0 4px 14px rgba(13,27,61,0.05);
+}
+
+.rich-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+.rich-item { display: flex; align-items: flex-start; gap: 14px; }
+.rich-ico {
+  width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--navy-light); color: var(--navy);
+}
+.rich-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.rich-body strong { font-size: 13.5px; font-weight: 600; color: var(--text-dark); }
+.rich-body small  { font-size: 12.5px; color: var(--text-light); line-height: 1.6; }
+.on-dark .rich-ico { background: rgba(242,183,5,0.16); color: var(--gold-mid); }
+.on-dark .rich-body strong { color: var(--white); }
+.on-dark .rich-body small  { color: rgba(255,255,255,0.58); }
+
+.btn-navy, .btn-gold {
+  display: inline-flex; align-items: center; gap: 10px;
+  border: none; padding: 13px 22px; border-radius: 12px;
+  font-size: 13.5px; font-weight: 600; cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+}
+.btn-navy {
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  color: var(--white); box-shadow: 0 10px 26px rgba(13,27,61,0.28);
+}
+.btn-navy:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(13,27,61,0.36); }
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-mid));
+  color: var(--navy); font-weight: 800; box-shadow: 0 10px 26px rgba(242,183,5,0.38);
+}
+.btn-gold:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(242,183,5,0.48); }
+
+.note-ok {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 12px; font-size: 12px; font-weight: 600;
+  color: var(--emerald-ink);
+}
+.on-dark .note-ok { color: #86EFAC; }
+
+.float-chip {
+  position: absolute; z-index: 3;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--white); border: 1px solid rgba(13,27,61,0.07);
+  border-radius: 12px; padding: 8px 13px;
+  font-size: 11.5px; font-weight: 600; color: var(--text-dark);
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(13,27,61,0.14);
+  animation: chipIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
+}
+.float-chip svg { flex-shrink: 0; }
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Halo décoratif posé derrière un visuel */
+.glow-blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(70px); pointer-events: none; z-index: 0;
+}
+
+/* ─── SCROLL REVEAL ──────────────────────────────────────────────── */
+.sr {
+  opacity: 0; transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
+              transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.sr.sr-in { opacity: 1; transform: translateY(0); }
+
+.sr-l {
+  opacity: 0; transform: translateX(-40px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
+              transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.sr-l.sr-in { opacity: 1; transform: translateX(0); }
+
+.sr-r {
+  opacity: 0; transform: translateX(40px);
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
+              transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+.sr-r.sr-in { opacity: 1; transform: translateX(0); }
+
+.sr-d1 { transition-delay: 0.08s; }
+.sr-d2 { transition-delay: 0.16s; }
+.sr-d3 { transition-delay: 0.24s; }
+.sr-d4 { transition-delay: 0.32s; }
+.sr-d5 { transition-delay: 0.42s; }
+.sr-d6 { transition-delay: 0.52s; }
+
+/* ─── NAVBAR (global) ────────────────────────────────────────────── */
+/* La barre laisse voir la page qui défile dessous : fond translucide et
+   flou, sans trait de séparation. Une bordure franche coupait l'image en
+   deux au moindre visuel clair — le dégradé de la dernière ligne suffit à
+   décoller la barre du contenu. */
+.navbar {
+  position: fixed; top: 0; left: 0; width: 100%;
+  z-index: 1000; padding: 14px 0;
+  background: rgba(255,255,255,0.90);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border-bottom: none;
+
+  /* Le bas de la barre s'éteint au lieu de s'arrêter net.
+     Sans ce masque, le fond blanc translucide ET le flou d'arrière-plan se
+     coupent sur une ligne droite : sur une page claire, cela dessine une
+     bande blanche en travers de l'écran, juste sous les boutons. Le dégradé
+     ne commence qu'à 84 % de la hauteur — la zone de marge basse, sous le
+     contenu — pour que rien de lisible ne soit atténué. */
+  -webkit-mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
+
+  transition: padding 0.3s ease, background 0.3s ease, transform 0.35s ease;
+}
+.navbar.scrolled {
+  padding: 8px 0;
+  background: rgba(255,255,255,0.82);
+}
+.navbar.nav-hidden {
+  transform: translateY(-100%);
+}
+
+/* ─── BARRE DE PROGRESSION DE LECTURE ────────────────────────────── */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 1001;
+  width: 100%; transform-origin: 0 50%;
+  background: var(--navy);
+  pointer-events: none;
+}
+
+/* ─── RETOUR EN HAUT ─────────────────────────────────────────────── */
+.to-top {
+  position: fixed; right: 22px; bottom: 22px; z-index: 999;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 26px rgba(13,27,61,0.35);
+  opacity: 0; visibility: hidden; transform: translateY(14px) scale(0.9);
+  transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s;
+}
+.to-top.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+.to-top:hover { transform: translateY(-3px) scale(1.05); }
+@media (max-width: 520px) {
+  .to-top { right: 14px; bottom: 14px; width: 42px; height: 42px; }
+}
+
+/* ─── SCROLLBAR ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--gray-light); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--navy), var(--navy-mid));
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--navy-dark); }
+
+/* ─── SELECTION ───────────────────────────────────────────────────── */
+::selection { background: rgba(242,183,5,0.30); color: var(--text-dark); }
+
+/* ─── FONDS DE SECTION ───────────────────────────────────────────
+   Pas de dégradé bleu → jaune : des fonds neutres (blanc / gris clair
+   de la charte), l'or reste réservé aux accents ponctuels.           */
+.grad-dark {
+  background: linear-gradient(145deg, var(--navy-deep) 0%, var(--navy-dark) 40%, var(--navy) 100%);
+}
+.grad-warm {
+  background: linear-gradient(180deg, var(--white) 0%, var(--gray-light) 100%);
+}
+.grad-cool {
+  background: linear-gradient(180deg, var(--gray-light) 0%, var(--white) 100%);
+}
+
+/* ─── SURVOL DÉSACTIVÉ SUR ÉCRAN TACTILE ──────────────────────────── */
+@media (hover: none) {
+  .card-hover:hover, .btn-hover:hover, .feature-card:hover,
+  .faq-item:hover, .step-card:hover, .plan-card:hover,
+  .pfc:hover, .feat-small-card:hover {
+    transform: none !important; box-shadow: inherit !important;
+  }
+}
+
+/* ─── MOUVEMENT RÉDUIT ────────────────────────────────────────────
+   Respecte le réglage système : plus d'apparitions au scroll, de
+   flottements ni de bandeau défilant pour qui demande moins d'animations. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .sr, .sr-l, .sr-r { opacity: 1 !important; transform: none !important; }
+  .marquee-track { animation: none !important; }
+}
+
+/* ─── ATTENTE DU MODULE BOUTIQUE ──────────────────────────────────
+   Le site des boutiques (/b/<slug>) est chargé à la demande : sa feuille de
+   style n'est pas encore là quand cet écran s'affiche. Ces quelques règles
+   vivent donc ici, dans la feuille toujours présente. */
+.vitrine-attente {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--white);
+}
+.vitrine-attente__rond {
+  width: 34px; height: 34px;
+  border: 3px solid var(--gray);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: vitrine-tourne 0.8s linear infinite;
+}
+@keyframes vitrine-tourne { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .vitrine-attente__rond { animation-duration: 2.4s; }
+}

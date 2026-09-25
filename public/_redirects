@@ -1,0 +1,7 @@
+# Le site est une application à page unique : /b/chez-fatou n'existe pas comme
+# fichier sur le disque. Sans cette règle, l'hébergeur répond 404 dès qu'un
+# client ouvre le lien d'une boutique reçu par WhatsApp — le cas normal, pas
+# l'exception. Sur un hébergeur qui n'utilise pas ce fichier (Vercel, Render,
+# Nginx), la même règle se pose dans sa configuration : toutes les routes
+# renvoient index.html.
+/*    /index.html   200

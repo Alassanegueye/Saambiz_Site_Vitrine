@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SaamBiz — Votre business. Partout. Toujours.</title>
+    <meta name="description" content="SaamBiz est la marketplace mobile du Sénégal : créez votre boutique en ligne, gérez vos ventes, lancez vos promotions et fidélisez vos clients depuis votre smartphone." />
+    <meta name="theme-color" content="#0D1B3D" />
+    <meta name="color-scheme" content="light" />
+
+    <!-- Icônes — le pictogramme SaamBiz blanc, sur fond transparent, sans
+         marge : il occupe toute la largeur du carré.
+         Le .ico porte les rendus 16/32/48 calculés un par un ; le PNG 512 sert
+         aux navigateurs modernes et aux aperçus de partage.
+         L'icône iOS et celles de la PWA sont posées sur le bleu de la charte :
+         les systèmes composent toujours ces icônes-là sur une surface opaque,
+         et un pictogramme blanc transparent y donnerait un carré vide. -->
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Partage sur les réseaux sociaux -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SaamBiz" />
+    <meta property="og:locale" content="fr_SN" />
+    <meta property="og:title" content="SaamBiz — La marketplace mobile du Sénégal" />
+    <meta property="og:description" content="Créez votre boutique en ligne, gérez vos ventes et fidélisez vos clients — directement depuis votre smartphone." />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SaamBiz — La marketplace mobile du Sénégal" />
+    <meta name="twitter:description" content="Créez votre boutique en ligne, gérez vos ventes et fidélisez vos clients — directement depuis votre smartphone." />
+    <meta name="twitter:image" content="/og-image.jpg" />
+
+    <!-- Typographies de la charte : Poppins (titres) + Inter (textes) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      SaamBiz a besoin de JavaScript pour s'afficher. Activez-le dans votre navigateur,
+      ou écrivez-nous à contact@saambiz.sn.
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
