@@ -54,7 +54,7 @@ const Footer = ({ scrollTo }) => {
           <address className="footer-contact">
             <div className="fc-row"><MapPin size={13}/><span>Dakar, Sénégal</span></div>
             <a className="fc-row fc-link" href="mailto:contact@saambiz.com">
-              <Mail size={13}/><span>contact@saambiz.sn</span>
+              <Mail size={13}/><span>contact@saambiz.com</span>
             </a>
             <a className="fc-row fc-link" href="tel:+221775929390">
               <Phone size={13}/><span>+221 77 592 93 90</span>
@@ -62,9 +62,9 @@ const Footer = ({ scrollTo }) => {
           </address>
           <div className="footer-social">
             {[
-              { icon:<Instagram size={16}/>, label:'Instagram', href:'https://instagram.com/saambiz.sn' },
-              { icon:<Facebook size={16}/>,  label:'Facebook',  href:'https://facebook.com/saambiz.sn'  },
-              { icon:<Twitter size={16}/>,   label:'X',         href:'https://x.com/saambiz_sn'         },
+              { icon:<Instagram size={16}/>, label:'Instagram', href:'https://instagram.com/saambiz' },
+              { icon:<Facebook size={16}/>,  label:'Facebook',  href:'https://facebook.com/saambiz'  },
+              { icon:<Twitter size={16}/>,   label:'X',         href:'https://x.com/saambiz'         },
             ].map((s,i) => (
               <a key={i} href={s.href} className="social-btn"
                  target="_blank" rel="noreferrer"

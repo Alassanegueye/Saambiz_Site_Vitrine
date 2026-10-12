@@ -102,9 +102,9 @@ const Channels = ({ scrollTo }) => (
             <small>Rien à configurer : il existe dès la première minute, et il se partage partout.</small>
           </div>
         </div>
-        <div className="ch-url" role="img" aria-label="Exemple d'adresse de boutique : saambiz.sn slash boutique-fatou">
+        <div className="ch-url" role="img" aria-label="Exemple d'adresse de boutique : saambiz.com slash boutique-fatou">
           <span className="ch-url-dots" aria-hidden="true"><i /><i /><i /></span>
-          <span className="ch-url-text">saambiz.sn/<strong>boutique-fatou</strong></span>
+          <span className="ch-url-text">saambiz.com/<strong>boutique-fatou</strong></span>
           <span className="ch-url-copy" aria-hidden="true"><Copy size={13} />Copier</span>
         </div>
       </div>

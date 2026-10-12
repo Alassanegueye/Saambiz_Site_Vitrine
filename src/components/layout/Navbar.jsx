@@ -5,7 +5,7 @@ import logo from '../../assets/brand/logo-navy.png';
 /* Espace vendeur web : les boutiques se gèrent aussi depuis un ordinateur.
    C'est une application à part (dossier Dashboard_Vendeur), distincte de
    l'administration. L'adresse se règle via VITE_DASHBOARD_URL. */
-const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'https://app.saambiz.sn';
+const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'https://app.saambiz.com';
 
 /* En développement local, le tableau de bord n'est pas déployé : on vise
    l'instance Vite voisine, en mode démo, pour pouvoir travailler l'interface

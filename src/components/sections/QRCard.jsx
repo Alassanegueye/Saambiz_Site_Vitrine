@@ -9,7 +9,7 @@ const Instagram = ({ size=16 }) => (
 );
 
 const perks = [
-  { icon:<Globe size={17}/>,      title:'Lien de boutique',  desc:'URL personnalisée saambiz.sn/votre-boutique' },
+  { icon:<Globe size={17}/>,      title:'Lien de boutique',  desc:'URL personnalisée saambiz.com/votre-boutique' },
   { icon:<Instagram size={17}/>,  title:'Réseaux sociaux',   desc:'Instagram, Facebook, WhatsApp — tout en un'  },
   { icon:<Smartphone size={17}/>, title:'Contact direct',    desc:'Numéro de téléphone ou WhatsApp'             },
   { icon:<Sparkles size={17}/>,   title:'Design premium',    desc:'Impression haute qualité, finition mate ou brillante' },

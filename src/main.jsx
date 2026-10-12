@@ -7,7 +7,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* BrowserRouter et non HashRouter : l'adresse d'une boutique est
         imprimée sur des cartes de visite et collée sur des devantures.
-        saambiz.sn/b/chez-fatou se recopie ; saambiz.sn/#/b/chez-fatou non.
+        saambiz.com/b/chez-fatou se recopie ; saambiz.com/#/b/chez-fatou non.
         L'hébergement doit renvoyer index.html sur toutes les routes. */}
     <BrowserRouter>
       <App />
