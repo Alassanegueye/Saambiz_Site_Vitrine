@@ -1,0 +1,79 @@
+# Configuration Apache du site public SaamBiz — www.saambiz.com
+#
+# Le pendant Apache de public/_redirects (qui ne sert qu'à Netlify) : le site
+# est une application à page unique, /b/chez-fatou n'existe pas comme fichier
+# sur le disque. Sans la règle ci-dessous, l'hébergeur répond 404 dès qu'un
+# client ouvre le lien d'une boutique reçu par WhatsApp — le cas normal, pas
+# l'exception.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Les appels à l'API ne sont pas des routes du site : s'ils retombaient sur
+  # index.html, le front recevrait du HTML là où il attend du JSON et
+  # afficherait « Une erreur est survenue » au lieu de la vraie panne.
+  RewriteRule ^saambiz/ - [L]
+
+  # Un fichier ou un dossier réellement présent est servi tel quel.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Tout le reste est une route React.
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# ─── Cache ──────────────────────────────────────────────────────────────────
+# Les fichiers de dist/assets portent une empreinte dans leur nom : un contenu
+# modifié change de nom, donc on peut les garder un an sans risque de servir
+# une version périmée. index.html, lui, est le seul point d'entrée qui doit
+# être revalidé, sinon un visiteur garderait indéfiniment les anciens noms.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 month"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?|png|jpe?g|webp|svg|ico|avif)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "^(index\.html|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ─── Compression ───────────────────────────────────────────────────────────────
+# Sans effet en l'état sur cet hébergement, et c'est vérifié : le proxy placé
+# devant Apache retire l'en-tête Accept-Encoding des requêtes qu'il transmet à
+# l'origine. Une règle conditionnée à %{HTTP:Accept-Encoding} ne déclenche
+# jamais — testé dans un sous-dossier isolé — donc mod_deflate ne voit aucune
+# requête compressible, et l'astuce des fichiers pré-gzippés servis par
+# réécriture échouerait pour la même raison. C'est le proxy qui compresse, et il
+# ne le fait que pour text/html : le HTML arrive gzippé, le JS et le CSS en
+# clair (bundle vendor à 178 Ko au lieu de 56 Ko).
+#
+# La compression du JS et du CSS se règle donc chez l'hébergeur, pas ici.
+#
+# Le bloc est conservé tel quel : il est correct, il ne coûte rien, et il prend
+# effet tout seul le jour où le site passe derrière un proxy qui laisse passer
+# l'en-tête, ou sur un autre hébergement. Les deux écritures du type JavaScript
+# y figurent, cet Apache servant les .js en « text/javascript ».
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml \
+    text/javascript application/javascript application/x-javascript \
+    application/json application/xml image/svg+xml \
+    application/manifest+json
+</IfModule>
+
+# ─── Types ──────────────────────────────────────────────────────────────────
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType image/webp .webp
+  AddType font/woff2 .woff2
+</IfModule>
+
+# L'index de l'hébergeur ne doit pas reprendre la main si index.html manque.
+Options -Indexes
+DirectoryIndex index.html
