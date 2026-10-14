@@ -5,32 +5,29 @@ import '../styles/global.css';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import Hero from '../components/sections/Hero';
-import StatsBar from '../components/sections/StatsBar';
 import VendorFeatures from '../components/sections/VendorFeatures';
 import Channels from '../components/sections/Channels';
 import HowItWorks from '../components/sections/HowItWorks';
 import ClientFeatures from '../components/sections/ClientFeatures';
-import QRCard from '../components/sections/QRCard';
 import PaymentSection from '../components/sections/PaymentSection';
 import Pricing from '../components/sections/Pricing';
 import Faq from '../components/sections/Faq';
 import DownloadCta from '../components/sections/DownloadCta';
 
 /* Sections suivies par la navigation (ordre d'apparition dans la page) */
-const SECTION_IDS = ['hero', 'vendor', 'channels', 'features', 'client', 'qrcard', 'payment', 'pricing', 'faq', 'download'];
+const SECTION_IDS = ['hero', 'vendor', 'channels', 'features', 'client', 'payment', 'pricing', 'faq', 'download'];
 
 /* Page d'accueil de SaamBiz — la présentation de la marketplace.
    Le site public d'une boutique vit dans src/boutique/, sur /b/<slug>. */
 function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [active, setActive] = useState('hero');
   const [showTop, setShowTop] = useState(false);
   const ticking = useRef(false);
 
   /* Un seul écouteur de scroll pour tout l'état de la page :
-     navbar (compacte / masquée), progression de lecture, section courante
+     navbar (compacte / masquée), section courante
      et bouton de retour en haut. Les mesures passent par requestAnimationFrame
      pour ne pas relayouter à chaque événement. */
   useEffect(() => {
@@ -39,12 +36,10 @@ function LandingPage() {
     const measure = () => {
       ticking.current = false;
       const y = window.scrollY;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
 
       setScrolled(y > 20);
       // masque en descendant (au-delà de 120px), réaffiche en remontant / tout en haut
       setHidden(y > 120 && y > lastY);
-      setProgress(max > 0 ? Math.min(y / max, 1) : 0);
       setShowTop(y > 600);
       lastY = y;
 
@@ -108,18 +103,15 @@ function LandingPage() {
   return (
     <>
       <a className="skip-link" href="#main">Aller au contenu</a>
-      <div className="scroll-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
 
       <Navbar scrolled={scrolled} hidden={hidden} scrollTo={scrollTo} active={active} />
 
       <main id="main" tabIndex={-1}>
         <Hero scrollTo={scrollTo} />
-        <StatsBar />
         <VendorFeatures scrollTo={scrollTo} />
         <Channels scrollTo={scrollTo} />
         <HowItWorks />
         <ClientFeatures scrollTo={scrollTo} />
-        <QRCard scrollTo={scrollTo} />
         <PaymentSection scrollTo={scrollTo} />
         <Pricing scrollTo={scrollTo} />
         <Faq />

@@ -8,9 +8,8 @@ const faqs = [
   { q:"Mes clients doivent-ils installer l'application pour commander ?", a:"Non. Chaque boutique a son propre lien web : vos clients l'ouvrent dans leur navigateur, parcourent votre catalogue et passent commande directement, sans rien installer. L'application reste utile pour la suite — elle permet de suivre plusieurs boutiques au même endroit, de retrouver ses commandes et de recevoir les notifications de nouveautés et de promotions. En pratique, le lien fait entrer le client, l'application le fait revenir." },
   { q:'Comment mes clients reçoivent-ils les notifications ?', a:"Lorsqu'un client s'abonne à votre boutique et active la cloche de notification, il reçoit automatiquement des notifications push sur son smartphone dès que vous publiez un nouveau produit, lancez une promotion ou mettez à jour votre stock." },
   { q:"Quel est le fonctionnement du système d'acompte ?", a:"Lorsqu'un client passe commande, il doit obligatoirement régler un acompte (pourcentage défini par le vendeur) pour valider la commande. Le solde restant est réglé à la livraison. Aucune commande ne peut être confirmée sans ce paiement initial." },
-  { q:'Quels moyens de paiement sont acceptés ?', a:"SaamBiz accepte Wave, Orange Money, Free Money, les cartes bancaires (Visa, Mastercard) et d'autres moyens de Mobile Money disponibles au Sénégal. D'autres méthodes de paiement seront ajoutées progressivement." },
+  { q:'Quels moyens de paiement sont acceptés ?', a:"SaamBiz accepte Wave, Orange Money, Free Money et les cartes bancaires (Visa, Mastercard). D'autres méthodes de paiement seront ajoutées progressivement." },
   { q:'Comment fonctionne le remboursement ?', a:"En cas de litige, d'annulation de commande ou de produit non conforme, le client peut soumettre une demande de remboursement depuis l'application. Notre équipe examine la demande sous 48h et procède au remboursement automatique si le dossier est validé." },
-  { q:'La carte QR est-elle déjà disponible ?', a:"Pas encore : la carte QR professionnelle arrive bientôt et n'est pas commandable pour le moment. Laissez-nous votre email pour être prévenu du lancement. En attendant, le QR code de votre boutique se télécharge déjà depuis votre tableau de bord — imprimez-le et collez-le sur votre devanture — et votre lien se partage par WhatsApp et sur les réseaux sociaux." },
   { q:'Puis-je gérer plusieurs boutiques avec un seul compte ?', a:"La gestion de plusieurs boutiques depuis un seul compte sera disponible dans une prochaine mise à jour. Actuellement, chaque boutique nécessite un compte vendeur distinct." },
   { q:'Puis-je gérer ma boutique depuis un ordinateur ?', a:"Oui, et vous n'avez pas à choisir : le même tableau de bord existe sur les deux supports, sans supplément. Dans l'application iOS et Android pour piloter au quotidien, et sur le web depuis le bouton « Se connecter » en haut du site pour travailler au clavier sur grand écran — produits, stocks, commandes, publicités et statistiques. Une seule exception : la création de votre site web se fait dans l'application, parce qu'elle part de votre logo pris depuis votre téléphone." },
 ];
@@ -104,10 +103,10 @@ const Faq = () => (
 
     <style>{`
       .faq-section {
-        padding: 100px 32px;
-        background: linear-gradient(180deg, var(--gray-light) 0%, var(--white) 60%, var(--gray-light) 100%);
+        padding: clamp(64px, 11vh, 100px) 32px;
+        background: var(--gray-bg);
       }
-      .faq-inner { max-width: 1280px; margin: 0 auto; }
+      .faq-inner { max-width: 1140px; margin: 0 auto; }
       .faq-layout { display: flex; align-items: flex-start; gap: 40px; }
 
       /* ─── LISTE ─── */

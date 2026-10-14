@@ -1,5 +1,8 @@
-import { ShieldCheck, Lock, RefreshCw, CreditCard, Smartphone, Wallet, CheckCircle, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Lock, RefreshCw, CreditCard, CheckCircle, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import logoWave from '../../assets/paiement/wave.webp';
+import logoOrangeMoney from '../../assets/paiement/orange-money.webp';
+import logoFreeMoney from '../../assets/paiement/free-money.webp';
 
 const features = [
   { icon:<CheckCircle size={17}/>, title:'Acompte à la commande',   desc:"Aucune commande n'est validée sans le paiement d'un acompte, dont le vendeur fixe le pourcentage. Le solde est réglé à la livraison.", tone:'green' },
@@ -9,12 +12,16 @@ const features = [
 ];
 
 const methods = [
-  { name:'Wave',         color:'#1A73E8', Icon:Wallet     },
-  { name:'Orange Money', color:'#FF6600', Icon:Wallet     },
-  { name:'Free Money',   color:'#E30613', Icon:Wallet     },
+  { name:'Wave',         logo:logoWave        },
+  { name:'Orange Money', logo:logoOrangeMoney },
+  { name:'Free Money',   logo:logoFreeMoney   },
   { name:'Carte Visa',   color:'#0D1B3D', Icon:CreditCard },
-  { name:'Mobile Money', color:'#22C55E', Icon:Smartphone },
 ];
+
+/* Logo de l'opérateur quand on l'a, sinon une icône (carte bancaire). */
+const MethodMark = ({ m, size }) => m.logo
+  ? <img src={m.logo} alt="" width={size} height={size} className="pay-logo" loading="lazy" decoding="async" />
+  : <m.Icon size={size - 4} strokeWidth={2.2} style={{ color:m.color }} aria-hidden="true" />;
 
 const PaymentFlow = () => (
   <div className="pay-flow">
@@ -33,7 +40,7 @@ const PaymentFlow = () => (
         <motion.div key={i} className={`pf-method ${i===0?'selected':''}`}
           initial={{ opacity:0, y:8 }} whileInView={{ opacity:1, y:0 }}
           viewport={{ once:true }} transition={{ delay:i*0.08+0.2 }}>
-          <span className="pf-emoji" style={{ color:m.color }}><m.Icon size={16} strokeWidth={2.2} /></span>
+          <span className="pf-emoji" style={{ color:m.color }}><MethodMark m={m} size={22} /></span>
           <span className="pf-mname">{m.name}</span>
           {i===0 && <CheckCircle size={14} color="#22C55E" />}
         </motion.div>
@@ -80,7 +87,7 @@ const PaymentSection = ({ scrollTo }) => (
             <div className="methods-pills">
               {methods.map((m,i) => (
                 <span key={i} className="method-pill">
-                  <m.Icon size={14} strokeWidth={2.2} style={{ color:m.color }} aria-hidden="true" /> {m.name}
+                  <MethodMark m={m} size={18} /> {m.name}
                 </span>
               ))}
             </div>
@@ -119,10 +126,10 @@ const PaymentSection = ({ scrollTo }) => (
 
     <style>{`
       .payment-section {
-        padding: 100px 32px;
-        background: linear-gradient(180deg, var(--gray-light) 0%, var(--white) 55%, var(--gray-light) 100%);
+        padding: clamp(64px, 11vh, 100px) 32px;
+        background: var(--white);
       }
-      .payment-inner { max-width: 1280px; margin: 0 auto; }
+      .payment-inner { max-width: 1140px; margin: 0 auto; }
       .payment-layout { display: flex; align-items: flex-start; gap: 64px; margin-bottom: 56px; }
       .payment-features { flex: 1 1 560px; min-width: 0; }
 
@@ -201,14 +208,19 @@ const PaymentSection = ({ scrollTo }) => (
         transition: all 0.2s;
       }
       .pf-method.selected { border-color: var(--emerald); background: #F0FDF4; }
-      .pf-emoji { display: inline-flex; align-items: center; }
+      .pf-emoji { display: inline-flex; align-items: center; justify-content: center; width: 22px; }
+      .pay-logo {
+        display: block; flex-shrink: 0;
+        border-radius: 6px; border: 1px solid var(--gray);
+        object-fit: cover;
+      }
       .pf-mname { flex: 1; }
       .pf-confirm {
-        background: linear-gradient(135deg, var(--emerald), var(--emerald-ink));
+        background: var(--emerald-ink);
         color: var(--white); border-radius: 12px; padding: 14px;
         text-align: center; font-size: 14px; font-weight: 700;
         display: flex; align-items: center; justify-content: center; gap: 8px;
-        margin-bottom: 10px; box-shadow: 0 6px 20px rgba(34,197,94,0.32);
+        margin-bottom: 10px;
       }
       .pf-note {
         display: flex; align-items: center; gap: 6px;
@@ -222,8 +234,8 @@ const PaymentSection = ({ scrollTo }) => (
 
       /* ─── BANDEAU ─── */
       .payment-banner {
-        background: linear-gradient(145deg, #060F26, #0D1B3D);
-        border-radius: 24px; padding: 30px 34px;
+        background: #0D1B3D;
+        border-radius: 16px; padding: 30px 34px;
         display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
       }
       .pb-ico {

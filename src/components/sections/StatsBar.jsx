@@ -1,6 +1,6 @@
 import {
   Store, Package, ShoppingCart, Star, Lock, MessageCircle, Rocket, Smartphone,
-  Wallet, Target, BarChart3, CreditCard, Bell, RefreshCw, Globe, Handshake,
+  Wallet, Target, BarChart3, Bell, RefreshCw, Globe, Handshake,
   Link2, Monitor,
 } from 'lucide-react';
 
@@ -17,7 +17,6 @@ const kpis = [
   { Icon: Wallet,        value: '0 XOF',   label: 'Inscription gratuite' },
   { Icon: Target,        value: '128',     label: 'Notifs par promo'     },
   { Icon: BarChart3,     value: 'Live',    label: 'Dashboard temps réel' },
-  { Icon: CreditCard,    value: 'QR Card', label: 'Carte professionnelle'},
   { Icon: Bell,          value: 'Push',    label: 'Notifications client' },
   { Icon: RefreshCw,     value: '48h',     label: 'Délai remboursement'  },
   { Icon: Link2,         value: 'Lien',    label: 'Boutique web à partager' },
@@ -57,22 +56,21 @@ const StatsBar = () => (
 
     <style>{`
       .statsbar-section {
-        background: linear-gradient(135deg, #060F26 0%, #0D1B3D 60%, #0A1530 100%);
+        background: #0D1B3D;
         padding: 20px 0; overflow: hidden; position: relative;
       }
       .statsbar-section::before,
       .statsbar-section::after {
-        content: '';
-        position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2;
+        display: none;
         pointer-events: none;
       }
       .statsbar-section::before {
         left: 0;
-        background: linear-gradient(90deg, #060F26, transparent);
+        background: none;
       }
       .statsbar-section::after {
         right: 0;
-        background: linear-gradient(-90deg, #060F26, transparent);
+        background: none;
       }
 
       .marquee-row {
@@ -97,7 +95,7 @@ const StatsBar = () => (
       }
       .kpi-icon  { display: inline-flex; align-items: center; color: #F2B705; }
       .kpi-text  { display: flex; flex-direction: column; line-height: 1.2; }
-      .kpi-val   { font-size: 14px; font-weight: 900; color: #F2B705; }
+      .kpi-val   { font-size: 14px; font-weight: 700; color: #F2B705; }
       .kpi-lbl   { font-size: 11px; color: rgba(255,255,255,0.60); font-weight: 500; }
 
       .kpi-sep {

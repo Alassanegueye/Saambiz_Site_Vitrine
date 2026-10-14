@@ -51,16 +51,16 @@
   /* Ombres */
   --shadow-xs: 0 1px 4px rgba(13, 27, 61, 0.07);
   --shadow-sm: 0 2px 10px rgba(13, 27, 61, 0.10);
-  --shadow-md: 0 4px 24px rgba(13, 27, 61, 0.13);
-  --shadow-lg: 0 8px 40px rgba(13, 27, 61, 0.16);
-  --shadow-xl: 0 16px 56px rgba(13, 27, 61, 0.20);
+  --shadow-md: 0 2px 8px rgba(13, 27, 61, 0.08);
+  --shadow-lg: 0 4px 16px rgba(13, 27, 61, 0.10);
+  --shadow-xl: 0 8px 24px rgba(13, 27, 61, 0.12);
 
   /* Rayons */
   --radius-xs:   6px;
   --radius-sm:   10px;
-  --radius-md:   16px;
-  --radius-lg:   22px;
-  --radius-xl:   30px;
+  --radius-md:   12px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
   --radius-full: 999px;
 
   /* Hauteur de la navbar — sert au décalage des ancres */
@@ -127,26 +127,26 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
 .section-header { text-align: center; margin-bottom: 44px; }
 .section-badge {
   display: inline-flex; align-items: center; gap: 7px;
-  padding: 5px 13px; border-radius: 999px;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.6px; text-transform: uppercase;
-  margin-bottom: 16px;
-  border: 1px solid transparent;
+  padding: 0; border-radius: 0;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0; text-transform: none;
+  margin-bottom: 14px;
+  border: none; background: none !important;
 }
 .section-badge svg { flex-shrink: 0; }
-.section-badge.navy   { background: var(--navy-light);  color: var(--navy);        border-color: rgba(13,27,61,0.10); }
-.section-badge.gold   { background: var(--gold-light);  color: var(--gold-ink);    border-color: rgba(242,183,5,0.35); }
-.section-badge.emerald{ background: var(--emerald-lt);  color: var(--emerald-ink); border-color: rgba(34,197,94,0.28); }
-.section-badge.rose   { background: var(--rose-lt);     color: var(--rose-ink);    border-color: rgba(239,68,68,0.25); }
+.section-badge        { color: var(--navy-mid); }
+.section-badge.navy   { color: var(--navy-mid); }
+.section-badge.gold   { color: var(--gold-ink); }
+.section-badge.emerald{ color: var(--emerald-ink); }
+.section-badge.rose   { color: var(--rose-ink); }
 /* Variante posée sur un fond bleu marine */
 .on-dark .section-badge, .section-badge.on-dark {
-  background: rgba(242,183,5,0.16); color: var(--gold-mid);
-  border-color: rgba(242,183,5,0.28);
+  color: var(--gold-mid);
 }
 .section-title {
   font-family: var(--font-display);
-  font-size: clamp(22px, 2.3vw, 32px); font-weight: 700;
-  color: var(--text-dark); letter-spacing: -0.4px; margin-bottom: 12px;
+  font-size: clamp(24px, 2.6vw, 36px); font-weight: 600;
+  color: var(--text-dark); letter-spacing: -0.02em; margin-bottom: 12px;
   line-height: 1.2;
   text-wrap: balance;
 }
@@ -166,15 +166,15 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
    redéfinir les mêmes styles chacune de leur côté.                  */
 .panel {
   background: var(--white);
-  border: 1px solid rgba(13,27,61,0.06);
-  border-radius: 28px;
-  box-shadow: 0 24px 60px rgba(13,27,61,0.12), 0 4px 14px rgba(13,27,61,0.05);
+  border: 1px solid var(--gray);
+  border-radius: 16px;
+  box-shadow: none;
 }
 
 .rich-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
 .rich-item { display: flex; align-items: flex-start; gap: 14px; }
 .rich-ico {
-  width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; margin-top: 1px;
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; margin-top: 1px;
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--navy-light); color: var(--navy);
 }
@@ -187,20 +187,14 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
 
 .btn-navy, .btn-gold {
   display: inline-flex; align-items: center; gap: 10px;
-  border: none; padding: 13px 22px; border-radius: 12px;
-  font-size: 13.5px; font-weight: 600; cursor: pointer;
-  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+  border: none; padding: 13px 22px; border-radius: 8px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background-color 0.2s ease;
 }
-.btn-navy {
-  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
-  color: var(--white); box-shadow: 0 10px 26px rgba(13,27,61,0.28);
-}
-.btn-navy:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(13,27,61,0.36); }
-.btn-gold {
-  background: linear-gradient(135deg, var(--gold), var(--gold-mid));
-  color: var(--navy); font-weight: 800; box-shadow: 0 10px 26px rgba(242,183,5,0.38);
-}
-.btn-gold:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(242,183,5,0.48); }
+.btn-navy { background: var(--navy); color: var(--white); }
+.btn-navy:hover { background: var(--navy-mid); }
+.btn-gold { background: var(--gold); color: var(--navy); font-weight: 700; }
+.btn-gold:hover { background: var(--gold-mid); }
 
 .note-ok {
   display: flex; align-items: center; gap: 7px;
@@ -213,11 +207,11 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
   position: absolute; z-index: 3;
   display: inline-flex; align-items: center; gap: 7px;
   background: var(--white); border: 1px solid rgba(13,27,61,0.07);
-  border-radius: 12px; padding: 8px 13px;
+  border-radius: 8px; padding: 8px 12px;
   font-size: 11.5px; font-weight: 600; color: var(--text-dark);
   white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(13,27,61,0.14);
-  animation: chipIn 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
+  box-shadow: 0 2px 8px rgba(13,27,61,0.10);
+  animation: chipIn 0.5s ease both;
 }
 .float-chip svg { flex-shrink: 0; }
 @keyframes chipIn {
@@ -229,25 +223,26 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
 .glow-blob {
   position: absolute; border-radius: 50%;
   filter: blur(70px); pointer-events: none; z-index: 0;
+  display: none;
 }
 
 /* ─── SCROLL REVEAL ──────────────────────────────────────────────── */
 .sr {
-  opacity: 0; transform: translateY(40px);
+  opacity: 0; transform: translateY(16px);
   transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
               transform 0.7s cubic-bezier(0.4,0,0.2,1);
 }
 .sr.sr-in { opacity: 1; transform: translateY(0); }
 
 .sr-l {
-  opacity: 0; transform: translateX(-40px);
+  opacity: 0; transform: translateX(-16px);
   transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
               transform 0.7s cubic-bezier(0.4,0,0.2,1);
 }
 .sr-l.sr-in { opacity: 1; transform: translateX(0); }
 
 .sr-r {
-  opacity: 0; transform: translateX(40px);
+  opacity: 0; transform: translateX(16px);
   transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1),
               transform 0.7s cubic-bezier(0.4,0,0.2,1);
 }
@@ -261,59 +256,39 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
 .sr-d6 { transition-delay: 0.52s; }
 
 /* ─── NAVBAR (global) ────────────────────────────────────────────── */
-/* La barre laisse voir la page qui défile dessous : fond translucide et
-   flou, sans trait de séparation. Une bordure franche coupait l'image en
-   deux au moindre visuel clair — le dégradé de la dernière ligne suffit à
-   décoller la barre du contenu. */
+/* Barre blanche pleine. Un filet gris apparaît dès qu'on défile pour la
+   séparer du contenu ; tout en haut, elle se fond dans le hero blanc. */
 .navbar {
   position: fixed; top: 0; left: 0; width: 100%;
   z-index: 1000; padding: 14px 0;
-  background: rgba(255,255,255,0.90);
-  backdrop-filter: blur(28px) saturate(150%);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
-  border-bottom: none;
+  background: #FFFFFF;
+  border-bottom: 1px solid transparent;
 
-  /* Le bas de la barre s'éteint au lieu de s'arrêter net.
-     Sans ce masque, le fond blanc translucide ET le flou d'arrière-plan se
-     coupent sur une ligne droite : sur une page claire, cela dessine une
-     bande blanche en travers de l'écran, juste sous les boutons. Le dégradé
-     ne commence qu'à 84 % de la hauteur — la zone de marge basse, sous le
-     contenu — pour que rien de lisible ne soit atténué. */
-  -webkit-mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 84%, transparent 100%);
-
-  transition: padding 0.3s ease, background 0.3s ease, transform 0.35s ease;
+  transition: padding 0.3s ease, border-color 0.3s ease, transform 0.35s ease;
 }
 .navbar.scrolled {
   padding: 8px 0;
-  background: rgba(255,255,255,0.82);
+  background: #FFFFFF;
+  border-bottom-color: var(--gray);
 }
 .navbar.nav-hidden {
   transform: translateY(-100%);
-}
-
-/* ─── BARRE DE PROGRESSION DE LECTURE ────────────────────────────── */
-.scroll-progress {
-  position: fixed; top: 0; left: 0; height: 3px; z-index: 1001;
-  width: 100%; transform-origin: 0 50%;
-  background: var(--navy);
-  pointer-events: none;
 }
 
 /* ─── RETOUR EN HAUT ─────────────────────────────────────────────── */
 .to-top {
   position: fixed; right: 22px; bottom: 22px; z-index: 999;
   width: 46px; height: 46px; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  border: none;
+  background: var(--navy);
   color: var(--white);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 26px rgba(13,27,61,0.35);
+  box-shadow: 0 2px 8px rgba(13,27,61,0.20);
   opacity: 0; visibility: hidden; transform: translateY(14px) scale(0.9);
   transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s;
 }
 .to-top.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-.to-top:hover { transform: translateY(-3px) scale(1.05); }
+.to-top:hover { background: var(--navy-mid); }
 @media (max-width: 520px) {
   .to-top { right: 14px; bottom: 14px; width: 42px; height: 42px; }
 }
@@ -322,26 +297,20 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--gray-light); }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--navy), var(--navy-mid));
+  background: var(--gray-mid);
   border-radius: 10px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--navy-dark); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ─── SELECTION ───────────────────────────────────────────────────── */
 ::selection { background: rgba(242,183,5,0.30); color: var(--text-dark); }
 
 /* ─── FONDS DE SECTION ───────────────────────────────────────────
-   Pas de dégradé bleu → jaune : des fonds neutres (blanc / gris clair
-   de la charte), l'or reste réservé aux accents ponctuels.           */
-.grad-dark {
-  background: linear-gradient(145deg, var(--navy-deep) 0%, var(--navy-dark) 40%, var(--navy) 100%);
-}
-.grad-warm {
-  background: linear-gradient(180deg, var(--white) 0%, var(--gray-light) 100%);
-}
-.grad-cool {
-  background: linear-gradient(180deg, var(--gray-light) 0%, var(--white) 100%);
-}
+   Aplats uniquement, aucun dégradé : blanc, gris clair ou bleu marine
+   de la charte. L'or reste réservé aux accents ponctuels.            */
+.grad-dark { background: var(--navy); }
+.grad-warm { background: var(--white); }
+.grad-cool { background: var(--gray-light); }
 
 /* ─── SURVOL DÉSACTIVÉ SUR ÉCRAN TACTILE ──────────────────────────── */
 @media (hover: none) {

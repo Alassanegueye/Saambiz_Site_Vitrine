@@ -112,18 +112,16 @@ const Pricing = ({ scrollTo }) => (
     </div>
 
     <style>{`
-      .pricing-section { padding: 90px 32px; background: var(--gray-bg); }
-      .pricing-inner { max-width: 1000px; margin: 0 auto; }
+      .pricing-section { padding: clamp(60px, 10vh, 90px) 32px; background: var(--gray-bg); }
+      .pricing-inner { max-width: 960px; margin: 0 auto; }
 
       /* ─── Le prix ─── */
       .gratuit-carte {
         max-width: 460px; margin: 0 auto 44px;
         text-align: center;
         padding: 34px 30px 30px;
-        border-radius: 24px;
-        background: linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 58%, var(--navy-dark) 100%);
-        box-shadow: 0 24px 56px rgba(13,27,61,0.28);
-        border: 1px solid rgba(242,183,5,0.30);
+        border-radius: 16px;
+        background: var(--navy);
       }
 
       .gratuit-prix { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
@@ -159,14 +157,13 @@ const Pricing = ({ scrollTo }) => (
       .plan-btn {
         display: flex; align-items: center; justify-content: center; gap: 9px;
         width: 100%;
-        border: 1.5px solid transparent; border-radius: 12px; padding: 14px 20px;
+        border: 1.5px solid transparent; border-radius: 8px; padding: 14px 20px;
         font-size: 14px; font-weight: 700; cursor: pointer;
-        background: linear-gradient(135deg, var(--gold), var(--gold-mid));
+        background: var(--gold);
         color: var(--navy);
-        box-shadow: 0 10px 26px rgba(242,183,5,0.38);
-        transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+        transition: transform 0.28s ease, box-shadow 0.28s ease;
       }
-      .plan-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(242,183,5,0.50); }
+      .plan-btn:hover { background: var(--gold-mid); }
 
       /* ─── Ce qui est inclus ─── */
       .gratuit-grille {

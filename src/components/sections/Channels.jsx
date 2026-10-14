@@ -59,7 +59,7 @@ const parcours = [
     num: '01',
     icon: <Share2 size={17} />,
     title: 'Vous partagez votre lien',
-    desc: 'Sur WhatsApp, en story Instagram, dans votre bio ou sur votre carte QR.',
+    desc: 'Sur WhatsApp, en story Instagram, dans votre bio ou sur le QR code de votre boutique.',
   },
   {
     num: '02',
@@ -197,11 +197,11 @@ const Channels = ({ scrollTo }) => (
 
     <style>{`
       .ch-section {
-        padding: 100px 32px;
+        padding: clamp(64px, 11vh, 100px) 32px;
         background: var(--white);
         position: relative; overflow: hidden;
       }
-      .ch-inner { max-width: 1280px; margin: 0 auto; position: relative; z-index: 1; }
+      .ch-inner { max-width: 1140px; margin: 0 auto; position: relative; z-index: 1; }
 
       /* ─── LE LIEN ─── */
       .ch-link {
@@ -209,8 +209,7 @@ const Channels = ({ scrollTo }) => (
         flex-wrap: wrap; gap: 22px;
         margin-bottom: 44px; padding: 22px 26px;
         border-radius: var(--radius-lg);
-        background: linear-gradient(140deg, #060F26 0%, #0D1B3D 60%, #0A1530 100%);
-        box-shadow: 0 18px 44px rgba(13,27,61,0.24);
+        background: #0D1B3D;
       }
       .ch-link-head { display: flex; align-items: center; gap: 14px; min-width: 0; }
       .ch-link-ico {
@@ -263,7 +262,7 @@ const Channels = ({ scrollTo }) => (
       .ch-row-label.client .ch-row-tag {
         background: var(--gold-light); color: var(--gold-ink); border-color: rgba(242,183,5,0.32);
       }
-      .ch-row-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(13,27,61,0.16), transparent); }
+      .ch-row-line { flex: 1; height: 1px; background: var(--gray); }
 
       .ch-grid {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -278,18 +277,17 @@ const Channels = ({ scrollTo }) => (
         transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
       }
       .ch-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--shadow-sm);
         border-color: rgba(13,27,61,0.14);
       }
       /* La boutique web est la nouveauté : c'est elle qu'on doit regarder en premier. */
       .ch-card.is-highlight {
         border-color: rgba(242,183,5,0.42);
-        background: linear-gradient(180deg, var(--gold-ultra) 0%, var(--white) 46%);
+        background: var(--gold-ultra);
       }
       .ch-card.is-highlight::before {
         content: ''; position: absolute; inset: 0 0 auto 0; height: 3px;
-        background: linear-gradient(90deg, var(--gold), var(--gold-mid));
+        background: var(--gold);
       }
 
       .ch-card-head { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }

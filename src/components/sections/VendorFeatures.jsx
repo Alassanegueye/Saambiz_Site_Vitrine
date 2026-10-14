@@ -3,12 +3,13 @@ import {
   Store, Package, BarChart2, Bell, CreditCard, CheckCircle2, ArrowRight,
   TrendingUp, Tag, Share2, Eye, Edit3, Truck, Clock, Star, Megaphone, Users, Heart
 } from 'lucide-react';
-import screenBoutique from '../../assets/screens/screen-boutique.jpg';
-import screenVentes from '../../assets/screens/screen-ventes.jpg';
-import screenDashboard from '../../assets/screens/screen-dashboard.jpg';
-import screenPublicites from '../../assets/screens/screen-publicites.jpg';
-// Ces quatre visuels sont aplatis sur blanc (la couleur de la carte) et le halo
-// coloré y est intégré : si le fond de la carte change, il faut les régénérer.
+import vendeurBoutique from '../../assets/screens/vendeur-boutique.webp';
+import vendeurCommandes from '../../assets/screens/vendeur-commandes.webp';
+import vendeurDashboard from '../../assets/screens/vendeur-dashboard.webp';
+import vendeurPromotions from '../../assets/screens/vendeur-promotions.webp';
+// Les visuels vendeur-*.webp sont des compositions complètes (téléphone et
+// cartes flottantes déjà dessinées), recadrées en 1200 × 1500 sur fond blanc
+// pur — la couleur de la carte.
 
 const tabs = [
   { id: 'shop',  icon: <Store size={16} />,     label: 'Votre boutique'     },
@@ -17,14 +18,18 @@ const tabs = [
   { id: 'promo', icon: <Tag size={16} />,       label: 'Promotions'         },
 ];
 
-/* Les quatre visuels sont mis à la même échelle et recalés sur un châssis
-   commun (520 × 1095 à la même position) : ils se superposent, si bien qu'au
-   changement d'onglet le téléphone ne bouge pas — seule la page change. */
+/* « composed » : l'image contient déjà ses cartes flottantes (note, avis,
+   clients…). Les cartes HTML ne s'affichent alors pas, pour ne pas faire
+   doublon. Les quatre onglets sont aujourd'hui des compositions complètes. */
 const screens = [
-  { id: 'shop',  src: screenBoutique,   alt: "Écran « Votre boutique » de l'application SaamBiz" },
-  { id: 'sales', src: screenVentes,     alt: "Écran « Gestion des ventes » de l'application SaamBiz" },
-  { id: 'dash',  src: screenDashboard,  alt: "Écran « Dashboard » de l'application SaamBiz" },
-  { id: 'promo', src: screenPublicites, alt: "Écran « Promotions & publicités » de l'application SaamBiz" },
+  { id: 'shop',  src: vendeurBoutique,  w: 1200, h: 1500, composed: true,
+    alt: "L'écran « Ma boutique » de l'application SaamBiz : produits publiés, statistiques de la semaine et commandes récentes." },
+  { id: 'sales', src: vendeurCommandes, w: 1200, h: 1500, composed: true,
+    alt: "L'écran « Commandes » de l'application SaamBiz : liste des commandes par statut et suivi d'une livraison à Dakar." },
+  { id: 'dash',  src: vendeurDashboard, w: 1200, h: 1500, composed: true,
+    alt: "Le tableau de bord de l'application SaamBiz : ventes de la semaine, produits populaires et dernières commandes." },
+  { id: 'promo', src: vendeurPromotions, w: 1200, h: 1500, composed: true,
+    alt: "L'écran « Promotions & Publicités » de l'application SaamBiz : campagnes actives, vues, clics et ventes générées." },
 ];
 
 const content = {
@@ -109,7 +114,7 @@ const CurveArrow = () => (
    éléments graphiques, eux, flottent autour du téléphone : la carte de
    statistique et la pastille suivent l'onglet, la preuve sociale reste. */
 const PhoneDevice = ({ active, stat, chip }) => (
-  <div className="device">
+  <div className={`device ${screens.find(s => s.id === active)?.composed ? 'is-composed' : ''}`}>
     {screens.map(s => (
       <img
         key={s.id}
@@ -117,8 +122,8 @@ const PhoneDevice = ({ active, stat, chip }) => (
         alt={s.alt}
         className={`device-shot ${s.id === active ? 'is-active' : ''}`}
         aria-hidden={s.id !== active}
-        width="940"
-        height="1330"
+        width={s.w}
+        height={s.h}
         loading="lazy"
         decoding="async"
       />
@@ -298,8 +303,8 @@ const VendorFeatures = ({ scrollTo }) => {
 
         /* BANDEAU BLEU MARINE */
         .vf-top-band {
-          background: linear-gradient(145deg, #060F26 0%, #0D1B3D 60%, #0A1530 100%);
-          padding: 72px 32px 96px;
+          background: #0D1B3D;
+          padding: clamp(48px, 8vh, 72px) 32px clamp(80px, 11vh, 96px);
           position: relative; overflow: hidden;
         }
         .vf-top-inner {
@@ -309,30 +314,28 @@ const VendorFeatures = ({ scrollTo }) => {
         .vf-title { color: white !important; }
         .vf-sub   { color: rgba(255,255,255,0.65) !important; }
         .vf-top-band .section-badge.navy {
-          background: rgba(242,183,5,0.20);
           color: #FFC93C;
-          border: 1px solid rgba(242,183,5,0.25);
         }
 
         /* CARTE BLANCHE — elle chevauche le bandeau bleu */
-        .vf-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px 80px; }
+        .vf-inner { max-width: 1280px; margin: 0 auto; padding: 0 32px clamp(56px, 9vh, 80px); }
         .vf-card {
           margin-top: -56px; position: relative; z-index: 2;
           background: var(--white);
           border: 1px solid rgba(13,27,61,0.06);
-          border-radius: 28px;
+          border-radius: 16px;
           padding: 28px 40px 44px;
-          box-shadow: 0 24px 60px rgba(13,27,61,0.14), 0 4px 14px rgba(13,27,61,0.06);
+          box-shadow: 0 1px 3px rgba(13,27,61,0.06);
         }
 
         /* ONGLETS */
         .vf-tabs {
           display: flex; flex-wrap: wrap; gap: 8px;
-          justify-content: center; padding: 4px 0 40px;
+          justify-content: center; padding: 4px 0 clamp(20px, 4vh, 40px);
         }
         .vtab {
           display: flex; align-items: center; gap: 7px;
-          padding: 10px 20px; border-radius: 999px;
+          padding: 9px 16px; border-radius: 8px;
           border: 1.5px solid var(--gray); background: white;
           font-size: 13.5px; font-weight: 600; color: #5B6C8A;
           cursor: pointer; transition: all 0.25s ease;
@@ -340,9 +343,8 @@ const VendorFeatures = ({ scrollTo }) => {
         .vtab span { display: inline-flex; align-items: center; }
         .vtab:hover { border-color: #0D1B3D; color: #0D1B3D; background: #E8EDF7; }
         .vtab.active {
-          background: linear-gradient(135deg, #0D1B3D, #1E3A78);
-          color: white; border-color: transparent;
-          box-shadow: 0 4px 18px rgba(13,27,61,0.30);
+          background: #0D1B3D;
+          color: white; border-color: #0D1B3D;
         }
 
         /* CONTENU */
@@ -351,11 +353,9 @@ const VendorFeatures = ({ scrollTo }) => {
 
         .vf-chip {
           display: inline-flex; align-items: center; gap: 7px;
-          background: var(--gold-light); color: var(--gold-ink);
-          border: 1px solid rgba(242,183,5,0.35);
-          padding: 6px 14px; border-radius: 999px;
-          font-size: 11px; font-weight: 800;
-          letter-spacing: 0.6px; text-transform: uppercase;
+          color: var(--gold-ink);
+          padding: 0;
+          font-size: 13px; font-weight: 600;
           margin-bottom: 18px;
         }
         .vf-chip span { display: inline-flex; align-items: center; }
@@ -371,7 +371,7 @@ const VendorFeatures = ({ scrollTo }) => {
         .feat-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px; }
         .feat-list-item { display: flex; align-items: flex-start; gap: 14px; }
         .feat-icon-wrap {
-          width: 36px; height: 36px; border-radius: 11px;
+          width: 36px; height: 36px; border-radius: 8px;
           background: var(--navy-light); color: var(--navy);
           display: inline-flex; align-items: center; justify-content: center;
           flex-shrink: 0; margin-top: 1px;
@@ -382,14 +382,14 @@ const VendorFeatures = ({ scrollTo }) => {
 
         .vf-cta {
           display: inline-flex; align-items: center; gap: 10px;
-          background: linear-gradient(135deg, #0D1B3D, #1E3A78);
+          background: #0D1B3D;
           color: white; border: none;
-          padding: 15px 26px; border-radius: 14px;
+          padding: 14px 22px; border-radius: 8px;
           font-size: 14.5px; font-weight: 700; cursor: pointer;
-          box-shadow: 0 10px 26px rgba(13,27,61,0.28);
-          transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+          box-shadow: none;
+          transition: transform 0.28s ease, box-shadow 0.28s ease;
         }
-        .vf-cta:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(13,27,61,0.36); }
+        .vf-cta:hover { background: #1E3A78; }
         .vf-note {
           display: flex; align-items: center; gap: 7px;
           margin-top: 12px; font-size: 12.5px; font-weight: 600;
@@ -400,10 +400,20 @@ const VendorFeatures = ({ scrollTo }) => {
         .vf-visual { flex: 1 1 420px; display: flex; justify-content: center; min-width: 0; }
         .device {
           position: relative;
-          width: 100%; max-width: 470px;
-          aspect-ratio: 940 / 1330;
-          animation: deviceFloat 6.5s ease-in-out infinite;
+          width: 100%; max-width: 540px;
+          aspect-ratio: 4 / 5;
         }
+        /* Composition complète : ses cartes sont dans l'image. */
+        .device.is-composed .fl-card,
+        .device.is-composed .fl-pill,
+        .device.is-composed .fl-rating { display: none; }
+        /* Écran Promotions (ancienne capture, plus étroite que le cadre 4:5) :
+           les cartes restent dans le cadre au lieu de déborder de la carte. */
+        .device:not(.is-composed) .fl-stat   { left: 2%; }
+        .device:not(.is-composed) .fl-rating { left: 2%; }
+        .device:not(.is-composed) .fl-people { right: 0; }
+        .device:not(.is-composed) .fl-pill   { right: 0; }
+        .device:not(.is-composed) .fl-quote  { right: 0; width: 230px; }
         @keyframes deviceFloat {
           0%, 100% { transform: translateY(0); }
           50%      { transform: translateY(-12px); }
@@ -421,10 +431,10 @@ const VendorFeatures = ({ scrollTo }) => {
           position: absolute; z-index: 3;
           background: var(--white);
           border: 1px solid rgba(13,27,61,0.07);
-          box-shadow: 0 12px 30px rgba(13,27,61,0.15);
-          animation: chipIn 0.55s cubic-bezier(0.34,1.4,0.64,1) both;
+          box-shadow: 0 2px 10px rgba(13,27,61,0.10);
+          animation: chipIn 0.55s ease both;
         }
-        .fl-card { border-radius: 16px; padding: 12px 14px; }
+        .fl-card { border-radius: 10px; padding: 12px 14px; }
         @keyframes chipIn {
           from { opacity: 0; transform: translateY(12px) scale(0.94); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -513,6 +523,7 @@ const VendorFeatures = ({ scrollTo }) => {
 
         /* Flèche décorative */
         .device-arrow {
+          display: none;
           position: absolute; z-index: 2; pointer-events: none;
           width: 74px; height: 88px;
           bottom: 27%; left: -4%;
@@ -522,7 +533,7 @@ const VendorFeatures = ({ scrollTo }) => {
 
         @media (max-width: 1050px) {
           .vf-content { gap: 32px; }
-          .device { max-width: 400px; }
+          .device { max-width: 460px; }
           .fl-quote { width: 216px; right: -20%; }
           .fl-stat, .fl-rating { left: -20%; }
           .fl-people, .fl-pill { right: -20%; }
@@ -537,7 +548,11 @@ const VendorFeatures = ({ scrollTo }) => {
         }
         @media (max-width: 600px) {
           .vtab { font-size: 12.5px; padding: 9px 14px; }
-          .device { max-width: 320px; }
+          /* La composition déborde sur les marges de la carte : le
+             téléphone gagne en taille, toujours centré. */
+          .vf-visual { margin: -12px -20px 0; width: calc(100% + 40px); }
+          .vf-card { padding-bottom: 20px; }
+          .device { max-width: 100%; }
           /* Trop etroit pour faire flotter les cartes : on n'en garde que deux. */
           .fl-people, .fl-quote, .device-arrow { display: none; }
           .fl-stat  { left: -6%; top: 1%; }

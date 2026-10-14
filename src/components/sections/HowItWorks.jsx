@@ -11,7 +11,7 @@ const vendorSteps = [
    chacun est écrit à la deuxième personne, pour son lecteur. */
 const clientSteps = [
   { num:'01', icon:<Download size={20}/>,    title:"Ouvrez un lien ou l'application", desc:"Le lien d'une boutique s'ouvre dans votre navigateur, sans rien installer. L'application, elle, est gratuite sur App Store et Google Play." },
-  { num:'02', icon:<Search size={20}/>,      title:'Explorez les boutiques',    desc:"Parcourez les catégories de votre ville, ou ouvrez directement le lien ou la carte QR d'une boutique." },
+  { num:'02', icon:<Search size={20}/>,      title:'Explorez les boutiques',    desc:"Parcourez les catégories de votre ville, ou ouvrez directement le lien ou le QR code d'une boutique." },
   { num:'03', icon:<Bell size={20}/>,        title:'Abonnez-vous aux boutiques', desc:"Dans l'application, suivez plusieurs boutiques à la fois et activez la cloche pour être prévenu de leurs nouveautés." },
   { num:'04', icon:<ShieldCheck size={20}/>, title:'Commandez en confiance',    desc:"Réglez l'acompte en ligne pour confirmer votre commande. En cas de litige, le remboursement vous couvre." },
 ];
@@ -70,10 +70,10 @@ const HowItWorks = () => (
 
     <style>{`
       .hiw-section {
-        padding: 100px 32px;
-        background: linear-gradient(180deg, #FFFFFF 0%, #EDF1F9 50%, #FFFFFF 100%);
+        padding: clamp(64px, 11vh, 100px) 32px;
+        background: var(--white);
       }
-      .hiw-inner { max-width: 1280px; margin: 0 auto; }
+      .hiw-inner { max-width: 1140px; margin: 0 auto; }
       .hiw-block { margin-bottom: 16px; }
       .hiw-block-header {
         display: flex; align-items: center; gap: 14px; margin-bottom: 26px;
@@ -86,7 +86,7 @@ const HowItWorks = () => (
       }
       .vendor-tag { background: var(--navy-light); color: var(--navy); border-color: rgba(13,27,61,0.10); }
       .client-tag { background: var(--gold-light); color: var(--gold-ink); border-color: rgba(242,183,5,0.32); }
-      .hiw-tag-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(13,27,61,0.16), transparent); }
+      .hiw-tag-line { flex: 1; height: 1px; background: var(--gray); }
       .hiw-tag-count {
         font-size: 12px; font-weight: 700; color: var(--text-muted);
         flex-shrink: 0;
@@ -99,9 +99,8 @@ const HowItWorks = () => (
       /* Fil pointillé qui relie les étapes, derrière les cartes. */
       .steps-grid::before {
         content: '';
-        position: absolute; top: 62px; left: 60px; right: 60px; height: 2px;
-        background-image: linear-gradient(90deg, rgba(13,27,61,0.22) 0 8px, transparent 8px 16px);
-        background-size: 16px 2px;
+        position: absolute; top: 62px; left: 60px; right: 60px; height: 0;
+        border-top: 1px dashed rgba(13,27,61,0.22);
         z-index: 0;
       }
 

@@ -32,7 +32,6 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
     { label: 'Vendeurs',        id: 'vendor'   },
     { label: 'Boutique web',    id: 'channels' },
     { label: 'Clients',         id: 'client'   },
-    { label: 'Carte QR',        id: 'qrcard'   },
     { label: 'Tarifs',          id: 'pricing'  },
     { label: 'FAQ',             id: 'faq'      },
   ];
@@ -183,28 +182,26 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
         .nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .nav-login {
           display: inline-flex; align-items: center; gap: 7px;
-          padding: 10px 16px; border-radius: 12px;
+          padding: 10px 16px; border-radius: 8px;
           border: 1.5px solid rgba(13,27,61,0.14);
           /* Translucide comme la barre : un aplat blanc dessinait un rectangle
              visible dès que le fond laissait passer la page. */
-          background: rgba(255,255,255,0.55);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
+          background: #FFFFFF;
           color: #0D1B3D;
           font-size: 14px; font-weight: 600; white-space: nowrap;
           transition: border-color 0.2s ease, background 0.2s ease, transform 0.25s ease;
         }
-        .nav-login:hover { border-color: #0D1B3D; background: #E8EDF7; transform: translateY(-2px); }
+        .nav-login:hover { border-color: #0D1B3D; }
         .nav-cta {
           display: inline-flex; align-items: center; gap: 8px;
-          background: linear-gradient(135deg, #0D1B3D, #1E3A78);
+          background: #0D1B3D;
           color: white; border: none; padding: 11px 20px;
-          border-radius: 12px; font-size: 14px; font-weight: 600;
+          border-radius: 8px; font-size: 14px; font-weight: 600;
           cursor: pointer; flex-shrink: 0; white-space: nowrap;
-          box-shadow: 0 4px 18px rgba(13,27,61,0.28);
-          transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+          box-shadow: none;
+          transition: transform 0.28s ease, box-shadow 0.28s ease;
         }
-        .nav-cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 26px rgba(13,27,61,0.38); }
+        .nav-cta:hover { background: #1E3A78; }
         .nav-burger {
           display: none; background: none; border: none;
           color: #2C3E63; padding: 8px; border-radius: 10px; margin-left: auto;
@@ -246,10 +243,10 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
         .mobile-cta {
           margin-top: 8px;
           display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-          background: linear-gradient(135deg, #0D1B3D, #1E3A78);
+          background: #0D1B3D;
           color: white; border: none; padding: 14px 22px;
           border-radius: 12px; font-size: 15px; font-weight: 700;
-          cursor: pointer; box-shadow: 0 4px 18px rgba(13,27,61,0.28);
+          cursor: pointer; box-shadow: none;
         }
 
         .nav-scrim {

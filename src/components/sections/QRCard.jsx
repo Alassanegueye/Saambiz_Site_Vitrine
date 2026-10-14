@@ -96,7 +96,7 @@ const QRCard = ({ scrollTo }) => (
       .qrcard-section {
         padding: 100px 32px;
         position: relative; overflow: hidden;
-        background: linear-gradient(160deg, #060F26 0%, #0D1B3D 55%, #0A1530 100%);
+        background: #0D1B3D;
       }
       .qrcard-inner {
         max-width: 1280px; margin: 0 auto;
@@ -109,7 +109,7 @@ const QRCard = ({ scrollTo }) => (
       .qrcard-visual-wrap { position: relative; width: 100%; max-width: 460px; }
       .qr-glow {
         position: absolute; width: 380px; height: 380px;
-        background: radial-gradient(circle, rgba(242,183,5,0.28) 0%, transparent 70%);
+        display: none;
         border-radius: 50%; top: 50%; left: 50%;
         transform: translate(-50%,-50%); z-index: 0; pointer-events: none;
       }
@@ -117,23 +117,22 @@ const QRCard = ({ scrollTo }) => (
         position: relative; z-index: 1;
         width: 100%; height: auto;
         border-radius: 18px;
-        box-shadow: 0 34px 70px rgba(0,0,0,0.48);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.30);
       }
       /* Bandeau « bientôt » posé en travers de la carte : impossible de croire
          qu'elle est déjà commandable. */
       .qr-soon-tape {
         position: absolute; z-index: 2; top: 6px; right: -12px;
         display: inline-flex; align-items: center; gap: 7px;
-        background: linear-gradient(135deg, var(--gold), var(--gold-mid));
+        background: var(--gold);
         color: var(--navy); border-radius: 8px; padding: 7px 14px;
         font-size: 11.5px; font-weight: 800; letter-spacing: 0.3px;
         transform: rotate(6deg);
-        box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+        box-shadow: none;
       }
       .qr-badges { display: flex; flex-wrap: wrap; gap: 8px; }
       .section-badge.soon {
-        background: rgba(242,183,5,0.16); color: var(--gold-mid);
-        border-color: rgba(242,183,5,0.32);
+        color: var(--gold-mid);
       }
       .qr-soon-line { display: block; color: var(--gold-mid); font-weight: 600; margin-bottom: 6px; }
 
