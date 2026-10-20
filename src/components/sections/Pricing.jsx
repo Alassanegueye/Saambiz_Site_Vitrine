@@ -1,56 +1,17 @@
-import { Check, Sparkles, ArrowRight, Store, Globe, BellRing, BarChart3, Users, Percent } from 'lucide-react';
+import { Check, Sparkles, ArrowRight } from 'lucide-react';
 
 /* ─── Ouvrir sa boutique ne coûte rien ────────────────────────────────
    Pas de grille à deux colonnes, pas d'offre bridée en face d'une offre
    complète : un commerçant qui compare deux colonnes se demande ce qui lui
-   manque, et referme la page.
+   manque, et referme la page. Tout est clair et accessible dès le premier jour. */
 
-   Tout est écrit au PRÉSENT, et rien n'engage l'avenir — ni « pour
-   toujours », ni « sans limite de durée », ni « ce n'est pas une version
-   d'essai ». Ce qui est vrai aujourd'hui se dit ; ce qui pourrait changer
-   ne se promet pas. */
-
-const inclus = [
-  {
-    Icon: Store,
-    titre: 'Votre boutique, sans limite',
-    texte: 'Autant de produits, de photos et de commandes que vous voulez. Aucun compteur, aucun palier.',
-  },
-  {
-    Icon: Globe,
-    titre: 'Votre site web',
-    texte: 'Une adresse à vous, composée à partir de votre logo. Vos clients y commandent sans rien installer.',
-  },
-  {
-    Icon: BellRing,
-    titre: 'Vos notifications',
-    texte: 'Prévenez tous vos abonnés à chaque arrivage ou promotion, autant de fois que nécessaire.',
-  },
-  {
-    Icon: BarChart3,
-    titre: 'Vos statistiques',
-    texte: 'Ce qui se vend, ce qui stagne, qui revient acheter. Sur votre téléphone et sur votre ordinateur.',
-  },
-  {
-    Icon: Percent,
-    titre: 'Vos promotions',
-    texte: 'Prix barrés, codes promo, mises en avant. Sans quota mensuel.',
-  },
-  {
-    Icon: Users,
-    titre: 'Vos clients vous appartiennent',
-    texte: 'Leurs coordonnées sont les vôtres. Exportez-les quand vous voulez, partez avec si vous partez.',
-  },
-];
-
-/* Ce que « gratuit » veut dire ici — parce que le mot a été trop utilisé.
-   Quatre affirmations vérifiables sur le produit tel qu'il est, aucune sur
-   ce qu'il sera. */
 const engagements = [
   'Aucune commission sur vos ventes',
   'Aucune carte bancaire demandée',
-  'Toutes les fonctionnalités ouvertes',
-  'Sans engagement',
+  'Boutique web & application incluses',
+  'Produits et commandes illimités',
+  'Notifications push à vos abonnés',
+  'Sans aucun engagement',
 ];
 
 const Pricing = ({ scrollTo }) => (
@@ -71,8 +32,7 @@ const Pricing = ({ scrollTo }) => (
         </p>
       </div>
 
-      {/* Le prix, en un seul chiffre. Une grille à deux colonnes ferait
-          chercher ce qui manque ; il n'y a rien à chercher. */}
+      {/* Le prix, en un seul chiffre clair et direct */}
       <div className="gratuit-carte sr">
         <div className="gratuit-prix">
           <strong>0</strong>
@@ -96,19 +56,6 @@ const Pricing = ({ scrollTo }) => (
           <ArrowRight size={15} strokeWidth={2.5} aria-hidden="true" />
         </button>
       </div>
-
-      <div className="gratuit-grille">
-        {inclus.map(({ Icon, titre, texte }, i) => (
-          <article key={titre} className={`gratuit-item sr sr-d${(i % 3) + 1}`}>
-            <span className="gratuit-icone" aria-hidden="true">
-              <Icon size={18} strokeWidth={2.1} />
-            </span>
-            <h3>{titre}</h3>
-            <p>{texte}</p>
-          </article>
-        ))}
-      </div>
-
     </div>
 
     <style>{`
@@ -117,11 +64,12 @@ const Pricing = ({ scrollTo }) => (
 
       /* ─── Le prix ─── */
       .gratuit-carte {
-        max-width: 460px; margin: 0 auto 44px;
+        max-width: 480px; margin: 0 auto;
         text-align: center;
-        padding: 34px 30px 30px;
-        border-radius: 16px;
+        padding: 36px 32px 32px;
+        border-radius: 18px;
         background: var(--navy);
+        box-shadow: 0 16px 40px rgba(13,27,61,0.14);
       }
 
       .gratuit-prix { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
@@ -139,13 +87,13 @@ const Pricing = ({ scrollTo }) => (
       .gratuit-engagements {
         list-style: none;
         display: grid; grid-template-columns: 1fr 1fr;
-        gap: 10px 14px;
-        margin: 24px 0 24px;
+        gap: 12px 16px;
+        margin: 28px 0 28px;
         text-align: left;
       }
       .gratuit-engagements li {
         display: flex; align-items: flex-start; gap: 9px;
-        font-size: 12.8px; font-weight: 500; line-height: 1.4;
+        font-size: 13px; font-weight: 500; line-height: 1.4;
         color: rgba(255,255,255,0.92);
       }
       .gratuit-mark {
@@ -158,52 +106,21 @@ const Pricing = ({ scrollTo }) => (
         display: flex; align-items: center; justify-content: center; gap: 9px;
         width: 100%;
         border: 1.5px solid transparent; border-radius: 8px; padding: 14px 20px;
-        font-size: 14px; font-weight: 700; cursor: pointer;
+        font-size: 14.5px; font-weight: 700; cursor: pointer;
         background: var(--gold);
         color: var(--navy);
         transition: transform 0.28s ease, box-shadow 0.28s ease;
       }
       .plan-btn:hover { background: var(--gold-mid); }
 
-      /* ─── Ce qui est inclus ─── */
-      .gratuit-grille {
-        display: grid; grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-      }
-      .gratuit-item {
-        background: var(--white);
-        border: 1px solid rgba(13,27,61,0.08);
-        border-radius: 18px; padding: 24px 22px;
-        box-shadow: var(--shadow-xs);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      .gratuit-item:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(13,27,61,0.10); }
-
-      .gratuit-icone {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 40px; height: 40px; border-radius: 12px;
-        background: var(--gold-light); color: var(--gold-ink);
-        margin-bottom: 14px;
-      }
-      .gratuit-item h3 {
-        font-size: 15.5px; font-weight: 700; color: var(--text-dark);
-        margin-bottom: 7px; line-height: 1.35;
-      }
-      .gratuit-item p {
-        font-size: 13.2px; line-height: 1.62; color: var(--text-light);
-        text-wrap: pretty;
-      }
-
       @media (max-width: 820px) {
         .pricing-section { padding: 70px 20px; }
-        .gratuit-grille { grid-template-columns: 1fr 1fr; }
       }
       @media (max-width: 560px) {
         .pricing-section { padding: 60px 16px; }
         .gratuit-carte { padding: 28px 22px 24px; border-radius: 20px; }
         .gratuit-prix strong { font-size: 56px; }
         .gratuit-engagements { grid-template-columns: 1fr; }
-        .gratuit-grille { grid-template-columns: 1fr; }
       }
     `}</style>
   </section>

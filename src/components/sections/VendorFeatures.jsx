@@ -220,7 +220,7 @@ const VendorFeatures = ({ scrollTo }) => {
   };
 
   return (
-    <section id="vendor" className="vf-section">
+    <section id="features" className="vf-section">
       {/* Bandeau bleu marine */}
       <div className="vf-top-band">
         <div className="vf-top-inner sr">

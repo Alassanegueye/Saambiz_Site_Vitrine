@@ -7,15 +7,13 @@ import Footer from '../components/layout/Footer';
 import Hero from '../components/sections/Hero';
 import VendorFeatures from '../components/sections/VendorFeatures';
 import Channels from '../components/sections/Channels';
-import HowItWorks from '../components/sections/HowItWorks';
-import ClientFeatures from '../components/sections/ClientFeatures';
 import PaymentSection from '../components/sections/PaymentSection';
 import Pricing from '../components/sections/Pricing';
 import Faq from '../components/sections/Faq';
 import DownloadCta from '../components/sections/DownloadCta';
 
 /* Sections suivies par la navigation (ordre d'apparition dans la page) */
-const SECTION_IDS = ['hero', 'vendor', 'channels', 'features', 'client', 'payment', 'pricing', 'faq', 'download'];
+const SECTION_IDS = ['hero', 'features', 'channels', 'payment', 'pricing', 'faq', 'download'];
 
 /* Page d'accueil de SaamBiz — la présentation de la marketplace.
    Le site public d'une boutique vit dans src/boutique/, sur /b/<slug>. */
@@ -110,8 +108,6 @@ function LandingPage() {
         <Hero scrollTo={scrollTo} />
         <VendorFeatures scrollTo={scrollTo} />
         <Channels scrollTo={scrollTo} />
-        <HowItWorks />
-        <ClientFeatures scrollTo={scrollTo} />
         <PaymentSection scrollTo={scrollTo} />
         <Pricing scrollTo={scrollTo} />
         <Faq />

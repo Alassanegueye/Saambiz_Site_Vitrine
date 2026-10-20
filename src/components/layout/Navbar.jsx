@@ -29,9 +29,8 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
 
   const links = [
     { label: 'Fonctionnalités', id: 'features' },
-    { label: 'Vendeurs',        id: 'vendor'   },
     { label: 'Boutique web',    id: 'channels' },
-    { label: 'Clients',         id: 'client'   },
+    { label: 'Paiements',       id: 'payment'  },
     { label: 'Tarifs',          id: 'pricing'  },
     { label: 'FAQ',             id: 'faq'      },
   ];
