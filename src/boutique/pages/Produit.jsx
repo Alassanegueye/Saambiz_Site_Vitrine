@@ -143,9 +143,26 @@ function FicheProduit({ boutique, produitId }) {
             </div>
           )}
 
+          {/* Caractéristiques tirées des spécifications de la catégorie
+              (« État : Neuf », « Délai de préparation : 1 heure »…). */}
+          {produit.caracteristiques?.length > 0 && (
+            <dl className="bq-caracteristiques">
+              {produit.caracteristiques.map((c) => (
+                <div key={c.cle} className="bq-caracteristiques__ligne">
+                  <dt>{c.libelle}</dt>
+                  <dd>{c.valeur}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
           {groupesVariantes.map(([cle, valeurs]) => (
             <div key={cle} className="bq-variantes">
-              <p className="bq-variantes__titre">{cle}</p>
+              <p className="bq-variantes__titre">
+                {/* « Pointures disponibles » → « Pointures » : côté client,
+                    on choisit, la disponibilité va de soi. */}
+                {(produit.libelles?.[cle] || cle).replace(/\s+disponibles?$/i, '')}
+              </p>
               <div className="bq-puces">
                 {valeurs.map((v) => (
                   <button

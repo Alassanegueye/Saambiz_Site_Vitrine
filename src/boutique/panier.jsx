@@ -112,13 +112,13 @@ export function FournisseurPanier({ slug, children }) {
    * deux contrôles de stock indépendants — deux fois « il en reste 3, tu en
    * demandes 2 » — et laisserait sortir 4 pièces d'un stock de 3.
    */
-  const versItems = useCallback(() => {
-    const parProduit = new Map();
-    for (const l of lignes) {
-      parProduit.set(l.id, (parProduit.get(l.id) || 0) + l.quantite);
-    }
-    return [...parProduit].map(([produitId, quantite]) => ({ produitId, quantite }));
-  }, [lignes]);
+  // Une ligne par jeu d'options : le vendeur reçoit « 2 × Jus — Parfum :
+  // Bissap » au lieu d'un total par produit qu'il devait démêler dans la note.
+  const versItems = useCallback(() => lignes.map((l) => ({
+    produitId: l.id,
+    quantite: l.quantite,
+    ...(l.variantes && Object.keys(l.variantes).length ? { options: l.variantes } : {}),
+  })), [lignes]);
 
   /**
    * Le détail des variantes, en texte, pour la note de la commande.

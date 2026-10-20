@@ -1371,3 +1371,12 @@
   }
   .bq-carte:hover, .bq-bouton:hover { transform: none; }
 }
+
+/* Caractéristiques du produit (spécifications de la catégorie) */
+.bq-caracteristiques { margin: 0 0 18px; border-top: 1px solid var(--bq-bordure); }
+.bq-caracteristiques__ligne {
+  display: flex; justify-content: space-between; gap: 16px;
+  padding: 9px 0; border-bottom: 1px solid var(--bq-bordure); font-size: 13.5px;
+}
+.bq-caracteristiques dt { color: var(--bq-encre-douce); }
+.bq-caracteristiques dd { margin: 0; font-weight: 600; text-align: right; }
