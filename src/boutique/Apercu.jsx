@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CoquilleBoutique } from './BoutiqueLayout';
 import { appliquerBrouillon, origineAutorisee } from './apercuOutils';
 
@@ -50,16 +50,22 @@ export default function Apercu() {
     return () => meta.remove();
   }, []);
 
-  // Descend jusqu'à la partie du site en cours de réglage.
+  // Descend jusqu'à la partie du site en cours de réglage — une seule fois
+  // par étape : pendant que le vendeur tape, l'aperçu ne bouge pas. Le
+  // défilement reste dans le cadre (window.scrollTo) : scrollIntoView ferait
+  // aussi défiler la page du tableau de bord autour de lui.
+  const derniereCible = useRef(null);
+  const aDesDonnees = Boolean(message);
   useEffect(() => {
-    if (!cible || !message) return undefined;
+    if (!cible || !aDesDonnees || derniereCible.current === cible) return undefined;
+    derniereCible.current = cible;
     const t = setTimeout(() => {
       const el = document.querySelector(`[data-apercu~="${CSS.escape(cible)}"]`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      const haut = el ? el.getBoundingClientRect().top + window.scrollY - 8 : 0;
+      window.scrollTo({ top: Math.max(0, haut), behavior: 'smooth' });
     }, 60);
     return () => clearTimeout(t);
-  }, [cible, message]);
+  }, [cible, aDesDonnees]);
 
   const donnees = useMemo(
     () => (message ? appliquerBrouillon(message.donnees, message.brouillon) : null),
