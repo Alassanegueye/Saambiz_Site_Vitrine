@@ -1,100 +1,19 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, BadgeCheck, MapPin, Clock, MessageCircle, Package, Star } from 'lucide-react';
-import { GrilleProduits, TitreSection, Etoiles, EtatVide, ImageProduit } from '../composants';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { TitreSection, Etoiles, GrilleProduits, CarteProduit } from '../composants';
+import IdentiteBoutique from '../IdentiteBoutique';
+import Catalogue from './Catalogue';
 
 /**
- * La page d'accueil du site d'une boutique.
- *
- * Les trois mises en page ne sont pas trois sites : c'est la même page, dont
- * l'ordre et la densité changent. Le vendeur choisit celle qui va à ce qu'il
- * vend, sans que personne n'ait à maintenir trois catalogues, trois paniers
- * et trois passages en caisse.
- *
- *   classique — bannière, catégories, mis en avant, nouveautés. Le choix sûr.
- *   galerie   — les images d'abord, en grand. Mode, décoration, bijoux.
- *   catalogue — une liste dense, tout de suite. Gros stocks, pièces détachées.
+ * La page du site d'une boutique : une seule page, faite pour être partagée
+ * aux clients et commander sans compte.
+ *   1. En haut, l'identité : logo, nom, adresse, téléphone, réseaux.
+ *   2. Dessous, « Nos produits » : tout le catalogue, avec recherche, rayons
+ *      et tri ; la mise en page choisie par le vendeur règle l'aspect des
+ *      cartes produit.
+ *   3. Puis, si le vendeur les affiche, « À propos » et les avis.
+ * Le panier est un bouton flottant (voir PanierFlottant).
  */
-
-/* ── Bannière ────────────────────────────────────────────────────── */
-function Banniere({ boutique, compacte = false }) {
-  const aPhoto = Boolean(boutique.banniere);
-
-  return (
-    <section className={`bq-banniere ${compacte ? 'bq-banniere--compacte' : ''} ${aPhoto ? '' : 'bq-banniere--unie'}`}>
-      {aPhoto && (
-        <>
-          <img src={boutique.banniere} alt="" className="bq-banniere__photo" />
-          {/* Un voile calculé depuis l'accent : les bannières téléversées vont
-              du cliché de studio à la photo prise à contre-jour, et le nom de
-              la boutique doit rester lisible sur les deux. */}
-          <div className="bq-banniere__voile" aria-hidden="true" />
-        </>
-      )}
-
-      <div className="bq-banniere__contenu">
-        {boutique.categorie && <p className="bq-banniere__categorie">{boutique.categorie}</p>}
-
-        <h1 className="bq-banniere__titre">
-          {boutique.nom}
-          {boutique.verifiee && (
-            <BadgeCheck size={24} strokeWidth={2.3} className="bq-verifiee" aria-label="Boutique vérifiée par SaamBiz" />
-          )}
-        </h1>
-
-        {boutique.slogan && <p className="bq-banniere__slogan">{boutique.slogan}</p>}
-
-        <div className="bq-banniere__meta">
-          {(boutique.ville || boutique.localisation) && (
-            <span><MapPin size={15} strokeWidth={2} aria-hidden="true" />{boutique.localisation || boutique.ville}</span>
-          )}
-          {boutique.horaires && (
-            <span><Clock size={15} strokeWidth={2} aria-hidden="true" />{boutique.horaires}</span>
-          )}
-          {boutique.stats?.produits > 0 && (
-            <span><Package size={15} strokeWidth={2} aria-hidden="true" />{boutique.stats.produits} produits</span>
-          )}
-          {boutique.stats?.note != null && (
-            <span><Star size={15} strokeWidth={2} aria-hidden="true" />{boutique.stats.note} / 5 ({boutique.stats.avis} avis)</span>
-          )}
-        </div>
-
-        <div className="bq-banniere__actions">
-          <Link to={`/b/${boutique.slug}/catalogue`} className="bq-bouton bq-bouton--grand">
-            Voir tous les produits <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
-          </Link>
-          {boutique.whatsapp && (
-            <a
-              className="bq-bouton bq-bouton--fantome bq-bouton--grand"
-              href={`https://wa.me/${String(boutique.whatsapp).replace(/\D/g, '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageCircle size={17} strokeWidth={2.2} aria-hidden="true" /> Écrire au vendeur
-            </a>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── Catégories ──────────────────────────────────────────────────── */
-function Categories({ categories, slug }) {
-  if (!categories.length) return null;
-  return (
-    <section className="bq-section">
-      <TitreSection>Rayons</TitreSection>
-      <div className="bq-rayons">
-        {categories.map((c) => (
-          <Link key={c.id} to={`/b/${slug}/catalogue?categorie=${c.id}`} className="bq-rayon">
-            <span className="bq-rayon__nom">{c.nom}</span>
-            <span className="bq-rayon__nombre">{c.nombre}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 /* ── À propos ────────────────────────────────────────────────────── */
 function APropos({ boutique }) {
@@ -138,131 +57,86 @@ function Avis({ avis, stats }) {
   );
 }
 
+/* ── Section créée par le vendeur ─────────────────────────────────── */
+/* Titre en haut, « Voir plus » à droite, produits sur une seule ligne qui
+   défile à gauche et à droite. « Voir plus » déplie la section en grille. */
+function SectionPerso({ section, slug, format }) {
+  const rangee = useRef(null);
+  const [toutVoir, setToutVoir] = useState(false);
+  const [deborde, setDeborde] = useState(false);
+
+  // « Voir plus » et les flèches n'ont de sens que si la ligne déborde.
+  useEffect(() => {
+    const el = rangee.current;
+    if (!el || toutVoir) return undefined;
+    const mesurer = () => setDeborde(el.scrollWidth > el.clientWidth + 4);
+    mesurer();
+    const obs = new ResizeObserver(mesurer);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [toutVoir, section.produits.length]);
+
+  const defiler = (sens) => {
+    const el = rangee.current;
+    if (el) el.scrollBy({ left: sens * el.clientWidth * 0.8, behavior: 'smooth' });
+  };
+
+  return (
+    <section className="bq-section bq-section-perso">
+      <div className="bq-section-perso__entete">
+        <h2 className="bq-titre-section">{section.titre}</h2>
+        {(deborde || toutVoir) && (
+          <div className="bq-section-perso__actions">
+            {!toutVoir && (
+              <>
+                <button type="button" className="bq-fleche" onClick={() => defiler(-1)} aria-label="Produits précédents">
+                  <ChevronLeft size={18} />
+                </button>
+                <button type="button" className="bq-fleche" onClick={() => defiler(1)} aria-label="Produits suivants">
+                  <ChevronRight size={18} />
+                </button>
+              </>
+            )}
+            <button type="button" className="bq-voir-plus" onClick={() => setToutVoir((v) => !v)} aria-expanded={toutVoir}>
+              {toutVoir ? 'Voir moins' : 'Voir plus'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {toutVoir
+        ? <GrilleProduits produits={section.produits} slug={slug} format={format} />
+        : (
+          <div className="bq-rangee" ref={rangee}>
+            {section.produits.map((p) => (
+              <div key={p.id} className="bq-rangee__item">
+                <CarteProduit produit={p} slug={slug} format={format === 'ligne' ? 'carte' : format} />
+              </div>
+            ))}
+          </div>
+        )}
+    </section>
+  );
+}
+
 /* ── Page ────────────────────────────────────────────────────────── */
 export default function Accueil({ donnees }) {
-  const { boutique, categories, produitsVedettes, nouveautes, avis } = donnees;
-  const slug = boutique.slug;
-  const modele = boutique.theme.modele;
+  const { boutique, categories, avis } = donnees;
   const sections = boutique.theme.sections;
+  const format = boutique.theme.modele === 'catalogue' ? 'ligne'
+    : boutique.theme.modele === 'galerie' ? 'grande' : 'carte';
 
-  // Un catalogue vide arrive plus souvent qu'on ne croit : un vendeur ouvre
-  // sa boutique, publie son site, et saisit ses produits le lendemain. Mieux
-  // vaut le dire clairement que d'afficher une page qui semble cassée.
-  if (!produitsVedettes.length && !nouveautes.length) {
-    return (
-      <>
-        <Banniere boutique={boutique} />
-        <div className="bq-section">
-          <EtatVide
-            titre="Le catalogue arrive"
-            texte={`${boutique.nom} prépare ses produits. Revenez d'ici peu, ou écrivez directement au vendeur.`}
-            action={boutique.whatsapp ? (
-              <a
-                className="bq-bouton"
-                href={`https://wa.me/${String(boutique.whatsapp).replace(/\D/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <MessageCircle size={17} strokeWidth={2.2} aria-hidden="true" /> Écrire sur WhatsApp
-              </a>
-            ) : null}
-          />
-        </div>
-      </>
-    );
-  }
-
-  /* ── Galerie : les images d'abord, en grand ───────────────────── */
-  if (modele === 'galerie') {
-    const [vedette, ...reste] = produitsVedettes;
-    return (
-      <>
-        <Banniere boutique={boutique} />
-
-        {vedette && (
-          <section className="bq-section bq-vedette">
-            <Link to={`/b/${slug}/produit/${vedette.id}`} className="bq-vedette__lien">
-              <ImageProduit src={vedette.image} alt={vedette.nom} className="bq-vedette__image" />
-              <div className="bq-vedette__texte">
-                <p className="bq-vedette__sur-titre">Le coup de cœur de la boutique</p>
-                <h2>{vedette.nom}</h2>
-                {vedette.description && <p className="bq-vedette__desc">{vedette.description}</p>}
-                <span className="bq-bouton bq-bouton--grand">
-                  Voir le produit <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
-          </section>
-        )}
-
-        {reste.length > 0 && (
-          <section className="bq-section">
-            <TitreSection lien={`/b/${slug}/catalogue`}>La sélection</TitreSection>
-            <GrilleProduits produits={reste} slug={slug} format="grande" />
-          </section>
-        )}
-
-        {nouveautes.length > 0 && (
-          <section className="bq-section">
-            <TitreSection lien={`/b/${slug}/catalogue?tri=nouveaute`}>Nouveautés</TitreSection>
-            <GrilleProduits produits={nouveautes} slug={slug} format="grande" />
-          </section>
-        )}
-
-        {sections.categories && <Categories categories={categories} slug={slug} />}
-        {sections.apropos && <APropos boutique={boutique} />}
-        {sections.avis && <Avis avis={avis} stats={boutique.stats} />}
-      </>
-    );
-  }
-
-  /* ── Catalogue : la liste tout de suite, dense ─────────────────── */
-  if (modele === 'catalogue') {
-    return (
-      <>
-        <Banniere boutique={boutique} compacte />
-
-        {sections.categories && <Categories categories={categories} slug={slug} />}
-
-        <section className="bq-section">
-          <TitreSection lien={`/b/${slug}/catalogue`} libelleLien="Tout le catalogue">
-            Nos produits
-          </TitreSection>
-          <GrilleProduits produits={produitsVedettes} slug={slug} format="ligne" />
-        </section>
-
-        {nouveautes.length > 0 && (
-          <section className="bq-section">
-            <TitreSection lien={`/b/${slug}/catalogue?tri=nouveaute`}>Arrivages récents</TitreSection>
-            <GrilleProduits produits={nouveautes} slug={slug} format="ligne" />
-          </section>
-        )}
-
-        {sections.apropos && <APropos boutique={boutique} />}
-        {sections.avis && <Avis avis={avis} stats={boutique.stats} />}
-      </>
-    );
-  }
-
-  /* ── Classique ─────────────────────────────────────────────────── */
   return (
     <>
-      <Banniere boutique={boutique} />
+      <IdentiteBoutique boutique={boutique} />
 
-      {sections.categories && <Categories categories={categories} slug={slug} />}
+      {/* Les sections créées par le vendeur (« Nouvelle collection »…),
+          dans son ordre, avant le catalogue complet. */}
+      {(donnees.sections || []).map((s) => (
+        <SectionPerso key={s.id} section={s} slug={boutique.slug} format={format} />
+      ))}
 
-      <section className="bq-section">
-        <TitreSection lien={`/b/${slug}/catalogue`}>Les plus demandés</TitreSection>
-        <GrilleProduits produits={produitsVedettes} slug={slug} />
-      </section>
-
-      {nouveautes.length > 0 && (
-        <section className="bq-section">
-          <TitreSection lien={`/b/${slug}/catalogue?tri=nouveaute`}>Nouveautés</TitreSection>
-          <GrilleProduits produits={nouveautes} slug={slug} />
-        </section>
-      )}
-
+      <Catalogue boutique={boutique} categories={categories} integre />
       {sections.apropos && <APropos boutique={boutique} />}
       {sections.avis && <Avis avis={avis} stats={boutique.stats} />}
     </>

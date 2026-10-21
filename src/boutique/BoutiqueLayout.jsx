@@ -3,7 +3,8 @@ import { Routes, Route, useParams, useLocation, Link } from 'react-router-dom';
 import { chargerBoutique } from './api';
 import { variablesTheme } from './theme';
 import { FournisseurPanier } from './panier';
-import Entete from './Entete';
+import BarreRetour from './BarreRetour';
+import PanierFlottant from './PanierFlottant';
 import Pied from './Pied';
 import AppelApplication from './AppelApplication';
 import './vitrine.css';
@@ -114,6 +115,8 @@ function Boutique({ slug }) {
   if (erreur || !donnees) return <Introuvable message={erreur} />;
 
   const { boutique } = donnees;
+  const base = `/b/${boutique.slug}`;
+  const estAccueil = location.pathname.replace(/\/+$/, '') === base;
 
   return (
     <FournisseurPanier slug={boutique.slug}>
@@ -125,7 +128,10 @@ function Boutique({ slug }) {
         className={`vitrine vitrine--${boutique.theme.modele}`}
         style={variablesTheme(boutique.theme.accent)}
       >
-        <Entete boutique={boutique} />
+        {/* Hors de l'accueil (fiche produit, commande, suivi) : une barre
+            discrète pour revenir à la boutique. Sur l'accueil, l'identité de
+            la boutique occupe déjà le haut de page. */}
+        {!estAccueil && <BarreRetour boutique={boutique} />}
 
         <main className="bq-main">
           <Routes>
@@ -151,6 +157,8 @@ function Boutique({ slug }) {
         )}
 
         <Pied boutique={boutique} />
+
+        <PanierFlottant boutique={boutique} />
       </div>
     </FournisseurPanier>
   );

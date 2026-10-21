@@ -1380,3 +1380,244 @@
 }
 .bq-caracteristiques dt { color: var(--bq-encre-douce); }
 .bq-caracteristiques dd { margin: 0; font-weight: 600; text-align: right; }
+
+/* ── Encart « Suivez la boutique » (version courte) ─────────────── */
+.bq-app__contenu--compact {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px 40px; flex-wrap: wrap; padding-top: 40px; padding-bottom: 40px;
+}
+.bq-app__contenu--compact .bq-app__texte { flex: 1 1 420px; min-width: 0; }
+.bq-app__entete { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.bq-app__entete .bq-app__picto { width: 36px; margin-bottom: 0; }
+.bq-app__entete .bq-app__sur-titre { margin: 0; }
+.bq-app__contenu--compact .bq-app__intro { margin-bottom: 0; }
+.bq-app__cloche { display: inline-block; vertical-align: -3px; margin-right: 6px; color: #FFC93C; }
+.bq-app__contenu--compact .bq-app__stores { margin-bottom: 0; flex-shrink: 0; }
+@media (max-width: 640px) {
+  .bq-app__contenu--compact { padding-top: 32px; padding-bottom: 32px; }
+  .bq-app__contenu--compact .bq-app__stores { width: 100%; }
+}
+
+.bq-app { position: relative; }
+.bq-app__fermer {
+  position: absolute; top: 12px; right: 12px; z-index: 1;
+  width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.85);
+  transition: background 0.15s, color 0.15s;
+}
+.bq-app__fermer:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+.bq-app__fermer:focus-visible { outline: 2px solid #FFC93C; outline-offset: 2px; }
+
+/* ════════════════════════════════════════════════════════════════════
+   Site d'une boutique — page unique : identité, nos produits, panier
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Identité de la boutique (haut de page) ───────────────────────── */
+/* La « bulle » de l'écran de connexion de l'application : un en-tête plein
+   largeur à la couleur de la boutique (bleu marine SaamBiz par défaut),
+   arrondi en bas, qui porte le logo et toutes les informations. Le reste de
+   la page reste blanc. */
+.bq-identite-bloc {
+  background: var(--bq-accent); color: var(--bq-sur-accent);
+  border-radius: 0 0 32px 32px;
+  padding: 44px 20px 52px;
+}
+.bq-identite-bloc__carte {
+  max-width: var(--bq-large); margin: 0 auto;
+  display: flex; align-items: center; gap: 28px;
+}
+.bq-identite-bloc__logo {
+  flex-shrink: 0; width: 108px; height: 108px; border-radius: 24px; overflow: hidden;
+  background: #FFFFFF; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  display: grid; place-items: center;
+}
+.bq-identite-bloc__logo-img { width: 100%; height: 100%; object-fit: cover; }
+.bq-identite-bloc__logo-img--rond { border-radius: 50%; }
+.bq-identite-bloc__logo-img--bandeau,
+.bq-identite-bloc__logo-img--libre { object-fit: contain; padding: 8px; }
+.bq-identite-bloc__initiale {
+  width: 100%; height: 100%; display: grid; place-items: center;
+  background: #FFFFFF; color: var(--bq-accent); font-size: 44px; font-weight: 800;
+}
+.bq-identite-bloc__texte { min-width: 0; flex: 1; }
+.bq-identite-bloc__nom {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: clamp(28px, 4.4vw, 38px); font-weight: 700; line-height: 1.15; color: inherit;
+}
+.bq-identite-bloc__nom .bq-verifiee { color: inherit; opacity: 0.9; }
+.bq-identite-bloc__slogan { margin-top: 6px; opacity: 0.8; font-size: 15px; line-height: 1.45; }
+.bq-identite-bloc__infos {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+}
+.bq-identite-bloc__infos li { display: inline-flex; align-items: center; gap: 7px; min-width: 0; font-size: 14.5px; }
+.bq-identite-bloc__infos li svg { flex-shrink: 0; opacity: 0.9; }
+.bq-identite-bloc__infos li span, .bq-identite-bloc__infos li a { overflow-wrap: anywhere; }
+.bq-identite-bloc__infos a { color: inherit; text-decoration: none; font-weight: 700; }
+.bq-identite-bloc__infos a:hover { text-decoration: underline; }
+.bq-identite-bloc__reseaux { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+.bq-identite-bloc__reseau,
+.vitrine a.bq-identite-bloc__reseau {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #FFFFFF; color: var(--bq-accent);
+  transition: transform 0.15s;
+}
+.bq-identite-bloc__reseau:hover { transform: translateY(-2px); }
+
+/* Téléphone : comme l'écran de connexion — tout aligné à gauche, le logo
+   au-dessus du nom. */
+@media (max-width: 640px) {
+  .bq-identite-bloc { padding: 32px 24px 40px; border-radius: 0 0 28px 28px; }
+  .bq-identite-bloc__carte { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .bq-identite-bloc__logo { width: 76px; height: 76px; border-radius: 20px; }
+  .bq-identite-bloc__initiale { font-size: 32px; }
+  .bq-identite-bloc__nom { font-size: 28px; }
+  .bq-identite-bloc__slogan { font-size: 14px; }
+  .bq-identite-bloc__infos { flex-direction: column; gap: 8px; }
+}
+
+/* ── Sections du vendeur ──────────────────────────────────────────── */
+/* Titre à gauche, « Voir plus » à droite, produits sur une ligne qui défile. */
+.bq-section-perso { padding-bottom: 8px; }
+.bq-section-perso + .bq-section { padding-top: 40px; }
+.bq-section-perso__entete {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 18px;
+}
+.bq-section-perso .bq-titre-section {
+  font-size: clamp(22px, 3.6vw, 28px); color: var(--bq-encre); margin: 0; min-width: 0;
+  display: flex; align-items: center; justify-content: flex-start; gap: 10px;
+}
+.bq-section-perso .bq-titre-section::before {
+  content: ''; flex-shrink: 0; width: 6px; height: 26px; border-radius: 3px; background: var(--bq-accent);
+}
+.bq-section-perso__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bq-voir-plus {
+  border: 0; background: none; padding: 6px 2px; cursor: pointer;
+  font: inherit; font-size: 14.5px; font-weight: 700; color: var(--bq-accent);
+  white-space: nowrap;
+}
+.bq-voir-plus:hover { text-decoration: underline; }
+.bq-fleche {
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--bq-bordure); background: #FFFFFF; color: var(--bq-encre);
+  transition: border-color 0.15s, color 0.15s;
+}
+.bq-fleche:hover { border-color: var(--bq-accent); color: var(--bq-accent); }
+.bq-voir-plus:focus-visible, .bq-fleche:focus-visible { outline: 2px solid var(--bq-accent); outline-offset: 2px; }
+
+.bq-rangee {
+  display: flex; gap: 16px;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory; scroll-padding: 0 20px;
+  margin: 0 -20px; padding: 2px 20px 8px;
+  scrollbar-width: none;
+}
+.bq-rangee::-webkit-scrollbar { display: none; }
+.bq-rangee__item { flex: 0 0 220px; scroll-snap-align: start; display: flex; }
+.bq-rangee__item > .bq-carte { width: 100%; }
+
+@media (max-width: 720px) {
+  /* Sur téléphone, on fait glisser du doigt : pas de flèches. */
+  .bq-fleche { display: none; }
+  .bq-rangee { gap: 12px; }
+  .bq-rangee__item { flex-basis: 44vw; max-width: 200px; }
+}
+
+/* ── Nos produits ───────────────────────────────────────────────────── */
+.bq-produits { padding-top: 44px; }
+.bq-produits .bq-catalogue__entete h2 {
+  font-size: clamp(22px, 3.6vw, 28px); color: var(--bq-encre);
+  display: flex; align-items: center; gap: 10px;
+}
+.bq-produits .bq-catalogue__entete h2::before {
+  content: ''; width: 6px; height: 26px; border-radius: 3px; background: var(--bq-accent);
+}
+
+/* ── Barre des pages internes ───────────────────────────────────────── */
+.bq-barre-retour {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--bq-bordure);
+}
+.bq-barre-retour__lien {
+  max-width: var(--bq-large); margin: 0 auto; padding: 10px 20px;
+  display: flex; align-items: center; gap: 10px;
+  color: var(--bq-encre); text-decoration: none; font-weight: 700;
+}
+.bq-barre-retour__logo, .bq-barre-retour__initiale {
+  width: 34px; height: 34px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+}
+.bq-barre-retour__initiale {
+  display: grid; place-items: center; background: var(--bq-accent); color: var(--bq-sur-accent); font-weight: 800;
+}
+.bq-barre-retour__nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Panier flottant ─────────────────────────────────────────────────── */
+.bq-panier-flottant {
+  position: fixed; right: 20px; bottom: 20px; z-index: 60;
+  width: 62px; height: 62px; border-radius: 50%; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bq-accent); color: var(--bq-sur-accent);
+  box-shadow: 0 12px 30px rgba(20, 24, 31, 0.28);
+  transition: transform 0.15s;
+}
+.bq-panier-flottant:hover { transform: scale(1.05); }
+.bq-panier-flottant:focus-visible { outline: 3px solid var(--bq-bordure-accent); outline-offset: 3px; }
+.bq-panier-flottant__nombre {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px;
+  background: #E53935; color: #fff; font-size: 13px; font-weight: 800; line-height: 24px;
+  border: 2px solid #fff; animation: bq-rebond 0.35s ease;
+}
+@keyframes bq-rebond { 0% { transform: scale(0.4); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+
+.bq-panier-popup__voile {
+  position: fixed; inset: 0; z-index: 70; background: rgba(15, 18, 25, 0.45);
+  display: flex; justify-content: flex-end; animation: bq-fondu 0.15s ease;
+}
+@keyframes bq-fondu { from { opacity: 0; } to { opacity: 1; } }
+.bq-panier-popup {
+  width: min(420px, 100%); height: 100%; background: var(--bq-fond);
+  display: flex; flex-direction: column; box-shadow: -10px 0 40px rgba(0, 0, 0, 0.18);
+  animation: bq-glisse 0.2s ease;
+}
+@keyframes bq-glisse { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.bq-panier-popup__entete {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px; border-bottom: 1px solid var(--bq-bordure);
+}
+.bq-panier-popup__entete h2 { font-size: 19px; }
+.bq-panier-popup__entete h2 span { color: var(--bq-encre-douce); font-weight: 500; }
+.bq-panier-popup__fermer {
+  width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--bq-fond-doux); color: var(--bq-encre); display: grid; place-items: center;
+}
+.bq-panier-popup__lignes { list-style: none; margin: 0; padding: 8px 20px; overflow-y: auto; flex: 1; }
+.bq-panier-popup__ligne { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--bq-bordure); }
+.bq-panier-popup__ligne:last-child { border-bottom: none; }
+.bq-panier-popup__image { width: 72px; height: 72px; border-radius: var(--bq-r-s); object-fit: cover; flex-shrink: 0; }
+.bq-panier-popup__texte { flex: 1; min-width: 0; }
+.bq-panier-popup__nom { font-weight: 700; color: var(--bq-encre); overflow-wrap: anywhere; }
+.bq-panier-popup__options { font-size: 12.5px; color: var(--bq-encre-douce); margin-top: 2px; }
+.bq-panier-popup__prix { font-weight: 700; color: var(--bq-accent-fonce); margin-top: 4px; }
+.bq-panier-popup__controles { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.bq-panier-popup__pied { padding: 16px 20px 20px; border-top: 1px solid var(--bq-bordure); background: var(--bq-fond-doux); }
+.bq-panier-popup__total { display: flex; justify-content: space-between; align-items: baseline; font-size: 16px; }
+.bq-panier-popup__total strong { font-size: 21px; color: var(--bq-encre); }
+.bq-panier-popup__note { font-size: 12.5px; color: var(--bq-encre-douce); margin: 6px 0 14px; }
+.bq-panier-popup__vide {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 30px; color: var(--bq-encre-douce); text-align: center;
+}
+@media (max-width: 640px) {
+  .bq-panier-flottant { right: 14px; bottom: 14px; width: 58px; height: 58px; }
+  .bq-panier-popup__voile { align-items: flex-end; }
+  .bq-panier-popup { height: auto; max-height: 88vh; border-radius: 20px 20px 0 0; animation-name: bq-monte; }
+  @keyframes bq-monte { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+/* L'encart de l'application ne passe pas sous le bouton du panier. */
+.bq-app { padding-bottom: 30px; }

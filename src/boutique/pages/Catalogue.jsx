@@ -23,7 +23,11 @@ const TRIS = [
   { valeur: 'populaire', libelle: 'Les plus vus' },
 ];
 
-export default function Catalogue({ boutique, categories }) {
+/**
+ * `integre` : affiché sur la page d'accueil, sous l'identité de la boutique,
+ * comme section « Nos produits » (titre plus discret, pas de lien retour).
+ */
+export default function Catalogue({ boutique, categories, integre = false }) {
   const [params, setParams] = useSearchParams();
   const [donnees, setDonnees] = useState(null);
   const [erreur, setErreur] = useState(null);
@@ -87,9 +91,11 @@ export default function Catalogue({ boutique, categories }) {
   const nomCategorie = categories.find((c) => c.id === categorie)?.nom;
 
   return (
-    <div className="bq-section">
+    <div className={`bq-section ${integre ? 'bq-produits' : ''}`} id={integre ? 'produits' : undefined}>
       <header className="bq-catalogue__entete">
-        <h1>{nomCategorie || 'Tous les produits'}</h1>
+        {integre
+          ? <h2>{nomCategorie || 'Nos produits'}</h2>
+          : <h1>{nomCategorie || 'Tous les produits'}</h1>}
         {donnees && (
           <p className="bq-catalogue__compte">
             {donnees.total} {donnees.total > 1 ? 'produits' : 'produit'}
@@ -98,6 +104,9 @@ export default function Catalogue({ boutique, categories }) {
         )}
       </header>
 
+      {/* Sur la page de la boutique : pas de recherche ni de tri, la liste
+          reste simple ; les rayons suffisent à filtrer. */}
+      {!integre && (
       <div className="bq-filtres">
         <div className="bq-champ-recherche">
           <Search size={18} strokeWidth={2} aria-hidden="true" />
@@ -123,6 +132,7 @@ export default function Catalogue({ boutique, categories }) {
           </select>
         </label>
       </div>
+      )}
 
       {categories.length > 0 && (
         <div className="bq-puces" role="group" aria-label="Filtrer par rayon">
@@ -202,9 +212,11 @@ export default function Catalogue({ boutique, categories }) {
         </>
       )}
 
-      <p className="bq-retour">
-        <Link to={`/b/${boutique.slug}`} className="bq-lien-discret">← Retour à l'accueil de la boutique</Link>
-      </p>
+      {!integre && (
+        <p className="bq-retour">
+          <Link to={`/b/${boutique.slug}`} className="bq-lien-discret">← Retour à la boutique</Link>
+        </p>
+      )}
     </div>
   );
 }
