@@ -27,7 +27,7 @@ const TRIS = [
  * `integre` : affiché sur la page d'accueil, sous l'identité de la boutique,
  * comme section « Nos produits » (titre plus discret, pas de lien retour).
  */
-export default function Catalogue({ boutique, categories, integre = false }) {
+export default function Catalogue({ boutique, categories, integre = false, sansPuces = false, produitsLocaux = null }) {
   const [params, setParams] = useSearchParams();
   const [donnees, setDonnees] = useState(null);
   const [erreur, setErreur] = useState(null);
@@ -54,6 +54,8 @@ export default function Catalogue({ boutique, categories, integre = false }) {
   const chargement = affichee !== demande;
 
   useEffect(() => {
+    // Aperçu du tableau de bord : le catalogue est fourni, rien à charger.
+    if (produitsLocaux) return undefined;
     // Le drapeau écarte la réponse d'une requête dépassée : en tapant vite,
     // deux recherches peuvent être en vol, et rien ne garantit qu'elles
     // reviennent dans l'ordre où elles sont parties.
@@ -65,7 +67,7 @@ export default function Catalogue({ boutique, categories, integre = false }) {
       .finally(() => { if (!annule) setAffichee(demande); });
 
     return () => { annule = true; };
-  }, [boutique.slug, q, categorie, tri, page, demande]);
+  }, [boutique.slug, q, categorie, tri, page, demande, produitsLocaux]);
 
   /* Un filtre change → on repart à la page 1. Sans cela, passer de « page 4
      de tout le catalogue » à un rayon qui tient sur une page affiche un
@@ -88,6 +90,15 @@ export default function Catalogue({ boutique, categories, integre = false }) {
   useEffect(() => () => clearTimeout(minuteur.current), []);
 
   const filtreActif = Boolean(q || categorie || tri !== 'pertinence');
+
+  // Aperçu : filtre fait sur place, sans pagination.
+  let vue = { donnees, chargement, erreur };
+  if (produitsLocaux) {
+    const motif = q.toLowerCase();
+    const liste = produitsLocaux.filter((p) => (!categorie || p.categorieId === categorie)
+      && (!motif || p.nom.toLowerCase().includes(motif)));
+    vue = { donnees: { produits: liste, total: liste.length, page: 1, pages: 1 }, chargement: false, erreur: null };
+  }
   const nomCategorie = categories.find((c) => c.id === categorie)?.nom;
 
   return (
@@ -96,9 +107,9 @@ export default function Catalogue({ boutique, categories, integre = false }) {
         {integre
           ? <h2>{nomCategorie || 'Nos produits'}</h2>
           : <h1>{nomCategorie || 'Tous les produits'}</h1>}
-        {donnees && (
+        {vue.donnees && (
           <p className="bq-catalogue__compte">
-            {donnees.total} {donnees.total > 1 ? 'produits' : 'produit'}
+            {vue.donnees.total} {vue.donnees.total > 1 ? 'produits' : 'produit'}
             {q && <> pour « {q} »</>}
           </p>
         )}
@@ -134,7 +145,7 @@ export default function Catalogue({ boutique, categories, integre = false }) {
       </div>
       )}
 
-      {categories.length > 0 && (
+      {!sansPuces && categories.length > 0 && (
         <div className="bq-puces" role="group" aria-label="Filtrer par rayon">
           <button
             type="button"
@@ -156,12 +167,12 @@ export default function Catalogue({ boutique, categories, integre = false }) {
         </div>
       )}
 
-      {chargement && <SqueletteGrille nombre={8} />}
+      {vue.chargement && <SqueletteGrille nombre={8} />}
 
-      {!chargement && erreur && (
+      {!vue.chargement && vue.erreur && (
         <EtatVide
           titre="Le catalogue n'a pas pu être chargé"
-          texte={erreur}
+          texte={vue.erreur}
           action={(
             <button type="button" className="bq-bouton" onClick={() => setTentative((n) => n + 1)}>
               Réessayer
@@ -170,7 +181,7 @@ export default function Catalogue({ boutique, categories, integre = false }) {
         />
       )}
 
-      {!chargement && !erreur && donnees?.produits.length === 0 && (
+      {!vue.chargement && !vue.erreur && vue.donnees?.produits.length === 0 && (
         <EtatVide
           titre="Aucun produit ne correspond"
           texte={filtreActif
@@ -184,11 +195,11 @@ export default function Catalogue({ boutique, categories, integre = false }) {
         />
       )}
 
-      {!chargement && !erreur && donnees?.produits.length > 0 && (
+      {!vue.chargement && !vue.erreur && vue.donnees?.produits.length > 0 && (
         <>
-          <GrilleProduits produits={donnees.produits} slug={boutique.slug} format={format} />
+          <GrilleProduits produits={vue.donnees.produits} slug={boutique.slug} format={format} />
 
-          {donnees.pages > 1 && (
+          {vue.donnees.pages > 1 && (
             <nav className="bq-pagination" aria-label="Pages du catalogue">
               <button
                 type="button"
@@ -198,11 +209,11 @@ export default function Catalogue({ boutique, categories, integre = false }) {
               >
                 Précédent
               </button>
-              <span>Page {donnees.page} sur {donnees.pages}</span>
+              <span>Page {vue.donnees.page} sur {vue.donnees.pages}</span>
               <button
                 type="button"
                 className="bq-bouton bq-bouton--fantome"
-                disabled={page >= donnees.pages}
+                disabled={page >= vue.donnees.pages}
                 onClick={() => majParam('page', String(page + 1))}
               >
                 Suivant

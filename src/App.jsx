@@ -8,6 +8,7 @@ import LandingPage from './pages/LandingPage';
    de présentation de la marketplace, ni l'inverse. Sur un forfait mobile
    sénégalais, ces kilo-octets se paient. */
 const BoutiqueLayout = lazy(() => import('./boutique/BoutiqueLayout'));
+const Apercu = lazy(() => import('./boutique/Apercu'));
 
 /* Écran d'attente le temps que le module de la boutique arrive. Volontairement
    nu : afficher un logo SaamBiz ici ferait clignoter une marque que le client
@@ -36,6 +37,16 @@ export default function App() {
         element={
           <Suspense fallback={<Chargement />}>
             <BoutiqueLayout />
+          </Suspense>
+        }
+      />
+
+      {/* Aperçu du site dans le tableau de bord du vendeur (iframe). */}
+      <Route
+        path="/apercu"
+        element={
+          <Suspense fallback={<Chargement />}>
+            <Apercu />
           </Suspense>
         }
       />

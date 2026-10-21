@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, X, Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { formaterPrix } from './api';
@@ -6,13 +6,14 @@ import { usePanier } from './panierContexte';
 import { ImageProduit } from './composants';
 
 /**
- * Le panier, toujours à portée de main : un bouton flottant en bas à droite
- * avec le nombre d'articles, qui ouvre le panier dans une fenêtre. Pas de
- * compte, pas de page à chercher : on relit, on ajuste, on commande.
+ * Le panier, en bulle flottante comme un chatbot, en bas à droite. Il
+ * n'apparaît que lorsqu'il contient un produit : une pastille donne le
+ * nombre d'articles, et l'étiquette à côté donne le nom du dernier produit
+ * ajouté. Un
+ * appui ouvre le panier : on relit, on ajuste, on commande — sans compte.
  */
-export default function PanierFlottant({ boutique }) {
+export default function PanierFlottant({ boutique, ouvert, setOuvert }) {
   const { lignes, nombreArticles, sousTotal, changerQuantite, retirer } = usePanier();
-  const [ouvert, setOuvert] = useState(false);
   const navigate = useNavigate();
 
   // Échap ferme ; la page derrière ne défile pas pendant l'ouverture.
@@ -26,7 +27,7 @@ export default function PanierFlottant({ boutique }) {
       document.removeEventListener('keydown', touche);
       document.body.style.overflow = avant;
     };
-  }, [ouvert]);
+  }, [ouvert, setOuvert]);
 
   if (!boutique.commandeActivee) return null;
 
@@ -35,18 +36,26 @@ export default function PanierFlottant({ boutique }) {
     navigate(`/b/${boutique.slug}/commande`);
   };
 
+  const dernier = lignes[lignes.length - 1];
+  const autres = lignes.length - 1;
+
   return (
     <>
-      <button
-        type="button"
-        className={`bq-panier-flottant ${nombreArticles > 0 ? 'est-rempli' : ''}`}
-        onClick={() => setOuvert(true)}
-        aria-label={`Ouvrir le panier — ${nombreArticles} article(s)`}
-      >
-        <ShoppingBag size={24} strokeWidth={2} aria-hidden="true" />
-        {/* La clé relance l'animation à chaque ajout. */}
-        {nombreArticles > 0 && <span key={nombreArticles} className="bq-panier-flottant__nombre">{nombreArticles}</span>}
-      </button>
+      {nombreArticles > 0 && !ouvert && (
+        <div className="bq-bulle">
+          {/* La clé relance l'apparition de l'étiquette à chaque ajout. */}
+          <button key={`${dernier?.cle}-${nombreArticles}`} type="button" className="bq-bulle__etiquette"
+            onClick={() => setOuvert(true)} tabIndex={-1} aria-hidden="true">
+            <span className="bq-bulle__nom">{dernier?.nom}</span>
+            {autres > 0 && <span className="bq-bulle__plus">+ {autres} autre{autres > 1 ? 's' : ''}</span>}
+          </button>
+          <button type="button" className="bq-bulle__bouton" onClick={() => setOuvert(true)}
+            aria-label={`Ouvrir le panier — ${nombreArticles} article${nombreArticles > 1 ? 's' : ''}, dont ${dernier?.nom}`}>
+            <ShoppingBag size={26} strokeWidth={2} aria-hidden="true" />
+            <span key={nombreArticles} className="bq-bulle__nombre">{nombreArticles}</span>
+          </button>
+        </div>
+      )}
 
       {ouvert && (
         <div className="bq-panier-popup__voile" onClick={() => setOuvert(false)} role="presentation">

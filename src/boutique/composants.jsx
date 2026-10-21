@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Star, ImageOff, Plus, Check, ShoppingBag } from 'lucide-react';
+import { Star, ImageOff, Plus, Check, ShoppingBag, ShoppingCart, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { formaterPrix } from './api';
 import { usePanier } from './panierContexte';
+import { inviterApplication } from './stores';
 
 /* Petits composants partagés par toutes les pages du site d'une boutique.
    Regroupés dans un fichier : chacun tient en quinze lignes, et quinze
@@ -123,6 +124,62 @@ export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, child
   );
 }
 
+/* ── Bouton rond « ajouter au panier » (cartes produits) ──────────── */
+export function BoutonPanierRond({ produit, slug }) {
+  const { ajouter } = usePanier();
+  const [ajoute, setAjoute] = useState(false);
+  const aDesOptions = Object.values(produit.attributs || {})
+    .some((v) => Array.isArray(v) && v.length > 0);
+
+  // Un produit à options (taille, couleur…) se choisit sur sa fiche.
+  if (aDesOptions && slug) {
+    return (
+      <Link to={`/b/${slug}/produit/${produit.id}`} className="bq-rond" aria-label={`Choisir les options de ${produit.nom}`}>
+        <IconePanierPlus />
+      </Link>
+    );
+  }
+  if (!produit.disponible) {
+    return (
+      <button type="button" className="bq-rond bq-rond--sourd" disabled aria-label={`${produit.nom} : épuisé`}>
+        <IconePanierPlus />
+      </button>
+    );
+  }
+  const cliquer = () => {
+    ajouter(produit, 1);
+    setAjoute(true);
+    setTimeout(() => setAjoute(false), 1300);
+  };
+  return (
+    <button type="button" onClick={cliquer} className={`bq-rond ${ajoute ? 'est-ajoute' : ''}`}
+      aria-label={ajoute ? `${produit.nom} ajouté au panier` : `Ajouter ${produit.nom} au panier`}>
+      {ajoute ? <Check size={24} strokeWidth={2.6} aria-hidden="true" /> : <IconePanierPlus />}
+    </button>
+  );
+}
+
+function IconePanierPlus() {
+  return (
+    <span className="bq-rond__icone" aria-hidden="true">
+      <ShoppingCart size={24} strokeWidth={2.2} />
+      <Plus size={12} strokeWidth={3.4} className="bq-rond__plus" />
+    </span>
+  );
+}
+
+/* ── Cœur (favoris) ──────────────────────────────────────────────── */
+/* Les favoris vivent dans l'application : sur le site, le cœur invite à
+   la télécharger. */
+export function BoutonFavori({ produit }) {
+  return (
+    <button type="button" className="bq-coeur" onClick={() => inviterApplication('favori')}
+      aria-label={`Ajouter ${produit.nom} aux favoris (application SaamBiz)`}>
+      <Heart size={22} strokeWidth={2} aria-hidden="true" />
+    </button>
+  );
+}
+
 /* ── Carte produit ───────────────────────────────────────────────── */
 /* `format` suit la mise en page choisie par le vendeur :
    - 'carte'   : la carte standard (modèle Classique) ;
@@ -151,23 +208,30 @@ export function CarteProduit({ produit, slug, format = 'carte' }) {
 
   return (
     <article className={`bq-carte ${format === 'grande' ? 'bq-carte--grande' : ''}`}>
-      <Link to={lien} className="bq-carte__media">
-        <ImageProduit src={produit.image} alt={produit.nom} className="bq-carte__image" />
+      <div className="bq-carte__media">
+        <Link to={lien} className="bq-carte__lien-image" tabIndex={-1} aria-hidden="true">
+          <ImageProduit src={produit.image} alt={produit.nom} className="bq-carte__image" />
+        </Link>
         <div className="bq-carte__pastilles">
-          {produit.remise > 0 && <span className="bq-pastille bq-pastille--remise">−{produit.remise}%</span>}
           {produit.nouveaute && produit.remise === 0 && <span className="bq-pastille">Nouveau</span>}
           {!produit.disponible && <span className="bq-pastille bq-pastille--sourde">Épuisé</span>}
           {produit.disponible && produit.stockFaible && (
             <span className="bq-pastille bq-pastille--alerte">Dernières pièces</span>
           )}
         </div>
-      </Link>
+        {produit.remise > 0 && <span className="bq-carte__remise">−{produit.remise}%</span>}
+        <BoutonFavori produit={produit} />
+      </div>
 
       <div className="bq-carte__corps">
         <Link to={lien} className="bq-carte__nom">{produit.nom}</Link>
-        {produit.marque && <p className="bq-carte__marque">{produit.marque}</p>}
-        <Prix produit={produit} />
-        <BoutonAjouter produit={produit} slug={slug} bloc />
+        <div className="bq-carte__bas">
+          <div className="bq-carte__prix">
+            {produit.prixBarre != null && <s>{formaterPrix(produit.prixBarre)}</s>}
+            <strong>{formaterPrix(produit.prix)}</strong>
+          </div>
+          <BoutonPanierRond produit={produit} slug={slug} />
+        </div>
       </div>
     </article>
   );

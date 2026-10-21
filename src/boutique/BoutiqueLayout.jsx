@@ -3,10 +3,11 @@ import { Routes, Route, useParams, useLocation, Link } from 'react-router-dom';
 import { chargerBoutique } from './api';
 import { variablesTheme } from './theme';
 import { FournisseurPanier } from './panier';
-import BarreRetour from './BarreRetour';
+import BarreHaut from './BarreHaut';
 import PanierFlottant from './PanierFlottant';
 import Pied from './Pied';
 import AppelApplication from './AppelApplication';
+import InviteApplication from './InviteApplication';
 import './vitrine.css';
 
 import Accueil from './pages/Accueil';
@@ -87,6 +88,61 @@ function Introuvable({ message }) {
   );
 }
 
+/**
+ * Tout le site autour des pages : thème, barre du haut, pied, panier.
+ * Partagé avec l'aperçu du tableau de bord (`apercu`), qui n'affiche que
+ * l'accueil.
+ */
+export function CoquilleBoutique({ donnees, apercu = false }) {
+  const location = useLocation();
+  const [panierOuvert, setPanierOuvert] = useState(false);
+  const { boutique } = donnees;
+  const base = `/b/${boutique.slug}`;
+  const estAccueil = apercu || location.pathname.replace(/\/+$/, '') === base;
+
+  return (
+    <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug}>
+      {/* Le thème du vendeur ne vit que dans ces variables CSS, posées sur la
+          racine du site : les composants lisent --bq-accent, --bq-sur-accent… */}
+      <div
+        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}`}
+        style={variablesTheme(boutique.theme.accent)}
+      >
+        {!estAccueil && <BarreHaut boutique={boutique} />}
+
+        <main className="bq-main">
+          {apercu ? <Accueil donnees={donnees} apercu /> : (
+            <Routes>
+              <Route index element={<Accueil donnees={donnees} />} />
+              <Route path="catalogue" element={<Catalogue boutique={boutique} categories={donnees.categories} />} />
+              <Route path="produit/:produitId" element={<Produit boutique={boutique} />} />
+              <Route path="panier" element={<Panier boutique={boutique} />} />
+              <Route path="commande" element={<Commande boutique={boutique} />} />
+              <Route path="confirmation" element={<Confirmation boutique={boutique} />} />
+              <Route path="suivi" element={<Suivi boutique={boutique} />} />
+              <Route path="suivi/:reference" element={<Suivi boutique={boutique} />} />
+              {/* Une sous-page inconnue ramène à la boutique, pas à une erreur :
+                  le client a probablement suivi un lien tronqué. */}
+              <Route path="*" element={<Accueil donnees={donnees} />} />
+            </Routes>
+          )}
+        </main>
+
+        {/* L'appel à installer l'application, en bas de chaque page — sauf la
+            confirmation, qui a le sien. */}
+        {!location.pathname.endsWith('/confirmation') && (
+          <AppelApplication boutique={boutique} />
+        )}
+
+        <Pied boutique={boutique} />
+
+        <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert} />
+        <InviteApplication boutique={boutique} />
+      </div>
+    </FournisseurPanier>
+  );
+}
+
 function Boutique({ slug }) {
   const location = useLocation();
 
@@ -95,9 +151,7 @@ function Boutique({ slug }) {
   const [chargement, setChargement] = useState(true);
 
   useEffect(() => {
-    // Le drapeau coupe les réponses qui arrivent après le démontage : sur une
-    // connexion lente, un client qui repart avant la fin déclencherait sinon
-    // une mise à jour d'état sur un composant qui n'existe plus.
+    // Le drapeau coupe les réponses qui arrivent après le démontage.
     let annule = false;
 
     chargerBoutique(slug)
@@ -114,54 +168,7 @@ function Boutique({ slug }) {
   if (chargement) return <Attente />;
   if (erreur || !donnees) return <Introuvable message={erreur} />;
 
-  const { boutique } = donnees;
-  const base = `/b/${boutique.slug}`;
-  const estAccueil = location.pathname.replace(/\/+$/, '') === base;
-
-  return (
-    <FournisseurPanier slug={boutique.slug}>
-      {/* Le thème du vendeur ne vit que dans ces variables CSS, posées sur la
-          racine du site. Aucun composant ne lit la couleur d'accent : ils
-          lisent --bq-accent, --bq-sur-accent… ce qui laisse toute latitude
-          pour affiner la dérivation dans theme.js sans toucher au reste. */}
-      <div
-        className={`vitrine vitrine--${boutique.theme.modele}`}
-        style={variablesTheme(boutique.theme.accent)}
-      >
-        {/* Hors de l'accueil (fiche produit, commande, suivi) : une barre
-            discrète pour revenir à la boutique. Sur l'accueil, l'identité de
-            la boutique occupe déjà le haut de page. */}
-        {!estAccueil && <BarreRetour boutique={boutique} />}
-
-        <main className="bq-main">
-          <Routes>
-            <Route index element={<Accueil donnees={donnees} />} />
-            <Route path="catalogue" element={<Catalogue boutique={boutique} categories={donnees.categories} />} />
-            <Route path="produit/:produitId" element={<Produit boutique={boutique} />} />
-            <Route path="panier" element={<Panier boutique={boutique} />} />
-            <Route path="commande" element={<Commande boutique={boutique} />} />
-            <Route path="confirmation" element={<Confirmation boutique={boutique} />} />
-            <Route path="suivi" element={<Suivi boutique={boutique} />} />
-            <Route path="suivi/:reference" element={<Suivi boutique={boutique} />} />
-            {/* Une sous-page inconnue ramène à la boutique, pas à une erreur :
-                le client a probablement suivi un lien tronqué. */}
-            <Route path="*" element={<Accueil donnees={donnees} />} />
-          </Routes>
-        </main>
-
-        {/* L'appel à installer l'application est en bas de CHAQUE page du
-            site — c'est l'endroit où le client a déjà obtenu ce qu'il venait
-            chercher. La page de confirmation a le sien, formulé autrement. */}
-        {!location.pathname.endsWith('/confirmation') && (
-          <AppelApplication boutique={boutique} />
-        )}
-
-        <Pied boutique={boutique} />
-
-        <PanierFlottant boutique={boutique} />
-      </div>
-    </FournisseurPanier>
-  );
+  return <CoquilleBoutique donnees={donnees} />;
 }
 
 export default function BoutiqueLayout() {
