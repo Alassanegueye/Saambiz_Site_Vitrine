@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Download, LogIn } from 'lucide-react';
-import logo from '../../assets/brand/logo-navy.png';
+import { Menu, X, LogIn } from 'lucide-react';
+import LogoAnime from '../marque/LogoAnime';
+import RideauMarque from '../marque/RideauMarque';
+import useRideauMarque from '../marque/useRideauMarque';
+import { RESEAUX } from './reseaux';
 
 /* Espace vendeur web : les boutiques se gèrent aussi depuis un ordinateur.
    C'est une application à part (dossier Dashboard_Vendeur), distincte de
@@ -23,17 +26,51 @@ function lienConnexionVendeur() {
 
 const CONNEXION_VENDEUR = lienConnexionVendeur();
 
+const LIENS = [
+  { label: 'Fonctionnalités', id: 'features' },
+  { label: 'Boutique web',    id: 'channels' },
+  { label: 'Paiements',       id: 'payment'  },
+  { label: 'Tarifs',          id: 'pricing'  },
+  { label: 'FAQ',             id: 'faq'      },
+];
+
+/* Réseaux sociaux en pastilles rondes bleu marine. */
+function Reseaux({ tabIndex }) {
+  return (
+    <ul className="nav-reseaux">
+      {RESEAUX.map(({ id, label, href, Icone }) => (
+        <li key={id}>
+          <a
+            className="nav-rond"
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`SaamBiz sur ${label}`}
+            title={label}
+            tabIndex={tabIndex}
+          >
+            <Icone />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Barre de navigation — capsule flottante au verre dépoli :
+ *  - à gauche, la tuile bleu marine du logo, qui déborde de la capsule ;
+ *  - au centre, les sections de la page ;
+ *  - à droite, les réseaux sociaux puis l'icône de connexion à l'espace
+ *    vendeur, tout au bord : c'est là que les vendeurs qui reviennent la
+ *    cherchent.
+ * Sous 960 px, les sections passent dans un panneau ; l'icône de connexion
+ * reste dans la capsule, à côté du bouton de menu.
+ */
 const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
   const [open, setOpen] = useState(false);
   const burgerRef = useRef(null);
-
-  const links = [
-    { label: 'Fonctionnalités', id: 'features' },
-    { label: 'Boutique web',    id: 'channels' },
-    { label: 'Paiements',       id: 'payment'  },
-    { label: 'Tarifs',          id: 'pricing'  },
-    { label: 'FAQ',             id: 'faq'      },
-  ];
+  const { partir, depart } = useRideauMarque();
 
   const go = (id) => { scrollTo(id); setOpen(false); };
 
@@ -58,15 +95,16 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
 
   return (
     <header className={`navbar ${scrolled ? 'scrolled' : ''} ${hidden && !open ? 'nav-hidden' : ''}`}>
-      <nav className="nav-inner" aria-label="Navigation principale">
-        {/* LOGO */}
-        <button className="nav-logo" onClick={() => go('hero')} aria-label="SaamBiz — retour en haut">
-          <img src={logo} alt="SaamBiz" className="nav-logo-img" />
+      <nav className="nav-capsule" aria-label="Navigation principale">
+        {/* TUILE DU LOGO */}
+        <button className="nav-tuile la-survol" onClick={() => go('hero')} aria-label="SaamBiz — retour en haut">
+          <LogoAnime taille={46} variante="couleur" mode="entree" />
+          <span className="nav-tuile-nom" aria-hidden="true">Saam<span>Biz</span></span>
         </button>
 
-        {/* LINKS DESKTOP */}
+        {/* SECTIONS */}
         <ul className="nav-links">
-          {links.map(l => (
+          {LIENS.map(l => (
             <li key={l.id}>
               <button
                 className={`nav-link ${active === l.id ? 'is-active' : ''}`}
@@ -79,21 +117,22 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
           ))}
         </ul>
 
-        {/* ACTIONS DESKTOP */}
+        {/* RÉSEAUX + CONNEXION */}
         <div className="nav-actions">
-          <button className="nav-cta" onClick={() => go('download')}>
-            <Download size={15} strokeWidth={2.5} />
-            Télécharger l'app
-          </button>
-          {/* En dernier, tout à droite : c'est le point d'entrée des vendeurs
-              qui reviennent, ils le cherchent au bord de l'écran. */}
-          <a className="nav-login" href={CONNEXION_VENDEUR}>
-            <LogIn size={15} strokeWidth={2.3} aria-hidden="true" />
-            Se connecter
-          </a>
+          <Reseaux />
+          <span className="nav-sep" aria-hidden="true" />
         </div>
+        <a
+          className="nav-rond nav-connexion"
+          href={CONNEXION_VENDEUR}
+          onClick={partir}
+          aria-label="Se connecter à l'espace vendeur"
+        >
+          <LogIn size={19} strokeWidth={2.4} aria-hidden="true" />
+          <span className="nav-bulle" aria-hidden="true">Se connecter</span>
+        </a>
 
-        {/* BURGER */}
+        {/* MENU (petits écrans) */}
         <button
           ref={burgerRef}
           className="nav-burger"
@@ -106,9 +145,9 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
         </button>
       </nav>
 
-      {/* MOBILE MENU */}
+      {/* PANNEAU MOBILE */}
       <div id="nav-mobile" className={`nav-mobile ${open ? 'open' : ''}`}>
-        {links.map(l => (
+        {LIENS.map(l => (
           <button
             key={l.id}
             className={`mobile-link ${active === l.id ? 'is-active' : ''}`}
@@ -119,15 +158,10 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
             {l.label}
           </button>
         ))}
-        <a className="mobile-login" href={CONNEXION_VENDEUR} tabIndex={open ? 0 : -1}>
-          <LogIn size={16} strokeWidth={2.3} aria-hidden="true" />
-          Se connecter
-          <small>Gérez votre boutique depuis un ordinateur</small>
-        </a>
-        <button className="mobile-cta" onClick={() => go('download')} tabIndex={open ? 0 : -1}>
-          <Download size={16} strokeWidth={2.5} />
-          Télécharger l'app
-        </button>
+        <div className="mobile-pied">
+          <span>Suivez SaamBiz</span>
+          <Reseaux tabIndex={open ? 0 : -1} />
+        </div>
       </div>
 
       {/* Voile derrière le menu mobile — un clic hors du panneau le referme. */}
@@ -137,157 +171,203 @@ const Navbar = ({ scrolled, hidden, scrollTo, active }) => {
         aria-hidden="true"
       />
 
+      {depart && <RideauMarque x={depart.x} y={depart.y} />}
+
       <style>{`
-        .nav-inner {
+        /* ── Capsule ── */
+        .nav-capsule {
           /* au-dessus du voile du menu mobile, sinon le bouton de fermeture
              n'est plus cliquable une fois le menu ouvert */
           position: relative; z-index: 2;
-          max-width: 1360px; margin: 0 auto;
-          padding: 0 40px; display: flex; align-items: center; gap: 20px;
+          max-width: 1240px; height: 64px; margin: 0 auto;
+          display: flex; align-items: center; gap: 16px;
+          padding: 0 10px 0 0;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.72);
+          -webkit-backdrop-filter: blur(18px) saturate(170%);
+          backdrop-filter: blur(18px) saturate(170%);
+          /* Filet bleu marine très léger : sur le hero blanc, la capsule
+             doit se détacher autrement que par son ombre. */
+          border: 1px solid rgba(13, 27, 61, 0.08);
+          box-shadow:
+            0 14px 34px -14px rgba(13, 27, 61, 0.28),
+            0 2px 6px rgba(13, 27, 61, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+          transition: background 0.3s ease, box-shadow 0.3s ease;
         }
-        .nav-logo {
-          background: none; border: none; cursor: pointer;
-          flex-shrink: 0; padding: 0; display: flex; align-items: center;
+        /* Une fois la page défilée, le verre s'opacifie : le texte reste lisible
+           au-dessus des sections bleu marine. */
+        .navbar.scrolled .nav-capsule {
+          background: rgba(255, 255, 255, 0.93);
+          box-shadow: 0 16px 36px -14px rgba(13, 27, 61, 0.32), 0 2px 6px rgba(13, 27, 61, 0.06);
         }
-        .nav-logo-img {
-          height: 42px; width: auto; object-fit: contain;
-          transition: height 0.3s ease;
+
+        /* ── Tuile du logo : carré blanc, logo en couleurs, qui déborde de
+              la capsule en haut et en bas ── */
+        .nav-tuile {
+          position: relative; flex-shrink: 0;
+          margin-left: 22px;
+          width: 102px; height: 90px; padding: 0;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+          background: var(--white);
+          border: 1px solid rgba(13, 27, 61, 0.08);
+          border-radius: 18px;
+          box-shadow: 0 14px 30px -10px rgba(13, 27, 61, 0.38), 0 2px 6px rgba(13, 27, 61, 0.06);
+          cursor: pointer;
+          transition: scale 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), translate 0.3s ease, rotate 0.3s ease;
         }
-        /* La largeur est figée sur celle du logo au repos : quand il rétrécit
-           au défilement, la barre ne se réorganise pas autour de lui. */
-        .nav-logo { width: 174px; justify-content: flex-start; }
-        .navbar.scrolled .nav-logo-img { height: 36px; }
+        .nav-tuile:hover { translate: 0 -2px; rotate: -2deg; }
+        .navbar.scrolled .nav-tuile { scale: 0.9; }
+        .nav-tuile-nom {
+          font-family: var(--font-display);
+          font-size: 14px; font-weight: 700; line-height: 1; letter-spacing: -0.2px;
+          color: #021E54;
+        }
+        .nav-tuile-nom span { color: var(--gold); }
+        .navbar .nav-tuile:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+        /* ── Sections ── */
         .nav-links {
           display: flex; list-style: none; gap: 2px; flex: 1;
           justify-content: center;
         }
         .nav-link {
           position: relative;
-          background: none; border: none; padding: 8px 14px 10px;
-          border-radius: 9px; font-size: 14px; font-weight: 600;
-          color: #2C3E63; cursor: pointer;
-          /* Jamais de retour à la ligne : la barre se resserre (voir les
+          background: none; border: none; padding: 10px 15px;
+          border-radius: 999px;
+          font-size: 14.5px; font-weight: 600; letter-spacing: -0.1px;
+          color: #1B2D57; cursor: pointer;
+          /* Jamais de retour à la ligne : la capsule se resserre (voir les
              paliers plus bas), les libellés restent sur une ligne. */
           white-space: nowrap;
           transition: color 0.2s ease, background 0.2s ease;
         }
-        .nav-link:hover { color: #0D1B3D; background: #E8EDF7; }
-        /* Soulignement or sur la section en cours de lecture */
-        .nav-link.is-active { color: #0D1B3D; }
+        .nav-link:hover { color: var(--navy); background: rgba(13, 27, 61, 0.06); }
+        /* Section en cours de lecture : un trait or sous le libellé */
+        .nav-link.is-active { color: var(--navy); }
         .nav-link.is-active::after {
-          content: ''; position: absolute; left: 14px; right: 14px; bottom: 2px;
-          height: 2.5px; border-radius: 2px; background: #F2B705;
+          content: ''; position: absolute; left: 50%; bottom: 3px;
+          width: 18px; height: 3px; margin-left: -9px; border-radius: 3px;
+          background: var(--gold);
         }
-        .nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        .nav-login {
-          display: inline-flex; align-items: center; gap: 7px;
-          padding: 10px 16px; border-radius: 8px;
-          border: 1.5px solid rgba(13,27,61,0.14);
-          /* Translucide comme la barre : un aplat blanc dessinait un rectangle
-             visible dès que le fond laissait passer la page. */
-          background: #FFFFFF;
-          color: #0D1B3D;
-          font-size: 14px; font-weight: 600; white-space: nowrap;
-          transition: border-color 0.2s ease, background 0.2s ease, transform 0.25s ease;
-        }
-        .nav-login:hover { border-color: #0D1B3D; }
-        .nav-cta {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: #0D1B3D;
-          color: white; border: none; padding: 11px 20px;
-          border-radius: 8px; font-size: 14px; font-weight: 600;
-          cursor: pointer; flex-shrink: 0; white-space: nowrap;
-          box-shadow: none;
-          transition: transform 0.28s ease, box-shadow 0.28s ease;
-        }
-        .nav-cta:hover { background: #1E3A78; }
-        .nav-burger {
-          display: none; background: none; border: none;
-          color: #2C3E63; padding: 8px; border-radius: 10px; margin-left: auto;
-        }
-        .nav-burger:hover { background: #E8EDF7; color: #0D1B3D; }
 
+        /* ── Réseaux et connexion ── */
+        .nav-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .nav-reseaux { display: flex; align-items: center; gap: 8px; list-style: none; }
+        .nav-rond {
+          width: 38px; height: 38px; border-radius: 50%;
+          display: inline-grid; place-items: center; flex-shrink: 0;
+          background: var(--navy); color: var(--white);
+          transition: background 0.25s ease, color 0.25s ease, translate 0.25s ease, box-shadow 0.25s ease;
+        }
+        .nav-rond svg { width: 17px; height: 17px; }
+        .nav-rond:hover { background: var(--navy-mid); translate: 0 -2px; box-shadow: 0 8px 16px -8px rgba(13, 27, 61, 0.6); }
+        .nav-sep { width: 1px; height: 26px; background: rgba(13, 27, 61, 0.14); }
+
+        /* Connexion : la seule pastille or — c'est l'entrée des vendeurs. */
+        .nav-connexion {
+          position: relative;
+          width: 44px; height: 44px;
+          background: var(--gold); color: var(--navy);
+          box-shadow: 0 8px 18px -8px rgba(176, 133, 11, 0.9);
+        }
+        .nav-connexion svg { width: 19px; height: 19px; }
+        .nav-connexion:hover { background: var(--navy); color: var(--gold); }
+        .nav-bulle {
+          position: absolute; top: calc(100% + 12px); right: -2px;
+          padding: 7px 11px; border-radius: 9px;
+          background: var(--navy); color: var(--white);
+          font-size: 12.5px; font-weight: 600; white-space: nowrap;
+          opacity: 0; translate: 0 -4px; pointer-events: none;
+          transition: opacity 0.2s ease, translate 0.2s ease;
+        }
+        .nav-bulle::before {
+          content: ''; position: absolute; top: -4px; right: 18px;
+          width: 9px; height: 9px; background: inherit; rotate: 45deg; border-radius: 2px;
+        }
+        .nav-connexion:hover .nav-bulle,
+        .nav-connexion:focus-visible .nav-bulle { opacity: 1; translate: 0 0; }
+
+        .nav-burger {
+          display: none; flex-shrink: 0;
+          width: 42px; height: 42px; border-radius: 50%;
+          place-items: center;
+          background: rgba(13, 27, 61, 0.06); border: none;
+          color: var(--navy);
+        }
+        .nav-burger:hover { background: rgba(13, 27, 61, 0.1); }
+
+        /* ── Panneau mobile ── */
         .nav-mobile {
           position: relative; z-index: 2;
-          display: flex; flex-direction: column; gap: 4px;
-          padding: 0 20px; max-height: 0; overflow: hidden;
-          border-top: 1px solid transparent;
-          background: rgba(255,255,255,0.99);
-          transition: max-height 0.35s ease, padding 0.35s ease, border-color 0.2s ease;
+          max-width: 1240px; margin: 10px auto 0;
+          display: flex; flex-direction: column; gap: 2px;
+          padding: 0 12px; max-height: 0; overflow: hidden;
+          opacity: 0; visibility: hidden;
+          border-radius: 24px;
+          background: rgba(255, 255, 255, 0.98);
+          box-shadow: 0 22px 44px -16px rgba(13, 27, 61, 0.35);
+          transition: max-height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), padding 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                      opacity 0.25s ease, visibility 0.4s;
         }
-        .nav-mobile.open {
-          max-height: 620px; padding: 12px 20px 22px;
-          border-top-color: rgba(13,27,61,0.08);
-        }
+        .nav-mobile.open { max-height: 560px; padding: 12px; opacity: 1; visibility: visible; }
         .mobile-link {
-          background: none; border: none; padding: 13px 16px;
-          border-radius: 10px; font-size: 15px; font-weight: 600;
-          color: #2C3E63; cursor: pointer; text-align: left;
-          transition: all 0.2s;
+          background: none; border: none; padding: 14px 16px;
+          border-radius: 14px; font-size: 15.5px; font-weight: 600;
+          color: #1B2D57; cursor: pointer; text-align: left;
+          transition: background 0.2s ease, color 0.2s ease;
         }
-        .mobile-link:hover { color: #0D1B3D; background: #E8EDF7; }
+        .mobile-link:hover { color: var(--navy); background: var(--navy-light); }
         .mobile-link.is-active {
-          color: #0D1B3D; background: #E8EDF7;
-          box-shadow: inset 3px 0 0 #F2B705;
+          color: var(--navy); background: var(--navy-light);
+          box-shadow: inset 3px 0 0 var(--gold);
         }
-        .mobile-login {
-          margin-top: 10px;
-          display: flex; flex-direction: column; align-items: center; gap: 2px;
-          padding: 12px 20px; border-radius: 12px;
-          border: 1.5px solid rgba(13,27,61,0.14);
-          color: #0D1B3D; font-size: 15px; font-weight: 600;
-        }
-        .mobile-login svg { margin-bottom: 2px; }
-        .mobile-login small { font-size: 11.5px; font-weight: 500; color: #5B6C8A; }
-        .mobile-cta {
-          margin-top: 8px;
-          display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-          background: #0D1B3D;
-          color: white; border: none; padding: 14px 22px;
-          border-radius: 12px; font-size: 15px; font-weight: 700;
-          cursor: pointer; box-shadow: none;
+        .mobile-pied {
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          margin-top: 8px; padding: 14px 6px 4px 16px;
+          border-top: 1px solid rgba(13, 27, 61, 0.08);
+          font-size: 13px; font-weight: 600; color: var(--text-light);
         }
 
         .nav-scrim {
           position: fixed; inset: 0; z-index: 1;
-          background: rgba(13,27,61,0.35);
+          background: rgba(13, 27, 61, 0.35);
           backdrop-filter: blur(2px);
           opacity: 0; visibility: hidden;
           transition: opacity 0.3s ease, visibility 0.3s;
         }
-        .nav-scrim.show { opacity: 1; visibility: visible; }
+        .nav-scrim.show { opacity: 1; visibility: visible; pointer-events: auto; }
 
         @media (min-width: 961px) {
-          .nav-scrim { display: none; }
+          .nav-scrim, .nav-mobile { display: none; }
         }
-        /* Avec sept entrées, la barre déborderait entre 960 et 1200 px :
-           on resserre plutôt que de masquer un lien. */
-        @media (max-width: 1280px) {
-          .nav-inner { padding: 0 24px; gap: 12px; }
-          .nav-logo { width: 150px; }
-          .nav-link { padding: 8px 9px 10px; font-size: 13.5px; }
-          .nav-link.is-active::after { left: 9px; right: 9px; }
-          .nav-login, .nav-cta { padding-left: 13px; padding-right: 13px; font-size: 13.5px; }
+        /* Paliers : on resserre plutôt que de masquer un lien. */
+        @media (max-width: 1240px) {
+          .nav-capsule { gap: 10px; }
+          .nav-link { padding: 10px 11px; font-size: 14px; }
         }
-        /* Dernière tranche avant le menu burger : c'est là que les sept
-           entrées et les deux boutons tiennent le plus juste. */
-        @media (max-width: 1120px) {
-          .nav-inner { padding: 0 16px; gap: 8px; }
-          .nav-logo { width: 132px; }
-          .nav-logo-img { height: 36px; }
-          .navbar.scrolled .nav-logo-img { height: 32px; }
-          .nav-link { padding: 8px 6px 10px; font-size: 13px; }
-          .nav-link.is-active::after { left: 6px; right: 6px; }
-          .nav-login, .nav-cta { padding-left: 11px; padding-right: 11px; gap: 6px; font-size: 13px; }
+        @media (max-width: 1100px) {
+          .nav-tuile { margin-left: 16px; width: 94px; height: 84px; }
+          .nav-link { padding: 10px 8px; font-size: 13.5px; }
+          .nav-reseaux { gap: 6px; }
+          .nav-rond { width: 34px; height: 34px; }
+          .nav-rond svg { width: 15px; height: 15px; }
+          .nav-connexion { width: 42px; height: 42px; }
+          .nav-actions { gap: 9px; }
         }
         @media (max-width: 960px) {
           .nav-links, .nav-actions { display: none; }
-          .nav-burger { display: flex; }
+          .nav-capsule { height: 58px; gap: 8px; padding-right: 8px; }
+          .nav-connexion { margin-left: auto; width: 42px; height: 42px; }
+          .nav-bulle { display: none; }
+          .nav-burger { display: inline-grid; }
+          .nav-tuile { margin-left: 14px; width: 80px; height: 72px; gap: 5px; border-radius: 16px; }
+          .nav-tuile .logo-anime { width: 36px; height: auto; }
+          .nav-tuile-nom { font-size: 12px; }
         }
-        @media (max-width: 480px) {
-          .nav-inner { padding: 0 16px; }
-          .nav-logo-img { height: 34px; }
-          .navbar.scrolled .nav-logo-img { height: 30px; }
+        @media (max-width: 380px) {
+          .nav-tuile { margin-left: 10px; width: 74px; }
+          .mobile-pied > span { display: none; }
         }
       `}</style>
     </header>

@@ -63,8 +63,12 @@
   --radius-xl:   18px;
   --radius-full: 999px;
 
-  /* Hauteur de la navbar — sert au décalage des ancres */
-  --nav-h: 78px;
+  /* Hauteur occupée par la navigation flottante (capsule + débord de la
+     tuile du logo) — sert au décalage du hero et des ancres */
+  --nav-h: 100px;
+}
+@media (max-width: 960px) {
+  :root { --nav-h: 86px; }
 }
 
 /* ─── BASE ───────────────────────────────────────────────────────── */
@@ -256,23 +260,23 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + 12px); }
 .sr-d6 { transition-delay: 0.52s; }
 
 /* ─── NAVBAR (global) ────────────────────────────────────────────── */
-/* Barre blanche pleine. Un filet gris apparaît dès qu'on défile pour la
-   séparer du contenu ; tout en haut, elle se fond dans le hero blanc. */
+/* Capsule flottante au verre dépoli (voir Navbar.jsx). L'en-tête lui-même
+   est transparent et laisse passer les clics vers la page : seuls la
+   capsule, le panneau mobile et son voile en reçoivent. */
 .navbar {
   position: fixed; top: 0; left: 0; width: 100%;
-  z-index: 1000; padding: 14px 0;
-  background: #FFFFFF;
-  border-bottom: 1px solid transparent;
-
-  transition: padding 0.3s ease, border-color 0.3s ease, transform 0.35s ease;
+  z-index: 1000; padding: 18px 24px 0;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.navbar.scrolled {
-  padding: 8px 0;
-  background: #FFFFFF;
-  border-bottom-color: var(--gray);
-}
+.navbar > .nav-capsule,
+.navbar > .nav-mobile { pointer-events: auto; }
+/* La tuile du logo déborde sous la capsule : on remonte d'autant plus. */
 .navbar.nav-hidden {
-  transform: translateY(-100%);
+  transform: translateY(calc(-100% - 32px));
+}
+@media (max-width: 960px) {
+  .navbar { padding: 12px 12px 0; }
 }
 
 /* ─── RETOUR EN HAUT ─────────────────────────────────────────────── */

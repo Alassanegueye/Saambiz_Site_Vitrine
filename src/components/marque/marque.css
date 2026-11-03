@@ -1,0 +1,188 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Pictogramme SaamBiz animé — voir LogoAnime.jsx.
+   L'état sans animation est le logo complet : si une animation ne se joue
+   pas (mouvement réduit, navigateur ancien), on voit le logo, jamais un
+   morceau de logo.
+   ══════════════════════════════════════════════════════════════════════ */
+.logo-anime { display: block; overflow: visible; flex-shrink: 0; }
+
+/* Couleurs du fichier du logo (légèrement plus vives que celles de l'interface). */
+.logo-anime--couleur { --la-sac: #021E54; --la-or: #FEB603; --la-fleche: #FFFFFF; }
+.logo-anime--clair   { --la-sac: #FFFFFF; --la-or: #FEB603; --la-fleche: #021E54; }
+
+.logo-anime .la-trait,
+.logo-anime .la-barre  { fill: var(--la-or); }
+.logo-anime .la-corps  { fill: var(--la-sac); }
+.logo-anime .la-anse   { fill: none; stroke: var(--la-sac); stroke-width: 32; }
+.logo-anime .la-fleche {
+  fill: none; stroke: var(--la-fleche); stroke-width: 21;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.logo-anime .la-pointe {
+  fill: var(--la-fleche); stroke: var(--la-fleche);
+  stroke-width: 6; stroke-linejoin: round;
+}
+
+.logo-anime .la-sac,
+.logo-anime .la-trait,
+.logo-anime .la-barre,
+.logo-anime .la-pointe { transform-box: fill-box; }
+.logo-anime .la-sac    { transform-origin: 50% 100%; }
+.logo-anime .la-barre  { transform-origin: 50% 100%; }
+.logo-anime .la-trait  { transform-origin: 100% 50%; }
+.logo-anime .la-pointe { transform-origin: 25% 75%; }
+
+/* ── Entrée : le sac arrive en filant, l'anse se trace, les barres montent
+      l'une après l'autre, puis la flèche s'élance. Environ 1,2 s. ── */
+.logo-anime--entree .la-sac { animation: la-sac-arrive 0.5s cubic-bezier(0.2, 0.8, 0.25, 1.15) both; }
+.logo-anime--entree .la-trait { animation: la-trait-file 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.logo-anime--entree .la-trait-2 { animation-delay: 0.04s; }
+.logo-anime--entree .la-trait-1 { animation-delay: 0.1s; }
+.logo-anime--entree .la-trait-3 { animation-delay: 0.16s; }
+.logo-anime--entree .la-anse { stroke-dasharray: 1 1; animation: la-trace 0.42s 0.2s ease-out both; }
+.logo-anime--entree .la-barre { animation: la-barre-monte 0.52s cubic-bezier(0.3, 1.45, 0.5, 1) both; }
+.logo-anime--entree .la-barre-1 { animation-delay: 0.36s; }
+.logo-anime--entree .la-barre-2 { animation-delay: 0.46s; }
+.logo-anime--entree .la-barre-3 { animation-delay: 0.56s; }
+.logo-anime--entree .la-fleche { stroke-dasharray: 1 1; animation: la-trace 0.42s 0.68s cubic-bezier(0.6, 0, 0.3, 1) both; }
+.logo-anime--entree .la-pointe { animation: la-pointe 0.34s 1.02s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+
+/* ── Boucle : l'attente. Les barres montent et redescendent, la flèche se
+      trace puis s'efface. ── */
+.logo-anime--boucle .la-barre { animation: la-barre-boucle 1.8s cubic-bezier(0.45, 0, 0.3, 1) infinite both; }
+.logo-anime--boucle .la-barre-2 { animation-delay: 0.12s; }
+.logo-anime--boucle .la-barre-3 { animation-delay: 0.24s; }
+.logo-anime--boucle .la-fleche { stroke-dasharray: 1 1; animation: la-fleche-boucle 1.8s cubic-bezier(0.6, 0, 0.3, 1) infinite both; }
+.logo-anime--boucle .la-pointe { animation: la-pointe-boucle 1.8s ease infinite both; }
+.logo-anime--boucle .la-trait { animation: la-trait-boucle 1.8s ease-in-out infinite both; }
+.logo-anime--boucle .la-trait-1 { animation-delay: 0.1s; }
+.logo-anime--boucle .la-trait-3 { animation-delay: 0.2s; }
+
+/* ── Au survol d'un parent marqué .la-survol : les barres rebondissent. ── */
+.la-survol:hover .logo-anime .la-barre,
+.la-survol:focus-visible .logo-anime .la-barre { animation: la-barre-rebond 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.la-survol:hover .logo-anime .la-barre-2,
+.la-survol:focus-visible .logo-anime .la-barre-2 { animation-delay: 0.06s; }
+.la-survol:hover .logo-anime .la-barre-3,
+.la-survol:focus-visible .logo-anime .la-barre-3 { animation-delay: 0.12s; }
+
+@keyframes la-sac-arrive {
+  from { opacity: 0; transform: translateX(-16%) scale(0.84); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes la-trait-file {
+  0%   { opacity: 0; transform: translateX(-40%) scaleX(0.2); }
+  60%  { opacity: 1; transform: translateX(6%) scaleX(1.25); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes la-trace {
+  0%   { stroke-dashoffset: 1; opacity: 0; }
+  8%   { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes la-barre-monte {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes la-pointe {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes la-barre-boucle {
+  0%   { transform: scaleY(0.18); }
+  32%  { transform: scaleY(1.06); }
+  42%  { transform: scaleY(1); }
+  78%  { transform: scaleY(1); }
+  100% { transform: scaleY(0.18); }
+}
+@keyframes la-fleche-boucle {
+  0%, 18% { stroke-dashoffset: 1; opacity: 0; }
+  22%     { opacity: 1; }
+  52%     { stroke-dashoffset: 0; opacity: 1; }
+  82%     { stroke-dashoffset: 0; opacity: 1; }
+  100%    { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes la-pointe-boucle {
+  0%, 48% { opacity: 0; transform: scale(0); }
+  58%     { opacity: 1; transform: scale(1.18); }
+  64%     { transform: scale(1); }
+  82%     { opacity: 1; transform: scale(1); }
+  100%    { opacity: 0; transform: scale(1); }
+}
+@keyframes la-trait-boucle {
+  0%, 100% { transform: none; }
+  50%      { transform: translateX(-10%) scaleX(0.82); }
+}
+@keyframes la-barre-rebond {
+  0%   { transform: scaleY(1); }
+  35%  { transform: scaleY(0.3); }
+  100% { transform: scaleY(1); }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Écran d'arrivée sur saambiz.com — une fois par session (IntroMarque).
+   ══════════════════════════════════════════════════════════════════════ */
+.intro-marque {
+  position: fixed; inset: 0; z-index: 3000;
+  display: grid; place-items: center;
+  background: #FFFFFF;
+  transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+}
+.intro-marque--sortie { transform: translateY(-100%); }
+.intro-marque__centre {
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.45s ease;
+}
+.intro-marque--sortie .intro-marque__centre { transform: translateY(40vh); opacity: 0; }
+.intro-marque__nom {
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: 32px; font-weight: 700; letter-spacing: -0.8px; line-height: 1;
+  color: #021E54;
+  animation: intro-nom 0.6s 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.intro-marque__nom span { color: #FEB603; }
+@keyframes intro-nom {
+  from { opacity: 0; transform: translateY(10px); clip-path: inset(0 100% 0 0); }
+  to   { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+}
+
+/* Pendant l'écran d'arrivée, l'entrée du texte du hero attend son tour : elle
+   démarre au moment où le rideau se lève. */
+html[data-intro='en-cours'] { overflow: hidden; }
+html[data-intro='en-cours'] .hero-copy-swap,
+html[data-intro='en-cours'] .hero-entree { animation-play-state: paused; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Passage vers l'espace vendeur : un disque bleu marine s'ouvre depuis
+   l'icône de connexion, le logo s'anime, puis la page change.
+   ══════════════════════════════════════════════════════════════════════ */
+.rideau-marque {
+  position: fixed; inset: 0; z-index: 3000;
+  display: grid; place-items: center;
+  background: #0D1B3D;
+  clip-path: circle(0 at var(--x, 50%) var(--y, 50%));
+  animation: rideau-ouvre 0.65s cubic-bezier(0.7, 0, 0.25, 1) forwards;
+}
+.rideau-marque__centre {
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  animation: rideau-contenu 0.4s 0.25s ease both;
+}
+.rideau-marque__texte {
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: 18px; font-weight: 600; letter-spacing: -0.2px;
+  color: #FFFFFF;
+}
+.rideau-marque__texte small {
+  display: block; margin-top: 6px; text-align: center;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.6);
+}
+@keyframes rideau-ouvre { to { clip-path: circle(150vmax at var(--x, 50%) var(--y, 50%)); } }
+@keyframes rideau-contenu { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+
+/* ── Mouvement réduit : le logo reste fixe, les rideaux n'apparaissent pas
+      (les composants le vérifient aussi). ── */
+@media (prefers-reduced-motion: reduce) {
+  .logo-anime *, .logo-anime { animation: none !important; }
+  .intro-marque, .rideau-marque { display: none; }
+}
