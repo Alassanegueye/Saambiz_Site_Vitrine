@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { chargerProduits } from '../api';
 import { GrilleProduits, SqueletteGrille, EtatVide } from '../composants';
 
@@ -31,7 +31,6 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
   const [params, setParams] = useSearchParams();
   const [donnees, setDonnees] = useState(null);
   const [erreur, setErreur] = useState(null);
-  const [saisie, setSaisie] = useState(params.get('q') || '');
   // Incrémenté par « Réessayer » : c'est ce qui redéclenche la requête après
   // un échec, sans que l'URL n'ait bougé.
   const [tentative, setTentative] = useState(0);
@@ -72,22 +71,16 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
   /* Un filtre change → on repart à la page 1. Sans cela, passer de « page 4
      de tout le catalogue » à un rayon qui tient sur une page affiche un
      résultat vide, et le client conclut que le rayon l'est aussi. */
+  const haut = useRef(null);
   const majParam = (cle, valeur) => {
     const suivants = new URLSearchParams(params);
     if (valeur) suivants.set(cle, valeur); else suivants.delete(cle);
     if (cle !== 'page') suivants.delete('page');
     setParams(suivants, { replace: cle === 'q' });
+    // Page suivante : on remonte au début de la liste, sinon le client
+    // reste devant les boutons de pagination et ne voit pas ce qui a changé.
+    if (cle === 'page') haut.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-
-  /* Recherche : on n'interroge qu'après 400 ms sans frappe. Un appel par
-     lettre saturerait une connexion mobile et ferait clignoter la grille. */
-  const minuteur = useRef(null);
-  const changerSaisie = (valeur) => {
-    setSaisie(valeur);
-    clearTimeout(minuteur.current);
-    minuteur.current = setTimeout(() => majParam('q', valeur.trim()), 400);
-  };
-  useEffect(() => () => clearTimeout(minuteur.current), []);
 
   const filtreActif = Boolean(q || categorie || tri !== 'pertinence');
 
@@ -102,12 +95,12 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
   const nomCategorie = categories.find((c) => c.id === categorie)?.nom;
 
   return (
-    <div className={`bq-section ${integre ? 'bq-produits' : ''}`} id={integre ? 'produits' : undefined}>
+    <div className={`bq-section bq-catalogue ${integre ? 'bq-catalogue--integre' : ''}`} id={integre ? 'produits' : undefined} ref={haut}>
       <header className="bq-catalogue__entete">
         {integre
-          ? <h2>{nomCategorie || 'Nos produits'}</h2>
-          : <h1>{nomCategorie || 'Tous les produits'}</h1>}
-        {vue.donnees && (
+          ? <h2 className="bq-titre">{q ? 'Résultats' : (nomCategorie || 'Nos produits')}</h2>
+          : <h1 className="bq-titre bq-titre--page">{q ? 'Résultats' : (nomCategorie || 'Tous les produits')}</h1>}
+        {vue.donnees && (vue.donnees.total > 0 || filtreActif) && (
           <p className="bq-catalogue__compte">
             {vue.donnees.total} {vue.donnees.total > 1 ? 'produits' : 'produit'}
             {q && <> pour « {q} »</>}
@@ -115,41 +108,26 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
         )}
       </header>
 
-      {/* Sur la page de la boutique : pas de recherche ni de tri, la liste
-          reste simple ; les rayons suffisent à filtrer. */}
+      {/* Sur la page d'accueil : pas de recherche ni de tri, la liste reste
+          simple ; les rayons suffisent à filtrer. */}
       {!integre && (
-      <div className="bq-filtres">
-        <div className="bq-champ-recherche">
-          <Search size={18} strokeWidth={2} aria-hidden="true" />
-          <input
-            type="search"
-            value={saisie}
-            onChange={(e) => changerSaisie(e.target.value)}
-            placeholder={`Rechercher chez ${boutique.nom}…`}
-            aria-label="Rechercher un produit"
-          />
-          {saisie && (
-            <button type="button" onClick={() => changerSaisie('')} aria-label="Effacer la recherche">
-              <X size={16} strokeWidth={2.4} />
-            </button>
-          )}
+        <div className="bq-filtres">
+          <label className="bq-select">
+            <ArrowUpDown size={16} strokeWidth={2.2} aria-hidden="true" />
+            <span className="sr-only">Trier les produits</span>
+            <select value={tri} onChange={(e) => majParam('tri', e.target.value)}>
+              {TRIS.map((t) => <option key={t.valeur} value={t.valeur}>{t.libelle}</option>)}
+            </select>
+          </label>
         </div>
-
-        <label className="bq-select">
-          <SlidersHorizontal size={16} strokeWidth={2} aria-hidden="true" />
-          <span className="sr-only">Trier les produits</span>
-          <select value={tri} onChange={(e) => majParam('tri', e.target.value)}>
-            {TRIS.map((t) => <option key={t.valeur} value={t.valeur}>{t.libelle}</option>)}
-          </select>
-        </label>
-      </div>
       )}
 
-      {!sansPuces && categories.length > 0 && (
-        <div className="bq-puces" role="group" aria-label="Filtrer par rayon">
+      {!sansPuces && categories.length > 1 && (
+        <div className="bq-puces bq-puces--defile" role="group" aria-label="Filtrer par catégorie">
           <button
             type="button"
             className={`bq-puce ${!categorie ? 'est-active' : ''}`}
+            aria-pressed={!categorie}
             onClick={() => majParam('categorie', '')}
           >
             Tout
@@ -159,15 +137,16 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
               key={c.id}
               type="button"
               className={`bq-puce ${categorie === c.id ? 'est-active' : ''}`}
+              aria-pressed={categorie === c.id}
               onClick={() => majParam('categorie', c.id)}
             >
-              {c.nom} <span>{c.nombre}</span>
+              {c.nom} <span className="bq-puce__nombre">{c.nombre}</span>
             </button>
           ))}
         </div>
       )}
 
-      {vue.chargement && <SqueletteGrille nombre={8} />}
+      {vue.chargement && <SqueletteGrille nombre={8} format={format} />}
 
       {!vue.chargement && vue.erreur && (
         <EtatVide
@@ -183,10 +162,10 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
 
       {!vue.chargement && !vue.erreur && vue.donnees?.produits.length === 0 && (
         <EtatVide
-          titre="Aucun produit ne correspond"
+          titre={filtreActif ? 'Aucun produit ne correspond' : 'Pas encore de produit en ligne'}
           texte={filtreActif
             ? 'Essayez un autre mot, ou retirez les filtres.'
-            : `${boutique.nom} n'a pas encore publié de produit.`}
+            : `${boutique.nom} prépare son catalogue. Écrivez-lui sur WhatsApp pour savoir ce qui arrive.`}
           action={filtreActif ? (
             <button type="button" className="bq-bouton" onClick={() => setParams({})}>
               Voir tout le catalogue
@@ -203,30 +182,24 @@ export default function Catalogue({ boutique, categories, integre = false, sansP
             <nav className="bq-pagination" aria-label="Pages du catalogue">
               <button
                 type="button"
-                className="bq-bouton bq-bouton--fantome"
+                className="bq-bouton bq-bouton--doux"
                 disabled={page <= 1}
                 onClick={() => majParam('page', String(page - 1))}
               >
-                Précédent
+                <ChevronLeft size={17} strokeWidth={2.4} aria-hidden="true" /> Précédent
               </button>
               <span>Page {vue.donnees.page} sur {vue.donnees.pages}</span>
               <button
                 type="button"
-                className="bq-bouton bq-bouton--fantome"
+                className="bq-bouton bq-bouton--doux"
                 disabled={page >= vue.donnees.pages}
                 onClick={() => majParam('page', String(page + 1))}
               >
-                Suivant
+                Suivant <ChevronRight size={17} strokeWidth={2.4} aria-hidden="true" />
               </button>
             </nav>
           )}
         </>
-      )}
-
-      {!integre && (
-        <p className="bq-retour">
-          <Link to={`/b/${boutique.slug}`} className="bq-lien-discret">← Retour à la boutique</Link>
-        </p>
       )}
     </div>
   );

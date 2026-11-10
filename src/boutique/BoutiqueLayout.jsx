@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useParams, useLocation, Link } from 'react-router-dom';
+import { Megaphone } from 'lucide-react';
 import { chargerBoutique } from './api';
 import { variablesTheme } from './theme';
 import { FournisseurPanier } from './panier';
 import BarreHaut from './BarreHaut';
 import PanierFlottant from './PanierFlottant';
 import Pied from './Pied';
-import AppelApplication from './AppelApplication';
-import InviteApplication from './InviteApplication';
 import './vitrine.css';
 
 import Accueil from './pages/Accueil';
@@ -93,22 +92,50 @@ function Introuvable({ message }) {
  * Partagé avec l'aperçu du tableau de bord (`apercu`), qui n'affiche que
  * l'accueil.
  */
+/**
+ * La page d'accueil SaamBiz coupe tout débordement horizontal avec
+ * `overflow-x: hidden` sur html et body (styles/global.css). Posé sur les
+ * deux, il fait du body un conteneur de défilement qui ne défile jamais :
+ * la barre du haut, collante, ne collait plus à rien. Le temps que le site
+ * d'une boutique est affiché, on passe à `overflow-x: clip`, qui coupe le
+ * débordement sans créer ce conteneur (voir vitrine.css).
+ */
+function usePageBoutique() {
+  useEffect(() => {
+    document.documentElement.classList.add('page-boutique');
+    return () => document.documentElement.classList.remove('page-boutique');
+  }, []);
+}
+
 export function CoquilleBoutique({ donnees, apercu = false }) {
   const location = useLocation();
   const [panierOuvert, setPanierOuvert] = useState(false);
+  usePageBoutique();
   const { boutique } = donnees;
   const base = `/b/${boutique.slug}`;
-  const estAccueil = apercu || location.pathname.replace(/\/+$/, '') === base;
+  const chemin = location.pathname.replace(/\/+$/, '');
+  const estAccueil = apercu || chemin === base;
 
   return (
     <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug}>
       {/* Le thème du vendeur ne vit que dans ces variables CSS, posées sur la
-          racine du site : les composants lisent --bq-accent, --bq-sur-accent… */}
+          racine du site : les composants lisent --bq-accent, --bq-papier… */}
       <div
-        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}`}
+        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}${boutique.commandeActivee ? '' : ' vitrine--sans-commande'}`}
         style={variablesTheme(boutique.theme.accent)}
       >
-        {!estAccueil && <BarreHaut boutique={boutique} />}
+        {boutique.annonce && (
+          <p className="bq-annonce">
+            <Megaphone size={15} strokeWidth={2.2} aria-hidden="true" />
+            {boutique.annonce}
+          </p>
+        )}
+
+        {/* Le catalogue a son propre champ de recherche, avec le tri : la
+            barre du haut n'en affiche pas un second. */}
+        <BarreHaut boutique={boutique} estAccueil={estAccueil}
+          recherche={!apercu && chemin !== `${base}/catalogue`}
+          ouvrirPanier={() => setPanierOuvert(true)} />
 
         <main className="bq-main">
           {apercu ? <Accueil donnees={donnees} apercu /> : (
@@ -128,16 +155,12 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
           )}
         </main>
 
-        {/* L'appel à installer l'application, en bas de chaque page — sauf la
-            confirmation, qui a le sien. */}
-        {!location.pathname.endsWith('/confirmation') && (
-          <AppelApplication boutique={boutique} />
-        )}
-
         <Pied boutique={boutique} />
 
-        <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert} />
-        <InviteApplication boutique={boutique} />
+        {/* Sur le panier et le passage en caisse, la bulle ferait doublon :
+            le client y est déjà. */}
+        <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert}
+          bulle={!/\/(panier|commande|confirmation)$/.test(chemin)} />
       </div>
     </FournisseurPanier>
   );

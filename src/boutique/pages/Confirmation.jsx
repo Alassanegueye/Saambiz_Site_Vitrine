@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
-import { CheckCircle2, Copy, Check, MessageCircle, Phone } from 'lucide-react';
+import { Copy, Check, MessageCircle, Phone } from 'lucide-react';
+import { formaterTelephone, lienTelephone, lienWhatsapp } from '../outils';
 import { formaterPrix } from '../api';
-import AppelApplication from '../AppelApplication';
 
 /**
  * La page qui suit une commande réussie.
@@ -34,48 +34,55 @@ export default function Confirmation({ boutique }) {
     }
   };
 
-  const wa = boutique.whatsapp || boutique.telephone;
-  const lienWa = wa
-    ? `https://wa.me/${String(wa).replace(/\D/g, '')}?text=${encodeURIComponent(`Bonjour, je viens de passer la commande ${resultat.reference} sur votre site.`)}`
-    : null;
+  const lienWa = lienWhatsapp(
+    boutique.whatsapp || boutique.telephone,
+    `Bonjour, je viens de passer la commande ${resultat.reference} sur votre site.`,
+  );
 
   return (
     <>
       <div className="bq-section bq-confirmation">
         <span className="bq-confirmation__coche" aria-hidden="true">
-          <CheckCircle2 size={42} strokeWidth={1.8} />
+          <Check size={36} strokeWidth={2.6} />
         </span>
 
         <h1>Merci, votre commande est enregistrée</h1>
         <p className="bq-confirmation__intro">
           {boutique.nom} vient d'être prévenu. Le vendeur vous appellera au{' '}
-          <strong>{resultat.telephone}</strong> pour confirmer.
+          <strong>{formaterTelephone(resultat.telephone)}</strong> pour confirmer.
         </p>
 
-        <div className="bq-reference">
-          <span className="bq-reference__libelle">Référence de suivi</span>
-          <span className="bq-reference__valeur">{resultat.reference}</span>
-          <button type="button" onClick={copierReference} className="bq-reference__copier">
-            {copie
-              ? (<><Check size={15} strokeWidth={2.5} aria-hidden="true" /> Copiée</>)
-              : (<><Copy size={15} strokeWidth={2.2} aria-hidden="true" /> Copier</>)}
-          </button>
-        </div>
+        {/* Le reçu : la référence en grand, puis l'essentiel de la commande.
+            C'est ce que le client photographie ou recopie. */}
+        <div className="bq-recu">
+          <div className="bq-recu__haut">
+            <span className="bq-recu__boutique">{boutique.nom}</span>
+            <span className="bq-recu__libelle">Référence de suivi</span>
+            <span className="bq-recu__valeur">{resultat.reference}</span>
+            <button type="button" onClick={copierReference} className="bq-recu__copier">
+              {copie
+                ? (<><Check size={15} strokeWidth={2.5} aria-hidden="true" /> Référence copiée</>)
+                : (<><Copy size={15} strokeWidth={2.2} aria-hidden="true" /> Copier la référence</>)}
+            </button>
+          </div>
 
-        <dl className="bq-confirmation__detail">
-          <div>
-            <dt>Total</dt>
-            <dd>{formaterPrix(resultat.montantTotal)}</dd>
-          </div>
-          <div>
-            <dt>Mode de réception</dt>
-            <dd>{resultat.modeLivraison === 'retrait' ? 'Retrait sur place' : 'Livraison'}</dd>
-          </div>
-          <div>
-            <dt>Paiement</dt>
-            <dd>{resultat.modePaiement === 'a_la_livraison' ? 'À la réception' : 'En ligne'}</dd>
-          </div>
-        </dl>
+          <div className="bq-recu__coupe" aria-hidden="true" />
+
+          <dl className="bq-recu__detail">
+            <div>
+              <dt>Total</dt>
+              <dd>{formaterPrix(resultat.montantTotal)}</dd>
+            </div>
+            <div>
+              <dt>Réception</dt>
+              <dd>{resultat.modeLivraison === 'retrait' ? 'Retrait sur place' : 'Livraison'}</dd>
+            </div>
+            <div>
+              <dt>Paiement</dt>
+              <dd>{resultat.modePaiement === 'a_la_livraison' ? 'À la réception' : 'En ligne'}</dd>
+            </div>
+          </dl>
+        </div>
 
         {/* Frais de livraison : le montant vient du serveur, on ne l'annonce
             que quand il est réellement appliqué. */}
@@ -95,13 +102,13 @@ export default function Confirmation({ boutique }) {
           </Link>
 
           {lienWa && (
-            <a className="bq-bouton bq-bouton--fantome bq-bouton--grand" href={lienWa} target="_blank" rel="noopener noreferrer">
+            <a className="bq-bouton bq-bouton--doux bq-bouton--grand" href={lienWa} target="_blank" rel="noopener noreferrer">
               <MessageCircle size={17} strokeWidth={2.2} aria-hidden="true" /> Écrire au vendeur
             </a>
           )}
 
           {boutique.telephone && (
-            <a className="bq-bouton bq-bouton--fantome bq-bouton--grand" href={`tel:${boutique.telephone}`}>
+            <a className="bq-bouton bq-bouton--doux bq-bouton--grand" href={lienTelephone(boutique.telephone)}>
               <Phone size={17} strokeWidth={2.2} aria-hidden="true" /> Appeler
             </a>
           )}
@@ -112,10 +119,6 @@ export default function Confirmation({ boutique }) {
           accès au suivi à tout moment, sans compte.
         </p>
       </div>
-
-      {/* L'invitation à installer l'application arrive ici, une fois la
-          commande passée et le suivi expliqué — pas avant. */}
-      <AppelApplication boutique={boutique} contexte="commande" />
     </>
   );
 }

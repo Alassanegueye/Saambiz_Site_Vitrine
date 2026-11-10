@@ -203,7 +203,7 @@ export default function Suivi({ boutique }) {
       )}
 
       <p className="bq-retour">
-        <Link to={`/b/${boutique.slug}`} className="bq-lien-discret">← Retour à la boutique</Link>
+        <Link to={`/b/${boutique.slug}`} className="bq-lien">Retour à la boutique</Link>
       </p>
     </div>
   );

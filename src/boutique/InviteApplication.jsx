@@ -51,11 +51,11 @@ export default function InviteApplication({ boutique }) {
         <h2 id="bq-invite-titre">{t.titre}</h2>
         <p>{t.texte.replace('{nom}', boutique?.nom || 'cette boutique')}</p>
         <div className="bq-invite__stores">
-          <a className="bq-pop__store" href={LIEN_ANDROID} target="_blank" rel="noopener noreferrer">
+          <a className="bq-store-bouton" href={LIEN_ANDROID} target="_blank" rel="noopener noreferrer">
             <LogoGooglePlay />
             <span><small>Disponible sur</small><strong>Google Play</strong></span>
           </a>
-          <a className="bq-pop__store" href={LIEN_IOS} target="_blank" rel="noopener noreferrer">
+          <a className="bq-store-bouton" href={LIEN_IOS} target="_blank" rel="noopener noreferrer">
             <LogoApple />
             <span><small>Télécharger sur</small><strong>App Store</strong></span>
           </a>

@@ -3,11 +3,23 @@
  * couleur d'accent.
  *
  * Le vendeur ne compose pas une palette. Il choisit une couleur — souvent
- * celle de son logo — et tout le reste en découle : les fonds tramés, la
- * couleur du texte sur un bouton, la teinte des bordures. C'est ce qui permet
- * de garder un site lisible quel que soit le choix, y compris un jaune vif ou
- * un noir. Laisser régler quinze couleurs, c'est garantir des sites illisibles.
+ * celle de son logo — et le reste en découle : la couleur des boutons, des
+ * liens, des icônes et du pied de page. Toutes les boutiques partagent la
+ * même mise en page, sobre, sur fond blanc.
+ *
+ * Chaque teinte est vérifiée au contraste (WCAG) avant d'être utilisée : un
+ * vendeur qui choisit un jaune or ne doit pas se retrouver avec des prix
+ * jaunes sur blanc, illisibles en plein soleil — le contexte d'usage réel.
+ *
+ * Les couleurs sont calculées ici plutôt qu'avec color-mix() en CSS : une
+ * partie des téléphones de la clientèle tourne sur un Chrome trop ancien
+ * pour cette fonction.
  */
+
+const NOIR = { r: 0, g: 0, b: 0 };
+const BLANC = { r: 255, g: 255, b: 255 };
+// Base de l'encre : un presque-noir neutre, que l'accent vient teinter.
+const ENCRE_BASE = { r: 18, g: 20, b: 24 };
 
 /** #RRGGBB → { r, g, b }. Retombe sur le bleu marine SaamBiz si illisible. */
 function versRgb(hex) {
@@ -17,12 +29,19 @@ function versRgb(hex) {
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
-/**
- * Luminance relative (WCAG). Sert à trancher une seule question, mais la plus
- * importante : le texte posé sur cette couleur doit-il être blanc ou foncé ?
- * Un vendeur qui choisit un jaune or aurait sinon des boutons blancs sur
- * jaune, illisibles en plein soleil — le contexte d'usage réel ici.
- */
+const css = ({ r, g, b }) => `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+const rgba = ({ r, g, b }, a) => `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
+
+/** Mélange deux couleurs : t = 0 rend `a`, t = 1 rend `b`. */
+function melanger(a, b, t) {
+  return {
+    r: a.r + (b.r - a.r) * t,
+    g: a.g + (b.g - a.g) * t,
+    b: a.b + (b.b - a.b) * t,
+  };
+}
+
+/** Luminance relative (WCAG). */
 function luminance({ r, g, b }) {
   const c = [r, g, b].map((v) => {
     const x = v / 255;
@@ -31,54 +50,93 @@ function luminance({ r, g, b }) {
   return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 }
 
-/** Assombrit une couleur vers le noir, en gardant sa teinte. */
-function assombrir({ r, g, b }, part) {
-  const f = (v) => Math.round(v * (1 - part));
-  return `rgb(${f(r)}, ${f(g)}, ${f(b)})`;
+function contraste(a, b) {
+  const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (l1 + 0.05) / (l2 + 0.05);
+}
+
+/**
+ * Rapproche `couleur` de `vers` (le noir par défaut) jusqu'à atteindre le
+ * contraste demandé sur `fond`. La teinte est conservée : un vert reste un
+ * vert, simplement plus profond.
+ */
+function rendreLisible(couleur, fond, cible, vers = NOIR) {
+  if (contraste(couleur, fond) >= cible) return couleur;
+  for (let t = 0.04; t <= 1; t += 0.04) {
+    const essai = melanger(couleur, vers, t);
+    if (contraste(essai, fond) >= cible) return essai;
+  }
+  return vers;
 }
 
 /**
  * Variables CSS à poser sur la racine du site de la boutique.
  * Le CSS ne connaît que ces noms : changer la dérivation ici suffit à
- * retoucher toutes les mises en page d'un coup.
+ * retoucher toutes les pages d'un coup.
  */
-export function variablesTheme(accent) {
-  const rgb = versRgb(accent);
-  const { r, g, b } = rgb;
-  const lum = luminance(rgb);
+export function variablesTheme(accentHex) {
+  // Une couleur presque blanche ne laisserait pas voir les
+  // boutons : on la fonce, en gardant sa teinte, jusqu'à ce qu'elle tienne.
+  const accent = rendreLisible(versRgb(accentHex), BLANC, 1.9);
 
-  // 0.55 plutôt que 0.5 : le point de bascule mesuré où le texte blanc
-  // repasse sous le seuil de contraste AA sur les couleurs moyennes.
-  const claire = lum > 0.55;
+  // La page est blanche et les neutres sont fixes : un site sobre, où la
+  // couleur du vendeur n'apparaît que sur ce qui se touche (boutons, liens,
+  // icônes) et sur le pied de page.
+  const papier = BLANC;
+  const papierFonce = { r: 245, g: 246, b: 248 };
+  const encre = ENCRE_BASE;
+  const encreDouce = { r: 92, g: 98, b: 108 };
+  const encrePale = { r: 138, g: 144, b: 154 };
+  const ligne = { r: 228, g: 231, b: 236 };
+
+  // Le bouton principal. Trois cas :
+  //   – le blanc se lit sur l'accent : on garde l'accent tel quel ;
+  //   – l'accent est clair (or, jaune, rose pâle) : texte foncé dessus ;
+  //   – entre les deux (un bleu moyen) : on fonce l'accent jusqu'à ce que
+  //     le blanc s'y lise, plutôt que d'écrire en noir sur du bleu.
+  let bouton = accent;
+  let surBouton = BLANC;
+  if (contraste(BLANC, accent) < 4.5) {
+    if (contraste(encre, accent) >= 7) surBouton = encre;
+    else bouton = rendreLisible(accent, BLANC, 4.5);
+  }
+  const boutonSurvol = melanger(bouton, surBouton === BLANC ? NOIR : BLANC, surBouton === BLANC ? 0.16 : 0.18);
+
+  // L'accent quand il sert de texte ou d'icône sur le papier (prix, liens).
+  const accentTexte = rendreLisible(accent, papier, 4.6);
+
+  // Le pied de page : l'accent, assombri jusqu'à une profondeur fixe. Une
+  // couleur déjà sombre l'est donc moins qu'une claire : le pied garde la
+  // teinte du vendeur au lieu de virer au noir.
+  let pied = accent;
+  for (let t = 0; t <= 1 && luminance(pied) > 0.016; t += 0.02) pied = melanger(accent, NOIR, t);
 
   return {
-    '--bq-accent': `rgb(${r}, ${g}, ${b})`,
-    '--bq-accent-rgb': `${r}, ${g}, ${b}`,
+    '--bq-accent': css(accent),
+    '--bq-accent-rgb': `${Math.round(accent.r)}, ${Math.round(accent.g)}, ${Math.round(accent.b)}`,
+    '--bq-accent-texte': css(accentTexte),
 
-    // Texte posé SUR l'accent : blanc sur une couleur sombre, presque noir
-    // sur une couleur claire. C'est ce qui rend un accent jaune utilisable.
-    '--bq-sur-accent': claire ? '#12100A' : '#FFFFFF',
+    '--bq-bouton': css(bouton),
+    '--bq-bouton-survol': css(boutonSurvol),
+    '--bq-sur-bouton': css(surBouton),
+    // Ancien nom, encore lu par quelques règles : le texte posé sur l'accent.
+    '--bq-sur-accent': css(surBouton),
 
-    // Version foncée pour les survols et les titres : la même teinte, jamais
-    // un gris neutre, sinon le site perd la couleur du vendeur au survol.
-    '--bq-accent-fonce': assombrir(rgb, claire ? 0.42 : 0.22),
+    '--bq-papier': css(papier),
+    '--bq-papier-fonce': css(papierFonce),
+    '--bq-encre': css(encre),
+    '--bq-encre-douce': css(encreDouce),
+    '--bq-encre-pale': css(encrePale),
+    '--bq-ligne': css(ligne),
 
-    // Voiles : fonds de sections, bordures, puces. Exprimés en alpha pour
-    // rester justes aussi bien sur blanc que sur une carte grise.
-    '--bq-voile': `rgba(${r}, ${g}, ${b}, 0.08)`,
-    '--bq-voile-fort': `rgba(${r}, ${g}, ${b}, 0.16)`,
-    '--bq-bordure-accent': `rgba(${r}, ${g}, ${b}, 0.28)`,
-    '--bq-ombre-accent': `0 10px 30px rgba(${r}, ${g}, ${b}, 0.22)`,
+    // Voiles : fonds de pastilles, survols, anneaux.
+    '--bq-voile': rgba(accent, 0.08),
+    '--bq-voile-fort': rgba(accent, 0.15),
+    '--bq-bordure-accent': rgba(accent, 0.32),
 
-    // Le voile posé sur la bannière pour que le nom de la boutique reste
-    // lisible quelle que soit la photo téléversée — et elles vont du studio
-    // au cliché pris à contre-jour.
-    '--bq-voile-banniere': claire
-      ? 'linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.55) 100%)'
-      : `linear-gradient(180deg, rgba(${r},${g},${b},0.35) 0%, rgba(0,0,0,0.62) 100%)`,
+    '--bq-pied': css(pied),
   };
 }
-
 /** Mises en page proposées. Les clés doivent rester alignées sur le backend. */
 export const MODELES = {
   classique: {

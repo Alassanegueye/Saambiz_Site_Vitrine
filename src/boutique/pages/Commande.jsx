@@ -144,7 +144,7 @@ export default function Commande({ boutique }) {
         <div className="bq-commande__champs">
 
           <fieldset className="bq-bloc">
-            <legend>Vos coordonnées</legend>
+            <legend><span className="bq-etape" aria-hidden="true">1</span>Vos coordonnées</legend>
 
             <div className="bq-duo">
               <label className="bq-label">
@@ -181,7 +181,7 @@ export default function Commande({ boutique }) {
           </fieldset>
 
           <fieldset className="bq-bloc">
-            <legend>Livraison</legend>
+            <legend><span className="bq-etape" aria-hidden="true">2</span>Livraison</legend>
 
             <div className="bq-choix">
               <label className={`bq-choix__option ${form.modeLivraison === 'livraison' ? 'est-actif' : ''}`}>
@@ -229,7 +229,7 @@ export default function Commande({ boutique }) {
           </fieldset>
 
           <fieldset className="bq-bloc">
-            <legend>Paiement</legend>
+            <legend><span className="bq-etape" aria-hidden="true">3</span>Paiement</legend>
 
             {boutique.paiementLivraison ? (
               <label className="bq-choix__option est-actif">

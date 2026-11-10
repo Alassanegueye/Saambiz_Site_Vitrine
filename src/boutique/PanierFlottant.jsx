@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, X, Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { ShoppingBag, X, Minus, Plus, Trash2 } from 'lucide-react';
 import { formaterPrix } from './api';
 import { usePanier } from './panierContexte';
 import { ImageProduit } from './composants';
+import { libelleVariantes } from './outils';
 
 /**
  * Le panier, en bulle flottante comme un chatbot, en bas à droite. Il
@@ -12,7 +13,7 @@ import { ImageProduit } from './composants';
  * ajouté. Un
  * appui ouvre le panier : on relit, on ajuste, on commande — sans compte.
  */
-export default function PanierFlottant({ boutique, ouvert, setOuvert }) {
+export default function PanierFlottant({ boutique, ouvert, setOuvert, bulle = true }) {
   const { lignes, nombreArticles, sousTotal, changerQuantite, retirer } = usePanier();
   const navigate = useNavigate();
 
@@ -41,7 +42,7 @@ export default function PanierFlottant({ boutique, ouvert, setOuvert }) {
 
   return (
     <>
-      {nombreArticles > 0 && !ouvert && (
+      {bulle && nombreArticles > 0 && !ouvert && (
         <div className="bq-bulle">
           {/* La clé relance l'apparition de l'étiquette à chaque ajout. */}
           <button key={`${dernier?.cle}-${nombreArticles}`} type="button" className="bq-bulle__etiquette"
@@ -89,7 +90,7 @@ export default function PanierFlottant({ boutique, ouvert, setOuvert }) {
                         <p className="bq-panier-popup__nom">{l.nom}</p>
                         {l.variantes && (
                           <p className="bq-panier-popup__options">
-                            {Object.entries(l.variantes).map(([k, v]) => `${k} : ${v}`).join(' · ')}
+                            {libelleVariantes(l.variantes)}
                           </p>
                         )}
                         <p className="bq-panier-popup__prix">{formaterPrix(l.prix * l.quantite)}</p>
@@ -119,7 +120,7 @@ export default function PanierFlottant({ boutique, ouvert, setOuvert }) {
                   </p>
                   <p className="bq-panier-popup__note">Livraison calculée à l'étape suivante. Aucun compte nécessaire.</p>
                   <button type="button" className="bq-bouton bq-bouton--grand bq-bouton--bloc" onClick={commander}>
-                    Commander <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
+                    Passer la commande
                   </button>
                 </footer>
               </>

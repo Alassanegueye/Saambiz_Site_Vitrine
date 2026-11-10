@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Minus, Plus, ArrowRight } from 'lucide-react';
+import { Trash2, Minus, Plus } from 'lucide-react';
 import { formaterPrix } from '../api';
 import { usePanier } from '../panierContexte';
 import { ImageProduit, EtatVide } from '../composants';
+import { libelleVariantes } from '../outils';
 
 /** Le panier : relecture, ajustement des quantités, passage en caisse. */
 export default function Panier({ boutique }) {
@@ -39,7 +40,7 @@ export default function Panier({ boutique }) {
 
                 {l.variantes && (
                   <p className="bq-panier__options">
-                    {Object.entries(l.variantes).map(([k, v]) => `${k} : ${v}`).join(' · ')}
+                    {libelleVariantes(l.variantes)}
                   </p>
                 )}
 
@@ -94,7 +95,7 @@ export default function Panier({ boutique }) {
             onClick={() => navigate(`${base}/commande`)}
             disabled={!boutique.commandeActivee}
           >
-            Commander <ArrowRight size={17} strokeWidth={2.4} aria-hidden="true" />
+            Passer la commande
           </button>
 
           {!boutique.commandeActivee && (
@@ -108,8 +109,8 @@ export default function Panier({ boutique }) {
             Aucun compte n'est nécessaire : votre nom et votre numéro suffisent.
           </p>
 
-          <Link to={`${base}/catalogue`} className="bq-lien-discret bq-recap__retour">
-            ← Continuer mes achats
+          <Link to={`${base}/catalogue`} className="bq-lien bq-recap__retour">
+            Continuer mes achats
           </Link>
         </aside>
       </div>

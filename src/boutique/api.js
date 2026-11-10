@@ -89,5 +89,7 @@ export const suivreCommande = (reference, telephone) =>
   );
 
 /** Formatage des montants — le franc CFA n'a pas de décimales. */
-export const formaterPrix = (montant) =>
-  `${Math.round(Number(montant) || 0).toLocaleString('fr-FR')} FCFA`;
+export const formaterMontant = (montant) =>
+  Math.round(Number(montant) || 0).toLocaleString('fr-FR');
+
+export const formaterPrix = (montant) => `${formaterMontant(montant)} FCFA`;
