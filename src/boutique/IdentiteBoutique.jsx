@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Phone, MapPin, BadgeCheck, MessageCircle, Star, Store, Clock, Share2, Check } from 'lucide-react';
-import { formaterNote, lienCarte, lienTelephone, lienWhatsapp } from './outils';
+import { formaterNote, lienCarte, lienTelephone, lienWhatsappBoutique } from './outils';
+import { ImageProduit } from './composants';
 
 /**
  * Le logo de la boutique, posé selon la forme mesurée à son téléversement :
@@ -25,17 +27,18 @@ export function LogoBoutique({ boutique, className = '' }) {
 /**
  * Le haut du site : logo, nom, activité, ce qui rassure (note, adresse,
  * horaires, ancienneté), puis les gestes utiles — écrire, appeler, partager.
- * Volontairement sans bannière : la plupart des vendeurs n'en ont pas.
+ *
+ * Volontairement sans bannière : la plupart des vendeurs n'en ont pas. Sur
+ * ordinateur, la place à droite du nom accueille trois de ses produits, comme
+ * une vitrine : la boutique se présente avec ce qu'elle vend, sans que le
+ * vendeur ait rien à fournir de plus.
  */
-export default function IdentiteBoutique({ boutique }) {
+export default function IdentiteBoutique({ boutique, vitrine = [] }) {
   const [lienCopie, setLienCopie] = useState(false);
 
   const adresse = boutique.localisation || boutique.ville;
   const telephone = boutique.telephone || boutique.whatsapp;
-  const wa = lienWhatsapp(
-    boutique.whatsapp || boutique.telephone,
-    `Bonjour ${boutique.nom}, je vous contacte depuis votre site.`,
-  );
+  const wa = lienWhatsappBoutique(boutique);
   const stats = boutique.stats || {};
   const sousTitre = boutique.slogan || boutique.categorie;
   const base = `/b/${boutique.slug}`;
@@ -58,62 +61,83 @@ export default function IdentiteBoutique({ boutique }) {
   };
 
   return (
-    <section className="bq-id" data-apercu="style">
-      <div className="bq-id__haut">
-        <LogoBoutique boutique={boutique} className="bq-id__logo" />
-        <div className="bq-id__texte">
-          <h1 className="bq-id__nom">
-            {boutique.nom}
-            {boutique.verifiee && (
-              <BadgeCheck size={22} strokeWidth={2.2} className="bq-verifiee" aria-label="Boutique certifiée par SaamBiz" />
+    <section className={`bq-id ${vitrine.length ? 'bq-id--vitrine' : ''}`} data-apercu="style">
+      <div className="bq-id__interieur">
+        <div className="bq-id__principal">
+          <div className="bq-id__haut">
+            <LogoBoutique boutique={boutique} className="bq-id__logo" />
+            <div className="bq-id__texte">
+              <h1 className="bq-id__nom">
+                {boutique.nom}
+                {boutique.verifiee && (
+                  <BadgeCheck size={24} strokeWidth={2.2} className="bq-verifiee" aria-label="Boutique certifiée par SaamBiz" />
+                )}
+              </h1>
+              {sousTitre && <p className="bq-id__slogan">{sousTitre}</p>}
+            </div>
+          </div>
+
+          <ul className="bq-reperes">
+            {stats.note != null && stats.avis > 0 && (
+              <li>
+                <Star size={15} className="bq-reperes__etoile" aria-hidden="true" />
+                <strong>{formaterNote(stats.note)}</strong>
+                <span className="bq-reperes__discret">({stats.avis} avis)</span>
+              </li>
             )}
-          </h1>
-          {sousTitre && <p className="bq-id__slogan">{sousTitre}</p>}
+            {adresse && (
+              <li>
+                <a href={lienCarte(adresse)} target="_blank" rel="noopener noreferrer" title="Voir sur la carte">
+                  <MapPin size={15} strokeWidth={2.2} aria-hidden="true" /> {adresse}
+                </a>
+              </li>
+            )}
+            {boutique.horaires && (
+              <li><Clock size={15} strokeWidth={2.2} aria-hidden="true" /> {boutique.horaires}</li>
+            )}
+            {boutique.depuis && (
+              <li><Store size={15} strokeWidth={2.2} aria-hidden="true" /> En ligne depuis {boutique.depuis}</li>
+            )}
+          </ul>
+
+          <div className="bq-actions">
+            {wa && (
+              <a className="bq-action bq-action--principale" href={wa} target="_blank" rel="noopener noreferrer">
+                <MessageCircle size={18} strokeWidth={2.2} aria-hidden="true" />
+                <span>WhatsApp</span>
+              </a>
+            )}
+            {telephone && (
+              <a className="bq-action" href={lienTelephone(telephone)}>
+                <Phone size={18} strokeWidth={2.2} aria-hidden="true" />
+                <span>Appeler</span>
+              </a>
+            )}
+            <button type="button" className="bq-action" onClick={partager} aria-live="polite">
+              {lienCopie
+                ? <Check size={18} strokeWidth={2.4} aria-hidden="true" />
+                : <Share2 size={18} strokeWidth={2.2} aria-hidden="true" />}
+              <span>{lienCopie ? 'Lien copié' : 'Partager'}</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <ul className="bq-reperes">
-        {stats.note != null && stats.avis > 0 && (
-          <li>
-            <Star size={15} className="bq-reperes__etoile" aria-hidden="true" />
-            <strong>{formaterNote(stats.note)}</strong>
-            <span className="bq-reperes__discret">({stats.avis} avis)</span>
-          </li>
+        {vitrine.length > 0 && (
+          <ul className="bq-id__vitrine" aria-label={`Quelques produits de ${boutique.nom}`}>
+            {vitrine.map((p, i) => (
+              <li key={p.id} className={`bq-id__piece bq-id__piece--${i + 1}`}>
+                <Link to={`${base}/produit/${p.id}`} className="bq-id__piece-lien">
+                  {/* Paresseuses : sur téléphone, la vitrine est masquée et
+                      ses photos ne doivent rien coûter au forfait. Sur
+                      ordinateur, elles sont dans l'écran et chargent tout de
+                      suite. */}
+                  <ImageProduit src={p.image} alt={p.nom} className="bq-id__piece-image" />
+                  <span className="bq-id__piece-nom">{p.nom}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
-        {adresse && (
-          <li>
-            <a href={lienCarte(adresse)} target="_blank" rel="noopener noreferrer" title="Voir sur la carte">
-              <MapPin size={15} strokeWidth={2.2} aria-hidden="true" /> {adresse}
-            </a>
-          </li>
-        )}
-        {boutique.horaires && (
-          <li><Clock size={15} strokeWidth={2.2} aria-hidden="true" /> {boutique.horaires}</li>
-        )}
-        {boutique.depuis && (
-          <li><Store size={15} strokeWidth={2.2} aria-hidden="true" /> En ligne depuis {boutique.depuis}</li>
-        )}
-      </ul>
-
-      <div className="bq-actions">
-        {wa && (
-          <a className="bq-action bq-action--principale" href={wa} target="_blank" rel="noopener noreferrer">
-            <MessageCircle size={18} strokeWidth={2.2} aria-hidden="true" />
-            <span>WhatsApp</span>
-          </a>
-        )}
-        {telephone && (
-          <a className="bq-action" href={lienTelephone(telephone)}>
-            <Phone size={18} strokeWidth={2.2} aria-hidden="true" />
-            <span>Appeler</span>
-          </a>
-        )}
-        <button type="button" className="bq-action" onClick={partager} aria-live="polite">
-          {lienCopie
-            ? <Check size={18} strokeWidth={2.4} aria-hidden="true" />
-            : <Share2 size={18} strokeWidth={2.2} aria-hidden="true" />}
-          <span>{lienCopie ? 'Lien copié' : 'Partager'}</span>
-        </button>
       </div>
     </section>
   );

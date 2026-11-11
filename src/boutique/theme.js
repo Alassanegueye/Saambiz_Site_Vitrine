@@ -111,6 +111,13 @@ export function variablesTheme(accentHex) {
   let pied = accent;
   for (let t = 0; t <= 1 && luminance(pied) > 0.016; t += 0.02) pied = melanger(accent, NOIR, t);
 
+  // Le fond du haut des pages (identité de la boutique, titre des pages) :
+  // l'accent fondu dans le blanc. Assez pour que chaque boutique ait sa
+  // couleur dès le premier écran, assez peu pour que le texte noir reste
+  // net dessus — un jaune donne un crème, un vert un vert d'eau.
+  const teinte = melanger(BLANC, accent, 0.07);
+  const teinteLigne = melanger(BLANC, accent, 0.16);
+
   return {
     '--bq-accent': css(accent),
     '--bq-accent-rgb': `${Math.round(accent.r)}, ${Math.round(accent.g)}, ${Math.round(accent.b)}`,
@@ -135,6 +142,8 @@ export function variablesTheme(accentHex) {
     '--bq-bordure-accent': rgba(accent, 0.32),
 
     '--bq-pied': css(pied),
+    '--bq-teinte': css(teinte),
+    '--bq-teinte-ligne': css(teinteLigne),
   };
 }
 /** Mises en page proposées. Les clés doivent rester alignées sur le backend. */

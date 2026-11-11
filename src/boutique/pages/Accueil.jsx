@@ -1,37 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, MapPin, Clock, Phone, MessageCircle, Globe, Ghost } from 'lucide-react';
-import { GrilleProduits, CarteProduit } from '../composants';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, MapPin, Clock, Phone, MessageCircle } from 'lucide-react';
+import { GrilleProduits, CarteProduit, Avantages, Reseaux } from '../composants';
 import IdentiteBoutique from '../IdentiteBoutique';
 import IconeVitrine from '../IconeVitrine';
-import { Facebook, Instagram, TikTok } from '../icones';
 import Catalogue from './Catalogue';
-import { lienCarte, lienTelephone, lienWhatsapp } from '../outils';
+import { formaterTelephone, lienCarte, lienTelephone, lienWhatsappBoutique, promosDeLAccueil } from '../outils';
 
 /**
  * La page d'accueil du site d'une boutique, faite pour être partagée aux
- * clients et commander sans compte : l'identité de la boutique, les rayons,
- * puis ce que le vendeur a choisi d'afficher — ses sections (chacune sur
- * une ligne qui défile), ses avantages et sa présentation.
+ * clients et commander sans compte : l'identité de la boutique, ses promos
+ * du moment, puis ce que le vendeur a choisi d'afficher — ses sections
+ * (chacune sur une ligne qui défile) ou, à défaut, ses produits. En bas, un
+ * aperçu de la boutique et de ses coordonnées, qui mènent aux pages
+ * « À propos » et « Contact ».
  *
- * Sans section composée, la boutique montre simplement tous ses produits :
- * un site qui annonce « bientôt » alors que le catalogue est plein fait
+ * Sans section composée, la boutique montre simplement ses produits : un
+ * site qui annonce « bientôt » alors que le catalogue est plein fait
  * repartir le client.
  */
 
-/* ── Rayons ─────────────────────────────────────────────────────── */
+/* ── Catégories ─────────────────────────────────────────────────── */
 /* Les catégories du catalogue, avec l'icône que le vendeur a choisie pour
-   chacune. Un appui ouvre le catalogue filtré sur ce rayon. */
-function Rayons({ categories, icones, slug }) {
+   chacune. Un appui ouvre « Nos produits » filtré sur la catégorie. */
+function Categories({ categories, icones, slug }) {
   return (
     <nav className="bq-section bq-rayons" aria-label="Catégories de la boutique">
       <ul className="bq-rayons__liste">
         {categories.map((c) => (
           <li key={c.id}>
-            <Link to={`/b/${slug}/catalogue?categorie=${c.id}`} className="bq-rayon">
-              <span className="bq-rayon__icone"><IconeVitrine cle={icones?.[c.id]} size={24} strokeWidth={1.8} /></span>
+            <Link to={`/b/${slug}/produits?categorie=${c.id}`} className="bq-rayon">
+              <span className="bq-rayon__icone"><IconeVitrine cle={icones?.[c.id]} size={22} strokeWidth={1.8} /></span>
               <span className="bq-rayon__nom">{c.nom}</span>
-              <span className="bq-rayon__nombre">{c.nombre} article{c.nombre > 1 ? 's' : ''}</span>
             </Link>
           </li>
         ))}
@@ -41,10 +41,11 @@ function Rayons({ categories, icones, slug }) {
 }
 
 /* ── Section en ligne ───────────────────────────────────────────── */
-/* Titre en haut, « Tout voir » à droite, produits sur une ligne qui défile ;
-   « Tout voir » déplie la section en grille. Sur ordinateur, deux flèches
-   font défiler la ligne pour qui n'a pas de pavé tactile. */
-function SectionLigne({ titre, produits, slug, format, repere }) {
+/* Titre en haut, produits sur une ligne qui défile. À droite du titre :
+   soit un lien vers la page qui montre tout (les promos), soit « Tout
+   voir », qui déplie la section en grille sur place. Sur ordinateur, deux
+   flèches font défiler la ligne pour qui n'a pas de pavé tactile. */
+function SectionLigne({ titre, produits, slug, format, repere, lien, libelleLien }) {
   const rangee = useRef(null);
   const [toutVoir, setToutVoir] = useState(false);
   const [bords, setBords] = useState({ debut: true, fin: true });
@@ -76,9 +77,10 @@ function SectionLigne({ titre, produits, slug, format, repere }) {
       <div className="bq-titre-section">
         <h2>{titre}</h2>
         <div className="bq-titre-section__outils">
-          {(deborde || toutVoir) && (
+          {lien && <Link to={lien} className="bq-lien">{libelleLien}</Link>}
+          {!lien && (deborde || toutVoir) && (
             <button type="button" className="bq-lien" onClick={() => setToutVoir((v) => !v)} aria-expanded={toutVoir}>
-              {toutVoir ? 'Voir moins' : `Tout voir (${produits.length})`}
+              {toutVoir ? 'Voir moins' : 'Tout voir'}
             </button>
           )}
           {deborde && !toutVoir && (
@@ -109,41 +111,18 @@ function SectionLigne({ titre, produits, slug, format, repere }) {
   );
 }
 
-/* ── Avantages ──────────────────────────────────────────────────── */
-function Avantages({ avantages }) {
-  return (
-    <section className="bq-section" data-apercu="avantages">
-      <ul className="bq-avantages">
-        {avantages.map((a, i) => (
-          <li key={i}>
-            <span className="bq-avantages__icone"><IconeVitrine cle={a.icone} size={22} strokeWidth={1.9} /></span>
-            <span className="bq-avantages__texte">
-              <strong>{a.titre}</strong>
-              {a.texte && <span>{a.texte}</span>}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-/* ── À propos et infos pratiques ────────────────────────────────── */
-function APropos({ boutique, avecTexte, avecInfos }) {
+/* ── La boutique en bref ────────────────────────────────────────── */
+/* Le début de la présentation du vendeur, et ses coordonnées : de quoi
+   rassurer avant de commander. Le détail est sur « À propos » et
+   « Contact ». */
+function EnBref({ boutique, avecTexte, avecInfos }) {
+  const base = `/b/${boutique.slug}`;
   const texte = boutique.apropos || boutique.description;
   const adresse = boutique.localisation || boutique.ville;
-  const wa = lienWhatsapp(boutique.whatsapp || boutique.telephone, `Bonjour ${boutique.nom}, je vous contacte depuis votre site.`);
-  const reseaux = boutique.reseaux || {};
-  const liens = [
-    reseaux.instagram && { href: reseaux.instagram, nom: 'Instagram', icone: <Instagram size={18} /> },
-    reseaux.facebook && { href: reseaux.facebook, nom: 'Facebook', icone: <Facebook size={18} /> },
-    reseaux.tiktok && { href: reseaux.tiktok, nom: 'TikTok', icone: <TikTok size={18} /> },
-    reseaux.snapchat && { href: reseaux.snapchat, nom: 'Snapchat', icone: <Ghost size={18} strokeWidth={2} /> },
-    reseaux.site && { href: reseaux.site, nom: 'Site web', icone: <Globe size={18} strokeWidth={2} /> },
-  ].filter(Boolean);
+  const wa = lienWhatsappBoutique(boutique);
 
   const montrerTexte = avecTexte && texte;
-  const montrerInfos = avecInfos && (adresse || boutique.horaires || boutique.telephone || wa || liens.length > 0);
+  const montrerInfos = avecInfos && (adresse || boutique.horaires || boutique.telephone || wa);
   if (!montrerTexte && !montrerInfos) return null;
 
   return (
@@ -151,9 +130,10 @@ function APropos({ boutique, avecTexte, avecInfos }) {
       {montrerTexte && (
         <div className="bq-apropos__texte">
           <h2 className="bq-titre">À propos de {boutique.nom}</h2>
-          {/* Paragraphe par paragraphe : React échappe chaque chaîne, aucun HTML
-              saisi dans le champ ne s'exécute. */}
-          {texte.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
+          {/* Le premier paragraphe seulement : la suite est sur sa page.
+              React échappe la chaîne, aucun HTML saisi ne s'exécute. */}
+          <p className="bq-apropos__resume">{texte.split(/\n{2,}/)[0]}</p>
+          <Link to={`${base}/a-propos`} className="bq-lien">En savoir plus sur la boutique</Link>
         </div>
       )}
 
@@ -176,7 +156,7 @@ function APropos({ boutique, avecTexte, avecInfos }) {
             {boutique.telephone && (
               <li>
                 <Phone size={18} strokeWidth={2} aria-hidden="true" />
-                <a href={lienTelephone(boutique.telephone)}>{boutique.telephone}</a>
+                <a href={lienTelephone(boutique.telephone)}>{formaterTelephone(boutique.telephone)}</a>
               </li>
             )}
             {wa && (
@@ -186,15 +166,8 @@ function APropos({ boutique, avecTexte, avecInfos }) {
               </li>
             )}
           </ul>
-          {liens.length > 0 && (
-            <div className="bq-reseaux">
-              {liens.map((l) => (
-                <a key={l.nom} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.nom} title={l.nom}>
-                  {l.icone}
-                </a>
-              ))}
-            </div>
-          )}
+          <Reseaux reseaux={boutique.reseaux} />
+          <Link to={`${base}/contact`} className="bq-lien bq-infos__suite">Toutes nos coordonnées</Link>
         </aside>
       )}
     </section>
@@ -204,14 +177,13 @@ function APropos({ boutique, avecTexte, avecInfos }) {
 /* ── Page ────────────────────────────────────────────────────────── */
 export default function Accueil({ donnees, apercu = false }) {
   const { boutique, categories = [] } = donnees;
-  const [params] = useSearchParams();
+  const base = `/b/${boutique.slug}`;
   const sections = boutique.theme.sections || {};
   const blocs = boutique.blocs || {};
   const format = boutique.theme.modele === 'catalogue' ? 'ligne'
     : boutique.theme.modele === 'galerie' ? 'grande' : 'carte';
   const sectionsVendeur = useMemo(() => donnees.sections || [], [donnees.sections]);
-  // Une recherche affiche ses résultats avant les sections.
-  const recherche = params.get('q');
+  const promos = useMemo(() => promosDeLAccueil(donnees), [donnees]);
 
   const avecSections = sectionsVendeur.length > 0;
 
@@ -219,13 +191,13 @@ export default function Accueil({ donnees, apercu = false }) {
     <>
       <IdentiteBoutique boutique={boutique} />
 
-      {recherche && (
-        <Catalogue boutique={boutique} categories={categories} integre sansPuces
-          produitsLocaux={donnees.catalogue} />
+      {avecSections && sections.categories !== false && categories.length > 1 && (
+        <Categories categories={categories} icones={blocs.icones} slug={boutique.slug} />
       )}
 
-      {avecSections && !recherche && sections.categories !== false && categories.length > 1 && (
-        <Rayons categories={categories} icones={blocs.icones} slug={boutique.slug} />
+      {promos.length > 0 && (
+        <SectionLigne repere="promos" titre="Nos promos" produits={promos} slug={boutique.slug} format={format}
+          lien={`${base}/promos`} libelleLien="Voir toutes les promos" />
       )}
 
       {/* Les sections du vendeur, dans son ordre, avec les produits qu'il y a placés. */}
@@ -233,12 +205,18 @@ export default function Accueil({ donnees, apercu = false }) {
         <SectionLigne key={s.id} repere="sections" titre={s.titre} produits={s.produits} slug={boutique.slug} format={format} />
       ))}
 
-      {/* Sans section : tout le catalogue, filtrable par rayon. */}
-      {!avecSections && !recherche && (
+      {avecSections && (
+        <div className="bq-section bq-voir-tout">
+          <Link to={`${base}/produits`} className="bq-bouton bq-bouton--doux bq-bouton--grand">Voir tous nos produits</Link>
+        </div>
+      )}
+
+      {/* Sans section : les produits, filtrables par catégorie. */}
+      {!avecSections && (
         <div data-apercu="sections">
           {apercu && (
             <p className="bq-section bq-note-vendeur">
-              Sans section, votre site montre tous vos produits. Créez des sections
+              Sans section, votre site montre vos produits. Créez des sections
               (Nouveautés, Promotions…) pour les mettre en avant.
             </p>
           )}
@@ -248,7 +226,7 @@ export default function Accueil({ donnees, apercu = false }) {
       )}
 
       {blocs.avantages?.length > 0 && <Avantages avantages={blocs.avantages} />}
-      <APropos boutique={boutique} avecTexte={sections.apropos !== false} avecInfos={sections.contact !== false} />
+      <EnBref boutique={boutique} avecTexte={sections.apropos !== false} avecInfos={sections.contact !== false} />
     </>
   );
 }

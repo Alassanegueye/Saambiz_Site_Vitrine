@@ -4,7 +4,7 @@ import { Minus, Plus, MessageCircle, ShieldCheck, Truck, Banknote, ChevronRight 
 import { chargerProduit, formaterPrix } from '../api';
 import { ImageProduit, Prix, GrilleProduits, TitreSection, EtatVide } from '../composants';
 import { usePanier } from '../panierContexte';
-import { lienTelephone, lienWhatsapp } from '../outils';
+import { finDePromo, lienTelephone, lienWhatsapp } from '../outils';
 
 /** Fiche d'un produit : galerie, prix, variantes, ajout au panier. */
 export default function Produit({ boutique }) {
@@ -126,7 +126,7 @@ function FicheProduit({ boutique, produitId }) {
         <EtatVide
           titre="Produit introuvable"
           texte={erreur || "Ce produit n'est plus en vente dans cette boutique."}
-          action={<Link to={`/b/${boutique.slug}/catalogue`} className="bq-bouton">Voir tous les produits</Link>}
+          action={<Link to={`/b/${boutique.slug}/produits`} className="bq-bouton">Voir nos produits</Link>}
         />
       </div>
     );
@@ -160,11 +160,13 @@ function FicheProduit({ boutique, produitId }) {
   return (
     <div className="bq-section bq-section--fiche">
       <nav className="bq-fil" aria-label="Fil d'Ariane">
-        <Link to={`/b/${boutique.slug}/catalogue`}>Tous les produits</Link>
+        <Link to={`/b/${boutique.slug}`}>Accueil</Link>
+        <ChevronRight size={14} strokeWidth={2.4} aria-hidden="true" />
+        <Link to={`/b/${boutique.slug}/produits`}>Nos produits</Link>
         {produit.categorie && (
           <>
             <ChevronRight size={14} strokeWidth={2.4} aria-hidden="true" />
-            <Link to={`/b/${boutique.slug}/catalogue?categorie=${produit.categorie.id}`}>{produit.categorie.nom}</Link>
+            <Link to={`/b/${boutique.slug}/produits?categorie=${produit.categorie.id}`}>{produit.categorie.nom}</Link>
           </>
         )}
       </nav>
@@ -177,6 +179,13 @@ function FicheProduit({ boutique, produitId }) {
           <h1 className="bq-fiche__titre">{produit.nom}</h1>
 
           <Prix produit={produit} grand />
+          {produit.prixBarre != null && finDePromo(produit.finPromo) && (
+            <p className="bq-fiche__fin">
+              {finDePromo(produit.finPromo) === 'Dernier jour'
+                ? 'Dernier jour de la promo'
+                : `Prix promo ${finDePromo(produit.finPromo).replace('Jusqu', 'jusqu')}`}
+            </p>
+          )}
 
           <p className="bq-fiche__stock">
             {!produit.disponible

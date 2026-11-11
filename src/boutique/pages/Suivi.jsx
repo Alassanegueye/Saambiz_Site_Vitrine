@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { Search, AlertCircle, Loader2, Check } from 'lucide-react';
 import { suivreCommande, formaterPrix } from '../api';
-import { ImageProduit } from '../composants';
+import { EntetePage, ImageProduit } from '../composants';
 
 /**
  * Suivre une commande sans compte : référence + numéro de téléphone.
@@ -106,105 +106,107 @@ export default function Suivi({ boutique }) {
   };
 
   return (
-    <div className="bq-section bq-suivi">
-      <h1 className="bq-page-titre">Suivre ma commande</h1>
-      <p className="bq-suivi__intro">
-        Entrez la référence reçue à la validation et le numéro de téléphone que
-        vous aviez donné.
-      </p>
-
-      <form className="bq-suivi__form" onSubmit={soumettre} noValidate>
-        <label className="bq-label">
-          Référence
-          <input
-            type="text"
-            value={reference}
-            onChange={(e) => setReference(e.target.value.toUpperCase())}
-            placeholder="CMD-2026-XXXXXX"
-            /* Le clavier logiciel ne doit ni corriger ni mettre en minuscules
-               une référence : c'est un code, pas un mot. */
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck="false"
-          />
-        </label>
-
-        <label className="bq-label">
-          Téléphone
-          <input
-            type="tel"
-            value={telephone}
-            onChange={(e) => setTelephone(e.target.value)}
-            placeholder="77 123 45 67"
-            autoComplete="tel"
-          />
-        </label>
-
-        <button type="submit" className="bq-bouton bq-bouton--grand" disabled={chargement}>
-          {chargement
-            ? (<><Loader2 size={17} strokeWidth={2.4} className="bq-tourne" aria-hidden="true" /> Recherche…</>)
-            : (<><Search size={17} strokeWidth={2.4} aria-hidden="true" /> Rechercher</>)}
-        </button>
-      </form>
-
-      {erreur && (
-        <p className="bq-erreur" role="alert">
-          <AlertCircle size={17} strokeWidth={2.2} aria-hidden="true" /> {erreur}
+    <>
+      <EntetePage boutique={boutique} titre="Suivre ma commande" fil={[{ libelle: 'Suivre ma commande' }]}>
+        <p className="bq-bandeau__texte">
+          Entrez la référence reçue à la validation et le numéro de téléphone que
+          vous aviez donné.
         </p>
-      )}
+      </EntetePage>
+      <div className="bq-section bq-suivi">
+        <form className="bq-suivi__form" onSubmit={soumettre} noValidate>
+          <label className="bq-label">
+            Référence
+            <input
+              type="text"
+              value={reference}
+              onChange={(e) => setReference(e.target.value.toUpperCase())}
+              placeholder="CMD-2026-XXXXXX"
+              /* Le clavier logiciel ne doit ni corriger ni mettre en minuscules
+                 une référence : c'est un code, pas un mot. */
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck="false"
+            />
+          </label>
 
-      {commande && (
-        <div className="bq-suivi__resultat">
-          <header className="bq-suivi__entete">
-            <div>
-              <p className="bq-suivi__ref">{commande.reference}</p>
-              <p className="bq-suivi__date">
-                Passée le {new Date(commande.date).toLocaleDateString('fr-FR', {
-                  day: 'numeric', month: 'long', year: 'numeric',
-                })}
+          <label className="bq-label">
+            Téléphone
+            <input
+              type="tel"
+              value={telephone}
+              onChange={(e) => setTelephone(e.target.value)}
+              placeholder="77 123 45 67"
+              autoComplete="tel"
+            />
+          </label>
+
+          <button type="submit" className="bq-bouton bq-bouton--grand" disabled={chargement}>
+            {chargement
+              ? (<><Loader2 size={17} strokeWidth={2.4} className="bq-tourne" aria-hidden="true" /> Recherche…</>)
+              : (<><Search size={17} strokeWidth={2.4} aria-hidden="true" /> Rechercher</>)}
+          </button>
+        </form>
+
+        {erreur && (
+          <p className="bq-erreur" role="alert">
+            <AlertCircle size={17} strokeWidth={2.2} aria-hidden="true" /> {erreur}
+          </p>
+        )}
+
+        {commande && (
+          <div className="bq-suivi__resultat">
+            <header className="bq-suivi__entete">
+              <div>
+                <p className="bq-suivi__ref">{commande.reference}</p>
+                <p className="bq-suivi__date">
+                  Passée le {new Date(commande.date).toLocaleDateString('fr-FR', {
+                    day: 'numeric', month: 'long', year: 'numeric',
+                  })}
+                </p>
+              </div>
+              <p className="bq-suivi__montant">{formaterPrix(commande.montantTotal)}</p>
+            </header>
+
+            <Progression statut={commande.statut} modeLivraison={commande.modeLivraison} />
+
+            <ul className="bq-suivi__lignes">
+              {commande.lignes.map((l, i) => (
+                <li key={i}>
+                  <ImageProduit src={l.image} alt={l.nom} className="bq-suivi__image" />
+                  <span className="bq-suivi__nom">{l.nom}</span>
+                  <span className="bq-suivi__qte">× {l.quantite}</span>
+                  <span className="bq-suivi__prix">{formaterPrix(l.sousTotal)}</span>
+                </li>
+              ))}
+            </ul>
+
+            <dl className="bq-suivi__detail">
+              <div><dt>Articles</dt><dd>{formaterPrix(commande.montantProduits)}</dd></div>
+              <div><dt>Livraison</dt><dd>{Number(commande.fraisLivraison) > 0 ? formaterPrix(commande.fraisLivraison) : 'Offerte'}</dd></div>
+              <div><dt>Total</dt><dd><strong>{formaterPrix(commande.montantTotal)}</strong></dd></div>
+              <div>
+                <dt>Paiement</dt>
+                <dd>{commande.statutPaiement === 'paye' ? 'Réglé' : commande.modePaiement === 'a_la_livraison' ? 'À la réception' : 'En attente'}</dd>
+              </div>
+              {commande.adresseLivraison && (
+                <div><dt>Livraison à</dt><dd>{commande.adresseLivraison}</dd></div>
+              )}
+            </dl>
+
+            {commande.boutique?.telephone && (
+              <p className="bq-suivi__contact">
+                Une question ? Appelez {commande.boutique.nom} au{' '}
+                <a href={`tel:${commande.boutique.telephone}`}>{commande.boutique.telephone}</a>.
               </p>
-            </div>
-            <p className="bq-suivi__montant">{formaterPrix(commande.montantTotal)}</p>
-          </header>
-
-          <Progression statut={commande.statut} modeLivraison={commande.modeLivraison} />
-
-          <ul className="bq-suivi__lignes">
-            {commande.lignes.map((l, i) => (
-              <li key={i}>
-                <ImageProduit src={l.image} alt={l.nom} className="bq-suivi__image" />
-                <span className="bq-suivi__nom">{l.nom}</span>
-                <span className="bq-suivi__qte">× {l.quantite}</span>
-                <span className="bq-suivi__prix">{formaterPrix(l.sousTotal)}</span>
-              </li>
-            ))}
-          </ul>
-
-          <dl className="bq-suivi__detail">
-            <div><dt>Articles</dt><dd>{formaterPrix(commande.montantProduits)}</dd></div>
-            <div><dt>Livraison</dt><dd>{Number(commande.fraisLivraison) > 0 ? formaterPrix(commande.fraisLivraison) : 'Offerte'}</dd></div>
-            <div><dt>Total</dt><dd><strong>{formaterPrix(commande.montantTotal)}</strong></dd></div>
-            <div>
-              <dt>Paiement</dt>
-              <dd>{commande.statutPaiement === 'paye' ? 'Réglé' : commande.modePaiement === 'a_la_livraison' ? 'À la réception' : 'En attente'}</dd>
-            </div>
-            {commande.adresseLivraison && (
-              <div><dt>Livraison à</dt><dd>{commande.adresseLivraison}</dd></div>
             )}
-          </dl>
+          </div>
+        )}
 
-          {commande.boutique?.telephone && (
-            <p className="bq-suivi__contact">
-              Une question ? Appelez {commande.boutique.nom} au{' '}
-              <a href={`tel:${commande.boutique.telephone}`}>{commande.boutique.telephone}</a>.
-            </p>
-          )}
-        </div>
-      )}
-
-      <p className="bq-retour">
-        <Link to={`/b/${boutique.slug}`} className="bq-lien">Retour à la boutique</Link>
-      </p>
-    </div>
+        <p className="bq-retour">
+          <Link to={`/b/${boutique.slug}`} className="bq-lien">Retour à la boutique</Link>
+        </p>
+      </div>
+    </>
   );
 }

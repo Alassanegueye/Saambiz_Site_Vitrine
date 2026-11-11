@@ -25,6 +25,68 @@ export function lienWhatsapp(numero, texte) {
   return `https://wa.me/${propre}${texte ? `?text=${encodeURIComponent(texte)}` : ''}`;
 }
 
+/** Le numéro sur lequel écrire à la boutique : son WhatsApp, à défaut son téléphone. */
+export const numeroWhatsapp = (boutique) => boutique.whatsapp || boutique.telephone || null;
+
+/** La discussion WhatsApp avec la boutique, ouverte sur un premier message. */
+export const lienWhatsappBoutique = (boutique, texte) => lienWhatsapp(
+  numeroWhatsapp(boutique),
+  texte || `Bonjour ${boutique.nom}, je vous contacte depuis votre site.`,
+);
+
+/**
+ * La fin d'une promo, pour la carte du produit : « Jusqu'au 23 nov. », ou
+ * « Dernier jour ». Rien si la date manque ou est déjà passée — une promo
+ * annoncée comme finie alors que le prix est encore barré sèmerait le doute.
+ */
+export function finDePromo(date) {
+  const d = new Date(date);
+  if (!date || Number.isNaN(d.getTime())) return null;
+  const reste = d.getTime() - Date.now();
+  if (reste < 0) return null;
+  if (reste < 864e5) return 'Dernier jour';
+  return `Jusqu'au ${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`;
+}
+
+/**
+ * Les produits en promo que la page d'accueil a déjà sous la main.
+ *
+ * L'API les envoie à part (`promos`) ; une API plus ancienne ne le fait pas,
+ * et l'aperçu du tableau de bord n'a que le catalogue. On les retrouve alors
+ * parmi les produits déjà chargés, la plus forte remise d'abord.
+ */
+export function promosDeLAccueil(donnees) {
+  if (Array.isArray(donnees.promos)) return donnees.promos;
+  const vus = new Map();
+  const sources = [
+    donnees.catalogue, donnees.produitsVedettes, donnees.derniersProduits, donnees.nouveautes,
+    ...(donnees.sections || []).map((s) => s.produits),
+  ];
+  for (const liste of sources) {
+    for (const p of liste || []) {
+      if (p.prixBarre != null && !vus.has(p.id)) vus.set(p.id, p);
+    }
+  }
+  return [...vus.values()].sort((a, b) => (b.remise || 0) - (a.remise || 0)).slice(0, 12);
+}
+
+/**
+ * Trois produits avec photo pour la vitrine du haut de l'accueil : les plus
+ * vendus d'abord, puis les derniers arrivés. Moins de trois, pas de vitrine :
+ * une seule photo isolée à côté du nom ferait une bannière bancale.
+ */
+export function produitsEnVitrine(donnees) {
+  const vus = new Map();
+  const sources = [donnees.produitsVedettes, donnees.derniersProduits, donnees.catalogue];
+  for (const liste of sources) {
+    for (const p of liste || []) {
+      if (p.image && p.disponible !== false && !vus.has(p.id)) vus.set(p.id, p);
+    }
+  }
+  const choix = [...vus.values()].slice(0, 3);
+  return choix.length === 3 ? choix : [];
+}
+
 /** L'adresse de la boutique sur une carte. */
 export const lienCarte = (adresse) => (adresse
   ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Truck, Store, Banknote, AlertCircle, Loader2 } from 'lucide-react';
 import { envoyerCommande, formaterPrix } from '../api';
 import { usePanier } from '../panierContexte';
-import { EtatVide } from '../composants';
+import { EntetePage, EtatVide } from '../composants';
 
 /**
  * Le passage en caisse.
@@ -61,7 +61,7 @@ export default function Commande({ boutique }) {
         <EtatVide
           titre="Votre panier est vide"
           texte="Ajoutez au moins un produit avant de commander."
-          action={<Link to={`${base}/catalogue`} className="bq-bouton">Voir les produits</Link>}
+          action={<Link to={`${base}/produits`} className="bq-bouton">Voir nos produits</Link>}
         />
       </div>
     );
@@ -137,168 +137,171 @@ export default function Commande({ boutique }) {
   };
 
   return (
-    <div className="bq-section">
-      <h1 className="bq-page-titre">Finaliser ma commande</h1>
+    <>
+      <EntetePage boutique={boutique} titre="Finaliser ma commande"
+        fil={[{ libelle: 'Mon panier', lien: `/b/${boutique.slug}/panier` }, { libelle: 'Commander' }]} />
+      <div className="bq-section">
 
-      <form className="bq-commande" onSubmit={soumettre} noValidate>
-        <div className="bq-commande__champs">
+        <form className="bq-commande" onSubmit={soumettre} noValidate>
+          <div className="bq-commande__champs">
 
-          <fieldset className="bq-bloc">
-            <legend><span className="bq-etape" aria-hidden="true">1</span>Vos coordonnées</legend>
+            <fieldset className="bq-bloc">
+              <legend><span className="bq-etape" aria-hidden="true">1</span>Vos coordonnées</legend>
 
-            <div className="bq-duo">
+              <div className="bq-duo">
+                <label className="bq-label">
+                  Prénom
+                  <input type="text" value={form.prenom} onChange={changer('prenom')} autoComplete="given-name" required />
+                </label>
+                <label className="bq-label">
+                  Nom
+                  <input type="text" value={form.nom} onChange={changer('nom')} autoComplete="family-name" required />
+                </label>
+              </div>
+
               <label className="bq-label">
-                Prénom
-                <input type="text" value={form.prenom} onChange={changer('prenom')} autoComplete="given-name" required />
-              </label>
-              <label className="bq-label">
-                Nom
-                <input type="text" value={form.nom} onChange={changer('nom')} autoComplete="family-name" required />
-              </label>
-            </div>
-
-            <label className="bq-label">
-              Téléphone
-              {/* type="tel" ouvre le pavé numérique sur mobile — la moitié des
-                  visites au moins. */}
-              <input
-                type="tel"
-                value={form.telephone}
-                onChange={changer('telephone')}
-                placeholder="77 123 45 67"
-                autoComplete="tel"
-                required
-              />
-              <small>Le vendeur vous appellera sur ce numéro. Il vous servira aussi à suivre votre commande.</small>
-            </label>
-
-            <label className="bq-label">
-              <span className="bq-label__ligne">
-                Email <span className="bq-facultatif">facultatif</span>
-              </span>
-              <input type="email" value={form.email} onChange={changer('email')} autoComplete="email" />
-            </label>
-          </fieldset>
-
-          <fieldset className="bq-bloc">
-            <legend><span className="bq-etape" aria-hidden="true">2</span>Livraison</legend>
-
-            <div className="bq-choix">
-              <label className={`bq-choix__option ${form.modeLivraison === 'livraison' ? 'est-actif' : ''}`}>
+                Téléphone
+                {/* type="tel" ouvre le pavé numérique sur mobile — la moitié des
+                    visites au moins. */}
                 <input
-                  type="radio"
-                  name="modeLivraison"
-                  value="livraison"
-                  checked={form.modeLivraison === 'livraison'}
-                  onChange={changer('modeLivraison')}
-                />
-                <Truck size={19} strokeWidth={2} aria-hidden="true" />
-                <span><strong>Me faire livrer</strong>Le vendeur vous livre à l'adresse indiquée.</span>
-              </label>
-
-              <label className={`bq-choix__option ${form.modeLivraison === 'retrait' ? 'est-actif' : ''}`}>
-                <input
-                  type="radio"
-                  name="modeLivraison"
-                  value="retrait"
-                  checked={form.modeLivraison === 'retrait'}
-                  onChange={changer('modeLivraison')}
-                />
-                <Store size={19} strokeWidth={2} aria-hidden="true" />
-                <span>
-                  <strong>Retirer sur place</strong>
-                  {boutique.localisation || boutique.ville || 'Chez le vendeur'} — sans frais de livraison.
-                </span>
-              </label>
-            </div>
-
-            {form.modeLivraison === 'livraison' && (
-              <label className="bq-label">
-                Adresse de livraison
-                <textarea
-                  value={form.adresseLivraison}
-                  onChange={changer('adresseLivraison')}
-                  rows={2}
-                  placeholder="Quartier, rue, point de repère…"
-                  autoComplete="street-address"
+                  type="tel"
+                  value={form.telephone}
+                  onChange={changer('telephone')}
+                  placeholder="77 123 45 67"
+                  autoComplete="tel"
                   required
                 />
-                <small>Un point de repère aide plus qu'un numéro de rue.</small>
+                <small>Le vendeur vous appellera sur ce numéro. Il vous servira aussi à suivre votre commande.</small>
               </label>
-            )}
-          </fieldset>
 
-          <fieldset className="bq-bloc">
-            <legend><span className="bq-etape" aria-hidden="true">3</span>Paiement</legend>
-
-            {boutique.paiementLivraison ? (
-              <label className="bq-choix__option est-actif">
-                <input type="radio" name="modePaiement" value="a_la_livraison" checked readOnly />
-                <Banknote size={19} strokeWidth={2} aria-hidden="true" />
-                <span>
-                  <strong>{form.modeLivraison === 'retrait' ? 'Payer au retrait' : 'Payer à la livraison'}</strong>
-                  Vous réglez en espèces quand vous recevez votre commande.
+              <label className="bq-label">
+                <span className="bq-label__ligne">
+                  Email <span className="bq-facultatif">facultatif</span>
                 </span>
+                <input type="email" value={form.email} onChange={changer('email')} autoComplete="email" />
               </label>
-            ) : (
-              <p className="bq-info">
-                Cette boutique règle le paiement directement avec vous. Le vendeur
-                vous rappellera après votre commande.
+            </fieldset>
+
+            <fieldset className="bq-bloc">
+              <legend><span className="bq-etape" aria-hidden="true">2</span>Livraison</legend>
+
+              <div className="bq-choix">
+                <label className={`bq-choix__option ${form.modeLivraison === 'livraison' ? 'est-actif' : ''}`}>
+                  <input
+                    type="radio"
+                    name="modeLivraison"
+                    value="livraison"
+                    checked={form.modeLivraison === 'livraison'}
+                    onChange={changer('modeLivraison')}
+                  />
+                  <Truck size={19} strokeWidth={2} aria-hidden="true" />
+                  <span><strong>Me faire livrer</strong>Le vendeur vous livre à l'adresse indiquée.</span>
+                </label>
+
+                <label className={`bq-choix__option ${form.modeLivraison === 'retrait' ? 'est-actif' : ''}`}>
+                  <input
+                    type="radio"
+                    name="modeLivraison"
+                    value="retrait"
+                    checked={form.modeLivraison === 'retrait'}
+                    onChange={changer('modeLivraison')}
+                  />
+                  <Store size={19} strokeWidth={2} aria-hidden="true" />
+                  <span>
+                    <strong>Retirer sur place</strong>
+                    {boutique.localisation || boutique.ville || 'Chez le vendeur'} — sans frais de livraison.
+                  </span>
+                </label>
+              </div>
+
+              {form.modeLivraison === 'livraison' && (
+                <label className="bq-label">
+                  Adresse de livraison
+                  <textarea
+                    value={form.adresseLivraison}
+                    onChange={changer('adresseLivraison')}
+                    rows={2}
+                    placeholder="Quartier, rue, point de repère…"
+                    autoComplete="street-address"
+                    required
+                  />
+                  <small>Un point de repère aide plus qu'un numéro de rue.</small>
+                </label>
+              )}
+            </fieldset>
+
+            <fieldset className="bq-bloc">
+              <legend><span className="bq-etape" aria-hidden="true">3</span>Paiement</legend>
+
+              {boutique.paiementLivraison ? (
+                <label className="bq-choix__option est-actif">
+                  <input type="radio" name="modePaiement" value="a_la_livraison" checked readOnly />
+                  <Banknote size={19} strokeWidth={2} aria-hidden="true" />
+                  <span>
+                    <strong>{form.modeLivraison === 'retrait' ? 'Payer au retrait' : 'Payer à la livraison'}</strong>
+                    Vous réglez en espèces quand vous recevez votre commande.
+                  </span>
+                </label>
+              ) : (
+                <p className="bq-info">
+                  Cette boutique règle le paiement directement avec vous. Le vendeur
+                  vous rappellera après votre commande.
+                </p>
+              )}
+            </fieldset>
+
+            <fieldset className="bq-bloc">
+              <legend>Un mot pour le vendeur <span className="bq-facultatif">facultatif</span></legend>
+              <textarea
+                value={form.note}
+                onChange={changer('note')}
+                rows={2}
+                placeholder="Une précision sur votre commande, une heure de livraison…"
+              />
+            </fieldset>
+          </div>
+
+          <aside className="bq-recap">
+            <h2>Votre commande</h2>
+
+            <ul className="bq-recap__articles">
+              {lignes.map((l) => (
+                <li key={l.cle}>
+                  <span>{l.quantite} × {l.nom}</span>
+                  <strong>{formaterPrix(l.prix * l.quantite)}</strong>
+                </li>
+              ))}
+            </ul>
+
+            <p className="bq-recap__ligne">
+              <span>Sous-total</span>
+              <strong>{formaterPrix(sousTotal)}</strong>
+            </p>
+
+            <p className="bq-recap__ligne bq-recap__ligne--sourde">
+              <span>Livraison</span>
+              <span>{form.modeLivraison === 'retrait' ? 'Offerte (retrait)' : 'Ajoutée par le vendeur'}</span>
+            </p>
+
+            {erreur && (
+              <p className="bq-erreur" role="alert">
+                <AlertCircle size={17} strokeWidth={2.2} aria-hidden="true" /> {erreur}
               </p>
             )}
-          </fieldset>
 
-          <fieldset className="bq-bloc">
-            <legend>Un mot pour le vendeur <span className="bq-facultatif">facultatif</span></legend>
-            <textarea
-              value={form.note}
-              onChange={changer('note')}
-              rows={2}
-              placeholder="Une précision sur votre commande, une heure de livraison…"
-            />
-          </fieldset>
-        </div>
+            <button type="submit" className="bq-bouton bq-bouton--grand bq-bouton--bloc" disabled={envoi}>
+              {envoi
+                ? (<><Loader2 size={17} strokeWidth={2.4} className="bq-tourne" aria-hidden="true" /> Envoi en cours…</>)
+                : 'Confirmer ma commande'}
+            </button>
 
-        <aside className="bq-recap">
-          <h2>Votre commande</h2>
-
-          <ul className="bq-recap__articles">
-            {lignes.map((l) => (
-              <li key={l.cle}>
-                <span>{l.quantite} × {l.nom}</span>
-                <strong>{formaterPrix(l.prix * l.quantite)}</strong>
-              </li>
-            ))}
-          </ul>
-
-          <p className="bq-recap__ligne">
-            <span>Sous-total</span>
-            <strong>{formaterPrix(sousTotal)}</strong>
-          </p>
-
-          <p className="bq-recap__ligne bq-recap__ligne--sourde">
-            <span>Livraison</span>
-            <span>{form.modeLivraison === 'retrait' ? 'Offerte (retrait)' : 'Ajoutée par le vendeur'}</span>
-          </p>
-
-          {erreur && (
-            <p className="bq-erreur" role="alert">
-              <AlertCircle size={17} strokeWidth={2.2} aria-hidden="true" /> {erreur}
+            <p className="bq-recap__note">
+              En confirmant, vous acceptez d'être contacté par {boutique.nom} au
+              sujet de cette commande.
             </p>
-          )}
-
-          <button type="submit" className="bq-bouton bq-bouton--grand bq-bouton--bloc" disabled={envoi}>
-            {envoi
-              ? (<><Loader2 size={17} strokeWidth={2.4} className="bq-tourne" aria-hidden="true" /> Envoi en cours…</>)
-              : 'Confirmer ma commande'}
-          </button>
-
-          <p className="bq-recap__note">
-            En confirmant, vous acceptez d'être contacté par {boutique.nom} au
-            sujet de cette commande.
-          </p>
-        </aside>
-      </form>
-    </div>
+          </aside>
+        </form>
+      </div>
+    </>
   );
 }

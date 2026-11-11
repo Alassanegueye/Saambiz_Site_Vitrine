@@ -1,16 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Routes, Route, useParams, useLocation, Link } from 'react-router-dom';
-import { Megaphone } from 'lucide-react';
 import { chargerBoutique } from './api';
 import { variablesTheme } from './theme';
 import { FournisseurPanier } from './panier';
+import { promosDeLAccueil } from './outils';
 import BarreHaut from './BarreHaut';
+import MenuMobile from './MenuMobile';
 import PanierFlottant from './PanierFlottant';
+import BoutonWhatsapp from './BoutonWhatsapp';
 import Pied from './Pied';
 import './vitrine.css';
 
 import Accueil from './pages/Accueil';
 import Catalogue from './pages/Catalogue';
+import Promos from './pages/Promos';
+import APropos from './pages/APropos';
+import Contact from './pages/Contact';
 import Produit from './pages/Produit';
 import Panier from './pages/Panier';
 import Commande from './pages/Commande';
@@ -33,12 +38,17 @@ function useTitrePage(boutique, pathname) {
 
     const suffixe = boutique.nom;
     const parPage = {
-      '/catalogue': `Boutique — ${suffixe}`,
+      '/produits': `Nos produits — ${suffixe}`,
+      '/catalogue': `Nos produits — ${suffixe}`,
+      '/promos': `Nos promos — ${suffixe}`,
+      '/a-propos': `À propos — ${suffixe}`,
+      '/contact': `Contact — ${suffixe}`,
       '/panier': `Mon panier — ${suffixe}`,
       '/commande': `Commander — ${suffixe}`,
       '/suivi': `Suivre ma commande — ${suffixe}`,
     };
-    const cle = Object.keys(parPage).find((k) => pathname.endsWith(k));
+    const ici = pathname.replace(/\/+$/, '');
+    const cle = Object.keys(parPage).find((k) => ici.endsWith(k));
     document.title = cle ? parPage[cle] : `${suffixe}${boutique.slogan ? ` — ${boutique.slogan}` : ''}`;
 
     // La description est lue par WhatsApp et Facebook quand le vendeur colle
@@ -110,38 +120,39 @@ function usePageBoutique() {
 export function CoquilleBoutique({ donnees, apercu = false }) {
   const location = useLocation();
   const [panierOuvert, setPanierOuvert] = useState(false);
+  const [menuOuvert, setMenuOuvert] = useState(false);
+  const fermerMenu = useCallback(() => setMenuOuvert(false), []);
   usePageBoutique();
   const { boutique } = donnees;
   const base = `/b/${boutique.slug}`;
   const chemin = location.pathname.replace(/\/+$/, '');
-  const estAccueil = apercu || chemin === base;
+  // Sur la fiche produit, le téléphone colle le bouton d'achat au bas de
+  // l'écran : le bouton WhatsApp flottant s'efface devant lui (voir vitrine.css).
+  const surFiche = !apercu && chemin.startsWith(`${base}/produit/`);
+  const aDesPromos = useMemo(() => promosDeLAccueil(donnees).length > 0, [donnees]);
 
   return (
     <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug}>
       {/* Le thème du vendeur ne vit que dans ces variables CSS, posées sur la
           racine du site : les composants lisent --bq-accent, --bq-papier… */}
       <div
-        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}${boutique.commandeActivee ? '' : ' vitrine--sans-commande'}`}
+        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}${boutique.commandeActivee ? '' : ' vitrine--sans-commande'}${surFiche ? ' vitrine--fiche' : ''}`}
         style={variablesTheme(boutique.theme.accent)}
       >
-        {boutique.annonce && (
-          <p className="bq-annonce">
-            <Megaphone size={15} strokeWidth={2.2} aria-hidden="true" />
-            {boutique.annonce}
-          </p>
-        )}
-
-        {/* Le catalogue a son propre champ de recherche, avec le tri : la
-            barre du haut n'en affiche pas un second. */}
-        <BarreHaut boutique={boutique} estAccueil={estAccueil}
-          recherche={!apercu && chemin !== `${base}/catalogue`}
-          ouvrirPanier={() => setPanierOuvert(true)} />
+        <BarreHaut boutique={boutique} aDesPromos={aDesPromos}
+          ouvrirPanier={() => setPanierOuvert(true)}
+          ouvrirMenu={() => setMenuOuvert(true)} menuOuvert={menuOuvert} />
 
         <main className="bq-main">
           {apercu ? <Accueil donnees={donnees} apercu /> : (
             <Routes>
               <Route index element={<Accueil donnees={donnees} />} />
+              <Route path="produits" element={<Catalogue boutique={boutique} categories={donnees.categories} />} />
+              {/* L'ancienne adresse du catalogue, encore dans des liens partagés. */}
               <Route path="catalogue" element={<Catalogue boutique={boutique} categories={donnees.categories} />} />
+              <Route path="promos" element={<Promos boutique={boutique} />} />
+              <Route path="a-propos" element={<APropos boutique={boutique} />} />
+              <Route path="contact" element={<Contact boutique={boutique} />} />
               <Route path="produit/:produitId" element={<Produit boutique={boutique} />} />
               <Route path="panier" element={<Panier boutique={boutique} />} />
               <Route path="commande" element={<Commande boutique={boutique} />} />
@@ -157,10 +168,14 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
 
         <Pied boutique={boutique} />
 
+        {/* La pastille WhatsApp n'existe que sur le site public, pas dans
+            l'aperçu affiché par l'application ou le tableau de bord. */}
+        {!apercu && <BoutonWhatsapp boutique={boutique} />}
+        <MenuMobile boutique={boutique} ouvert={menuOuvert} fermer={fermerMenu} aDesPromos={aDesPromos} />
         {/* Sur le panier et le passage en caisse, la bulle ferait doublon :
             le client y est déjà. */}
         <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert}
-          bulle={!/\/(panier|commande|confirmation)$/.test(chemin)} />
+          bulle={!apercu && !/\/(panier|commande|confirmation)$/.test(chemin)} />
       </div>
     </FournisseurPanier>
   );

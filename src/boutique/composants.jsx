@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Star, ImageOff, Plus, Check, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
+import { Star, ImageOff, Plus, Check, ShoppingBag, ChevronRight, Globe, Ghost } from 'lucide-react';
+import { Fragment, useState } from 'react';
 import { formaterPrix, formaterMontant } from './api';
 import { usePanier } from './panierContexte';
-import { aDesOptions, formaterNote } from './outils';
+import { aDesOptions, finDePromo, formaterNote } from './outils';
+// lucide ne fournit plus d'icônes de marque : voir icones.jsx.
+import { Facebook, Instagram, TikTok } from './icones';
+import IconeVitrine from './IconeVitrine';
 
 /* Petits composants partagés par toutes les pages du site d'une boutique.
    Regroupés dans un fichier : chacun tient en quinze lignes, et quinze
@@ -226,6 +229,9 @@ export function CarteProduit({ produit, slug, format = 'carte' }) {
           </p>
           <BoutonPanierRond produit={produit} slug={slug} />
         </div>
+        {produit.prixBarre != null && finDePromo(produit.finPromo) && (
+          <p className="bq-tuile__fin">{finDePromo(produit.finPromo)}</p>
+        )}
       </div>
     </article>
   );
@@ -268,14 +274,82 @@ export function SqueletteGrille({ nombre = 6, format = 'carte' }) {
 }
 
 /* ── État vide ───────────────────────────────────────────────────── */
-export function EtatVide({ titre, texte, action }) {
+export function EtatVide({ titre, texte, action, icone: Icone = ShoppingBag }) {
   return (
     <div className="bq-vide">
-      <span className="bq-vide__icone"><ShoppingBag size={28} strokeWidth={1.6} aria-hidden="true" /></span>
+      <span className="bq-vide__icone"><Icone size={28} strokeWidth={1.6} aria-hidden="true" /></span>
       <h3>{titre}</h3>
       {texte && <p>{texte}</p>}
-      {action}
+      {action && <div className="bq-vide__actions">{action}</div>}
     </div>
+  );
+}
+
+/* ── En-tête d'une page ──────────────────────────────────────────── */
+/* Le fil d'Ariane et le titre de la page, sur la teinte de la boutique :
+   la même bande que l'identité de l'accueil, en plus mince. Le dernier
+   maillon du fil est la page elle-même, sans lien. */
+export function EntetePage({ boutique, titre, fil = [], children }) {
+  const base = `/b/${boutique.slug}`;
+  return (
+    <header className="bq-bandeau">
+      <div className="bq-bandeau__interieur">
+        <nav className="bq-fil" aria-label="Fil d'Ariane">
+          <Link to={base}>Accueil</Link>
+          {fil.map((e) => (
+            <Fragment key={e.libelle}>
+              <ChevronRight size={14} strokeWidth={2.4} aria-hidden="true" />
+              {e.lien ? <Link to={e.lien}>{e.libelle}</Link> : <span aria-current="page">{e.libelle}</span>}
+            </Fragment>
+          ))}
+        </nav>
+        <h1 className="bq-bandeau__titre">{titre}</h1>
+        {children}
+      </div>
+    </header>
+  );
+}
+
+/* ── Réseaux sociaux ─────────────────────────────────────────────── */
+export function Reseaux({ reseaux, className = '' }) {
+  const r = reseaux || {};
+  const liens = [
+    r.instagram && { href: r.instagram, nom: 'Instagram', icone: <Instagram size={18} /> },
+    r.facebook && { href: r.facebook, nom: 'Facebook', icone: <Facebook size={18} /> },
+    r.tiktok && { href: r.tiktok, nom: 'TikTok', icone: <TikTok size={18} /> },
+    r.snapchat && { href: r.snapchat, nom: 'Snapchat', icone: <Ghost size={18} strokeWidth={2} /> },
+    r.site && { href: r.site, nom: 'Site web', icone: <Globe size={18} strokeWidth={2} /> },
+  ].filter(Boolean);
+  if (!liens.length) return null;
+  return (
+    <div className={`bq-reseaux ${className}`}>
+      {liens.map((l) => (
+        <a key={l.nom} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.nom} title={l.nom}>
+          {l.icone}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/* ── Avantages ───────────────────────────────────────────────────── */
+/* Ce que le vendeur met en avant (livraison, paiement, conseils…), avec
+   l'icône qu'il a choisie pour chacun. */
+export function Avantages({ avantages }) {
+  return (
+    <section className="bq-section" data-apercu="avantages">
+      <ul className="bq-avantages">
+        {avantages.map((a, i) => (
+          <li key={i}>
+            <span className="bq-avantages__icone"><IconeVitrine cle={a.icone} size={22} strokeWidth={1.9} /></span>
+            <span className="bq-avantages__texte">
+              <strong>{a.titre}</strong>
+              {a.texte && <span>{a.texte}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

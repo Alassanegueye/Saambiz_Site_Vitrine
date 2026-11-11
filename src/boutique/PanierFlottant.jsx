@@ -4,14 +4,13 @@ import { ShoppingBag, X, Minus, Plus, Trash2 } from 'lucide-react';
 import { formaterPrix } from './api';
 import { usePanier } from './panierContexte';
 import { ImageProduit } from './composants';
-import { libelleVariantes } from './outils';
+import { libelleVariantes, lienWhatsappBoutique } from './outils';
 
 /**
- * Le panier, en bulle flottante comme un chatbot, en bas à droite. Il
- * n'apparaît que lorsqu'il contient un produit : une pastille donne le
- * nombre d'articles, et l'étiquette à côté donne le nom du dernier produit
- * ajouté. Un
- * appui ouvre le panier : on relit, on ajuste, on commande — sans compte.
+ * Le panier, en volet : il s'ouvre depuis le bouton Panier de la barre du
+ * haut, ou depuis la bulle ronde qui apparaît en bas à droite dès qu'un
+ * article est ajouté (au-dessus de la pastille WhatsApp), avec le nombre
+ * d'articles. On relit, on ajuste, on commande — sans compte.
  */
 export default function PanierFlottant({ boutique, ouvert, setOuvert, bulle = true }) {
   const { lignes, nombreArticles, sousTotal, changerQuantite, retirer } = usePanier();
@@ -22,11 +21,15 @@ export default function PanierFlottant({ boutique, ouvert, setOuvert, bulle = tr
     if (!ouvert) return undefined;
     const touche = (e) => { if (e.key === 'Escape') setOuvert(false); };
     document.addEventListener('keydown', touche);
-    const avant = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    // Le défilement est bloqué sur <html> et non sur <body> : un <body> en
+    // overflow hidden devient le conteneur de la barre collante, qui
+    // remonterait alors d'autant que la page avait défilé.
+    const racine = document.documentElement;
+    const avant = racine.style.overflow;
+    racine.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', touche);
-      document.body.style.overflow = avant;
+      racine.style.overflow = avant;
     };
   }, [ouvert, setOuvert]);
 
@@ -37,25 +40,20 @@ export default function PanierFlottant({ boutique, ouvert, setOuvert, bulle = tr
     navigate(`/b/${boutique.slug}/commande`);
   };
 
-  const dernier = lignes[lignes.length - 1];
-  const autres = lignes.length - 1;
+  const avecWhatsapp = Boolean(lienWhatsappBoutique(boutique));
 
   return (
     <>
       {bulle && nombreArticles > 0 && !ouvert && (
-        <div className="bq-bulle">
-          {/* La clé relance l'apparition de l'étiquette à chaque ajout. */}
-          <button key={`${dernier?.cle}-${nombreArticles}`} type="button" className="bq-bulle__etiquette"
-            onClick={() => setOuvert(true)} tabIndex={-1} aria-hidden="true">
-            <span className="bq-bulle__nom">{dernier?.nom}</span>
-            {autres > 0 && <span className="bq-bulle__plus">+ {autres} autre{autres > 1 ? 's' : ''}</span>}
-          </button>
-          <button type="button" className="bq-bulle__bouton" onClick={() => setOuvert(true)}
-            aria-label={`Ouvrir le panier — ${nombreArticles} article${nombreArticles > 1 ? 's' : ''}, dont ${dernier?.nom}`}>
-            <ShoppingBag size={26} strokeWidth={2} aria-hidden="true" />
-            <span key={nombreArticles} className="bq-bulle__nombre">{nombreArticles}</span>
-          </button>
-        </div>
+        <button type="button" className={`bq-bulle ${avecWhatsapp ? 'bq-bulle--sur-wa' : ''}`}
+          onClick={() => setOuvert(true)}
+          aria-label={`Ouvrir le panier — ${nombreArticles} article${nombreArticles > 1 ? 's' : ''}`}>
+          <ShoppingBag size={25} strokeWidth={2} aria-hidden="true" />
+          {/* La clé relance le rebond à chaque ajout. */}
+          <span key={nombreArticles} className="bq-bulle__nombre" aria-hidden="true">
+            {nombreArticles > 99 ? '99+' : nombreArticles}
+          </span>
+        </button>
       )}
 
       {ouvert && (
@@ -78,7 +76,10 @@ export default function PanierFlottant({ boutique, ouvert, setOuvert, bulle = tr
               <div className="bq-panier-popup__vide">
                 <ShoppingBag size={36} strokeWidth={1.6} aria-hidden="true" />
                 <p>Votre panier est vide.</p>
-                <button type="button" className="bq-bouton" onClick={() => setOuvert(false)}>Voir les produits</button>
+                <button type="button" className="bq-bouton"
+                  onClick={() => { setOuvert(false); navigate(`/b/${boutique.slug}/produits`); }}>
+                  Voir nos produits
+                </button>
               </div>
             ) : (
               <>
