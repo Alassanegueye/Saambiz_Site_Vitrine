@@ -3,7 +3,7 @@ import { Star, ImageOff, Plus, Minus, ShoppingBag, ChevronRight, Globe, Ghost } 
 import { Fragment, useState } from 'react';
 import { formaterPrix, formaterMontant } from './api';
 import { usePanier } from './panierContexte';
-import { aDesOptions, finDePromo, formaterNote } from './outils';
+import { aDesOptions, finDePromo, formaterNote, lienSortant } from './outils';
 // lucide ne fournit plus d'icônes de marque : voir icones.jsx.
 import { Facebook, Instagram, TikTok } from './icones';
 import IconeVitrine from './IconeVitrine';
@@ -326,13 +326,15 @@ export function EntetePage({ boutique, titre, fil = [], children }) {
 /* ── Réseaux sociaux ─────────────────────────────────────────────── */
 export function Reseaux({ reseaux, className = '' }) {
   const r = reseaux || {};
+  // `lienSortant` écarte tout ce qui n'est pas http(s) : ces adresses sont
+  // saisies par le vendeur et partent dans un href public.
   const liens = [
-    r.instagram && { href: r.instagram, nom: 'Instagram', icone: <Instagram size={18} /> },
-    r.facebook && { href: r.facebook, nom: 'Facebook', icone: <Facebook size={18} /> },
-    r.tiktok && { href: r.tiktok, nom: 'TikTok', icone: <TikTok size={18} /> },
-    r.snapchat && { href: r.snapchat, nom: 'Snapchat', icone: <Ghost size={18} strokeWidth={2} /> },
-    r.site && { href: r.site, nom: 'Site web', icone: <Globe size={18} strokeWidth={2} /> },
-  ].filter(Boolean);
+    { href: lienSortant(r.instagram), nom: 'Instagram', icone: <Instagram size={18} /> },
+    { href: lienSortant(r.facebook), nom: 'Facebook', icone: <Facebook size={18} /> },
+    { href: lienSortant(r.tiktok), nom: 'TikTok', icone: <TikTok size={18} /> },
+    { href: lienSortant(r.snapchat), nom: 'Snapchat', icone: <Ghost size={18} strokeWidth={2} /> },
+    { href: lienSortant(r.site), nom: 'Site web', icone: <Globe size={18} strokeWidth={2} /> },
+  ].filter((l) => l.href);
   if (!liens.length) return null;
   return (
     <div className={`bq-reseaux ${className}`}>

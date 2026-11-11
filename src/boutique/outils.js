@@ -92,6 +92,24 @@ export const lienCarte = (adresse) => (adresse
   ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`
   : null);
 
+/**
+ * Un lien sortant saisi par le vendeur, ou `null`.
+ *
+ * Ces valeurs — réseaux sociaux, site web — finissent dans un `href` sur
+ * une page publique. Le serveur impose déjà `http(s)://` à l'écriture
+ * (vendeur.service.js), mais rien ne garantit que toute donnée affichée ici
+ * soit passée par ce chemin : une reprise de base, un outil
+ * d'administration ou un import y échapperaient. Un `javascript:` recopié
+ * tel quel dans un href s'exécute au clic, sur l'origine du site.
+ *
+ * On revalide donc à l'affichage, là où le risque se matérialise.
+ */
+export function lienSortant(url) {
+  const v = String(url || '').trim();
+  if (!/^https?:\/\//i.test(v)) return null;
+  return v;
+}
+
 /** Numéro composable : « +221 77 123 45 67 » → « tel:+221771234567 ». */
 export const lienTelephone = (numero) => `tel:${String(numero || '').replace(/[^\d+]/g, '')}`;
 
