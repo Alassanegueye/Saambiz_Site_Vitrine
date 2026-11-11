@@ -2178,6 +2178,22 @@ html.page-boutique body { overflow-x: clip; }
 }
 .bq-message h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; }
 .bq-message__aide { margin-top: -8px; font-size: 14px; color: var(--bq-encre-douce); }
+/* Envoyé : la coche, une phrase, et de quoi écrire à nouveau. */
+.bq-message--envoye { align-items: center; text-align: center; padding-block: 36px; }
+.bq-message--envoye p { max-width: 36ch; color: var(--bq-encre-douce); line-height: 1.5; }
+.bq-message--envoye p strong { color: var(--bq-encre); white-space: nowrap; }
+.bq-message__coche {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bq-succes-fond);
+  color: var(--bq-succes);
+  animation: bq-rebond 0.3s ease;
+}
+/* Hors de l'écran plutôt que display:none, que certains robots repèrent. */
+.bq-piege { position: absolute; left: -10000px; width: 1px; height: 1px; opacity: 0; }
 
 /* ─── Bouton WhatsApp flottant ─────────────────────────────────── */
 .bq-wa {

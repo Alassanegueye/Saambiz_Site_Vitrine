@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Clock, MapPin, MessageCircle, Phone, Send } from 'lucide-react';
+import { AlertCircle, Check, Clock, MapPin, MessageCircle, Phone, Send } from 'lucide-react';
+import { envoyerMessage, ErreurApi } from '../api';
 import { EntetePage, Reseaux } from '../composants';
-import { formaterTelephone, lienCarte, lienTelephone, lienWhatsapp, lienWhatsappBoutique, numeroWhatsapp } from '../outils';
+import { formaterTelephone, lienCarte, lienTelephone, lienWhatsappBoutique, numeroWhatsapp } from '../outils';
 
 /** Une façon de joindre la boutique : ce que c'est, la coordonnée, le geste. */
 function Moyen({ icone: Icone, titre, valeur, action, wa = false }) {
@@ -18,31 +19,60 @@ function Moyen({ icone: Icone, titre, valeur, action, wa = false }) {
 }
 
 /**
- * « Contact » : toutes les façons de joindre la boutique, et un message à
- * écrire ici qui part dans WhatsApp, déjà rédigé. Pas de formulaire envoyé
- * par courriel : le vendeur vit sur WhatsApp, c'est là qu'il répond.
+ * « Contact » : toutes les façons de joindre la boutique, et un formulaire.
+ *
+ * Le message arrive dans « Messages » chez le vendeur, sur l'application et
+ * sur son dashboard, avec une notification. Le visiteur n'a pas de compte :
+ * il laisse son numéro, et c'est là que le vendeur lui répond.
  */
 export default function Contact({ boutique }) {
   const numero = numeroWhatsapp(boutique);
   const wa = lienWhatsappBoutique(boutique);
   const telephone = boutique.telephone || boutique.whatsapp;
   const adresse = boutique.localisation || boutique.ville;
-  const [nom, setNom] = useState('');
-  const [message, setMessage] = useState('');
 
-  const envoyer = (e) => {
+  const [form, setForm] = useState({ nom: '', telephone: '', message: '', site: '' });
+  const [etat, setEtat] = useState('saisie'); // saisie | envoi | envoye
+  const [erreur, setErreur] = useState('');
+  const changer = (champ) => (e) => {
+    setForm((f) => ({ ...f, [champ]: e.target.value }));
+    if (erreur) setErreur('');
+  };
+
+  const envoyer = async (e) => {
     e.preventDefault();
-    const corps = message.trim();
-    if (!corps) return;
-    const texte = `Bonjour ${boutique.nom}, ${nom.trim() ? `c'est ${nom.trim()}. ` : ''}${corps}`;
-    const lien = lienWhatsapp(numero, texte);
-    // Ouvert depuis l'appui du client : le navigateur ne le bloque pas. Si
-    // une fenêtre ne peut pas s'ouvrir (WebView d'une application), on suit
-    // le lien dans la page. Pas d'option « noopener » ici : avec elle,
-    // window.open renvoie toujours null et le lien s'ouvrirait deux fois.
-    const fenetre = window.open(lien, '_blank');
-    if (fenetre) fenetre.opener = null;
-    else window.location.assign(lien);
+    if (etat === 'envoi') return;
+    if (form.telephone.replace(/\D/g, '').length < 9) {
+      setErreur('Indiquez un numéro de téléphone valide, pour que la boutique puisse vous répondre.');
+      return;
+    }
+    if (form.message.trim().length < 2) {
+      setErreur('Écrivez votre message.');
+      return;
+    }
+    setEtat('envoi');
+    setErreur('');
+    try {
+      await envoyerMessage(boutique.slug, {
+        nom: form.nom.trim(),
+        telephone: form.telephone.trim(),
+        message: form.message.trim(),
+        site: form.site,
+      });
+      setEtat('envoye');
+    } catch (err) {
+      setEtat('saisie');
+      setErreur(
+        err instanceof ErreurApi && err.statut > 0 && err.statut < 500
+          ? `Le message n'est pas parti : ${err.message}`
+          : "Le message n'est pas parti. Vérifiez votre connexion et réessayez."
+      );
+    }
+  };
+
+  const recommencer = () => {
+    setForm((f) => ({ ...f, message: '' }));
+    setEtat('saisie');
   };
 
   const rien = !wa && !telephone && !adresse && !boutique.horaires;
@@ -51,11 +81,11 @@ export default function Contact({ boutique }) {
     <>
       <EntetePage boutique={boutique} titre="Contact" fil={[{ libelle: 'Contact' }]} />
 
-      <div className={`bq-section bq-contact ${wa ? 'bq-contact--duo' : ''}`}>
+      <div className="bq-section bq-contact bq-contact--duo">
         <div className="bq-contact__principal">
           {rien ? (
             <p className="bq-contact__vide">
-              {boutique.nom} n'a pas encore publié ses coordonnées.
+              {boutique.nom} n'a pas encore publié ses coordonnées. Écrivez-lui avec le formulaire.
             </p>
           ) : (
             <ul className="bq-moyens">
@@ -86,21 +116,48 @@ export default function Contact({ boutique }) {
           <Reseaux reseaux={boutique.reseaux} className="bq-contact__reseaux" />
         </div>
 
-        {wa && (
-          <form className="bq-message" onSubmit={envoyer}>
+        {etat === 'envoye' ? (
+          <div className="bq-message bq-message--envoye" role="status">
+            <span className="bq-message__coche"><Check size={26} strokeWidth={2.6} aria-hidden="true" /></span>
+            <h2>Message envoyé</h2>
+            <p>
+              {boutique.nom} a bien reçu votre message et vous répondra au{' '}
+              <strong>{formaterTelephone(form.telephone.trim())}</strong>.
+            </p>
+            <button type="button" className="bq-bouton bq-bouton--doux" onClick={recommencer}>
+              Écrire un autre message
+            </button>
+          </div>
+        ) : (
+          <form className="bq-message" onSubmit={envoyer} noValidate>
             <h2>Envoyer un message</h2>
-            <p className="bq-message__aide">Votre message s'ouvre dans WhatsApp, prêt à partir.</p>
+            <p className="bq-message__aide">{boutique.nom} le reçoit directement et vous répond sur votre numéro.</p>
             <label className="bq-label">
               <span className="bq-label__ligne">Votre nom <small>facultatif</small></span>
-              <input type="text" value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" maxLength={80} />
+              <input type="text" value={form.nom} onChange={changer('nom')} autoComplete="name" maxLength={80} />
+            </label>
+            <label className="bq-label">
+              Votre téléphone
+              <input type="tel" value={form.telephone} onChange={changer('telephone')} autoComplete="tel"
+                placeholder="77 123 45 67" required maxLength={30} />
             </label>
             <label className="bq-label">
               Votre message
-              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={5} required maxLength={1000}
+              <textarea value={form.message} onChange={changer('message')} rows={5} required maxLength={2000}
                 placeholder="Bonjour, je voudrais savoir si…" />
             </label>
-            <button type="submit" className="bq-bouton bq-bouton--wa bq-bouton--grand bq-bouton--bloc" disabled={!message.trim()}>
-              <Send size={18} strokeWidth={2.2} aria-hidden="true" /> Envoyer sur WhatsApp
+            {/* Piège à robots : invisible, personne ne le remplit à la main. */}
+            <input type="text" name="site" value={form.site} onChange={changer('site')}
+              className="bq-piege" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+
+            {erreur && (
+              <p className="bq-erreur" role="alert">
+                <AlertCircle size={17} strokeWidth={2.2} aria-hidden="true" /> {erreur}
+              </p>
+            )}
+
+            <button type="submit" className="bq-bouton bq-bouton--grand bq-bouton--bloc" disabled={etat === 'envoi'}>
+              <Send size={18} strokeWidth={2.2} aria-hidden="true" /> {etat === 'envoi' ? 'Envoi…' : 'Envoyer le message'}
             </button>
           </form>
         )}
