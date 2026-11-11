@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { Copy, Check, MessageCircle, Phone } from 'lucide-react';
 import { formaterTelephone, lienTelephone, lienWhatsapp } from '../outils';
 import { formaterPrix } from '../api';
@@ -8,7 +8,7 @@ import { formaterPrix } from '../api';
  * La page qui suit une commande réussie.
  *
  * Elle a trois choses à faire, dans cet ordre : rassurer, donner la référence
- * de suivi, et seulement ensuite proposer l'application. C'est le moment où
+ * de la commande, et seulement ensuite proposer l'application. C'est le moment où
  * l'argument porte : le client vient d'acheter, il a une commande à suivre, et
  * l'application est ce qui la lui met dans la poche.
  *
@@ -57,7 +57,7 @@ export default function Confirmation({ boutique }) {
         <div className="bq-recu">
           <div className="bq-recu__haut">
             <span className="bq-recu__boutique">{boutique.nom}</span>
-            <span className="bq-recu__libelle">Référence de suivi</span>
+            <span className="bq-recu__libelle">Référence de commande</span>
             <span className="bq-recu__valeur">{resultat.reference}</span>
             <button type="button" onClick={copierReference} className="bq-recu__copier">
               {copie
@@ -93,14 +93,6 @@ export default function Confirmation({ boutique }) {
         )}
 
         <div className="bq-confirmation__actions">
-          <Link
-            to={`/b/${boutique.slug}/suivi/${resultat.reference}`}
-            state={{ telephone: resultat.telephone }}
-            className="bq-bouton bq-bouton--grand"
-          >
-            Suivre ma commande
-          </Link>
-
           {lienWa && (
             <a className="bq-bouton bq-bouton--doux bq-bouton--grand" href={lienWa} target="_blank" rel="noopener noreferrer">
               <MessageCircle size={17} strokeWidth={2.2} aria-hidden="true" /> Écrire au vendeur
@@ -115,8 +107,8 @@ export default function Confirmation({ boutique }) {
         </div>
 
         <p className="bq-confirmation__memo">
-          Notez votre référence : avec votre numéro de téléphone, elle vous donne
-          accès au suivi à tout moment, sans compte.
+          Notez votre référence : donnez-la au vendeur si vous le contactez
+          au sujet de votre commande.
         </p>
       </div>
     </>

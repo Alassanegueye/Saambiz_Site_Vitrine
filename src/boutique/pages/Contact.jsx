@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Clock, MapPin, MessageCircle, Package, Phone, Send } from 'lucide-react';
+import { Clock, MapPin, MessageCircle, Phone, Send } from 'lucide-react';
 import { EntetePage, Reseaux } from '../composants';
 import { formaterTelephone, lienCarte, lienTelephone, lienWhatsapp, lienWhatsappBoutique, numeroWhatsapp } from '../outils';
 
@@ -24,7 +23,6 @@ function Moyen({ icone: Icone, titre, valeur, action, wa = false }) {
  * par courriel : le vendeur vit sur WhatsApp, c'est là qu'il répond.
  */
 export default function Contact({ boutique }) {
-  const base = `/b/${boutique.slug}`;
   const numero = numeroWhatsapp(boutique);
   const wa = lienWhatsappBoutique(boutique);
   const telephone = boutique.telephone || boutique.whatsapp;
@@ -86,11 +84,6 @@ export default function Contact({ boutique }) {
           )}
 
           <Reseaux reseaux={boutique.reseaux} className="bq-contact__reseaux" />
-
-          <Link to={`${base}/suivi`} className="bq-contact__suivi">
-            <Package size={20} strokeWidth={2} aria-hidden="true" />
-            <span><strong>Vous avez déjà commandé ?</strong> Suivez votre commande avec sa référence.</span>
-          </Link>
         </div>
 
         {wa && (

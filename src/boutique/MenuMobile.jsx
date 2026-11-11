@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MessageCircle, Package, Phone, X } from 'lucide-react';
+import { MessageCircle, Phone, X } from 'lucide-react';
 import { LogoBoutique } from './IdentiteBoutique';
 import { estPageActive, pagesBoutique } from './navigation';
 import { lienTelephone, lienWhatsappBoutique } from './outils';
 
 /**
- * Le menu du téléphone : les pages de la boutique, le suivi de commande, et
+ * Le menu du téléphone : les pages de la boutique et
  * les deux façons de joindre le vendeur. Il glisse depuis la droite, au-dessus
  * de la page ; Échap, la croix ou un appui à côté le referment.
  */
@@ -33,7 +33,6 @@ export default function MenuMobile({ boutique, ouvert, fermer, aDesPromos }) {
 
   if (!ouvert) return null;
 
-  const base = `/b/${boutique.slug}`;
   const wa = lienWhatsappBoutique(boutique);
   const telephone = boutique.telephone || boutique.whatsapp;
 
@@ -69,13 +68,6 @@ export default function MenuMobile({ boutique, ouvert, fermer, aDesPromos }) {
                 </li>
               );
             })}
-            <li className="bq-menu__separe">
-              <Link to={`${base}/suivi`} onClick={fermer}
-                className={`bq-menu__lien ${pathname.startsWith(`${base}/suivi`) ? 'est-actif' : ''}`}>
-                <Package size={21} strokeWidth={2} aria-hidden="true" />
-                <span>Suivre ma commande</span>
-              </Link>
-            </li>
           </ul>
         </nav>
 

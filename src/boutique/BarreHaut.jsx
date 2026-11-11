@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, Package, ShoppingBag } from 'lucide-react';
+import { Menu, ShoppingBag } from 'lucide-react';
 import { usePanier } from './panierContexte';
 import { LogoBoutique } from './IdentiteBoutique';
 import { estPageActive, pagesBoutique } from './navigation';
@@ -8,7 +8,7 @@ import { estPageActive, pagesBoutique } from './navigation';
  * La barre du haut, la même sur toutes les pages.
  *
  * Sur ordinateur : la boutique à gauche, les pages au milieu (Accueil, Nos
- * produits, Nos promos, À propos, Contact), le suivi de commande et le
+ * produits, Nos promos, À propos, Contact), et le
  * panier à droite. Sur téléphone, les pages passent dans un menu : la barre
  * garde la place pour le nom de la boutique et le panier.
  *
@@ -51,11 +51,6 @@ export default function BarreHaut({ boutique, ouvrirPanier, ouvrirMenu, menuOuve
         </nav>
 
         <div className="bq-haut__outils">
-          <Link to={`${base}/suivi`} className={`bq-haut__suivi ${pathname.startsWith(`${base}/suivi`) ? 'est-actif' : ''}`}>
-            <Package size={18} strokeWidth={2} aria-hidden="true" />
-            Suivre ma commande
-          </Link>
-
           {boutique.commandeActivee && (
             <button type="button" className="bq-haut__panier" onClick={ouvrirPanier}
               aria-label={`Ouvrir le panier — ${nombreArticles} article${nombreArticles > 1 ? 's' : ''}`}>

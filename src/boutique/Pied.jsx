@@ -8,7 +8,7 @@ import logoBlanc from '../assets/brand/logo-white.png';
 
 /**
  * Le pied de page du site d'une boutique : sa couleur, très assombrie, comme
- * le bas d'une façade ; les pages, le suivi de commande, le contact, puis la
+ * le bas d'une façade ; les pages, le contact, puis la
  * mention SaamBiz.
  *
  * La marque de la plateforme n'apparaît qu'ici, discrètement. Le client est
@@ -45,13 +45,14 @@ export default function Pied({ boutique }) {
           </ul>
         </div>
 
-        <div className="bq-pied__bloc">
-          <h2>Vos commandes</h2>
-          <ul className="bq-pied__liste bq-pied__liste--nue">
-            {boutique.commandeActivee && <li><Link to={`${base}/panier`}>Mon panier</Link></li>}
-            <li><Link to={`${base}/suivi`}>Suivre ma commande</Link></li>
-          </ul>
-        </div>
+        {boutique.commandeActivee && (
+          <div className="bq-pied__bloc">
+            <h2>Vos commandes</h2>
+            <ul className="bq-pied__liste bq-pied__liste--nue">
+              <li><Link to={`${base}/panier`}>Mon panier</Link></li>
+            </ul>
+          </div>
+        )}
 
         {avecContact && (
           <div className="bq-pied__bloc">

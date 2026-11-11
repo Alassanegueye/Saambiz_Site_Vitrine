@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Star, ImageOff, Plus, Check, ShoppingBag, ChevronRight, Globe, Ghost } from 'lucide-react';
+import { Star, ImageOff, Plus, Minus, ShoppingBag, ChevronRight, Globe, Ghost } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { formaterPrix, formaterMontant } from './api';
 import { usePanier } from './panierContexte';
@@ -91,13 +91,38 @@ export function Prix({ produit, grand = false }) {
   );
 }
 
+/* ── Quantité dans le panier ──────────────────────────────────────── */
+/* Une fois le produit au panier, son bouton d'ajout devient « − n + » : le
+   client règle la quantité sans quitter la liste. À 1, « − » le retire et le
+   bouton redevient « + ». */
+function QuantitePanier({ ligne, produit, petite = false }) {
+  const { changerQuantite } = usePanier();
+  const q = ligne.quantite;
+  return (
+    <div className={`bq-pas ${petite ? 'bq-pas--petit' : ''}`} role="group" aria-label={`Quantité de ${produit.nom} dans le panier`}>
+      <button type="button" onClick={() => changerQuantite(ligne.cle, q - 1)}
+        aria-label={q <= 1 ? `Retirer ${produit.nom} du panier` : `Un ${produit.nom} de moins`}>
+        <Minus size={petite ? 16 : 17} strokeWidth={2.6} aria-hidden="true" />
+      </button>
+      <span aria-live="polite">{q}</span>
+      <button type="button" onClick={() => changerQuantite(ligne.cle, q + 1)} disabled={q >= 99}
+        aria-label={`Un ${produit.nom} de plus`}>
+        <Plus size={petite ? 16 : 17} strokeWidth={2.6} aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+/** La ligne du panier d'un produit sans options (sa clé est son id). */
+function useLigneProduit(produit) {
+  const { lignes } = usePanier();
+  return lignes.find((l) => l.cle === produit.id) || null;
+}
+
 /* ── Bouton « ajouter au panier » ────────────────────────────────── */
-/* La confirmation est locale au bouton et dure une seconde et demie : sur un
-   téléphone, une notification en haut de l'écran passe hors du champ de
-   vision de quelqu'un qui regarde une grille de produits. */
 export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, children }) {
   const { ajouter } = usePanier();
-  const [ajoute, setAjoute] = useState(false);
+  const ligne = useLigneProduit(produit);
 
   // Un produit à options ne peut pas être ajouté depuis une liste : le
   // bouton devient un lien vers la fiche, sans quoi la commande partirait
@@ -121,21 +146,15 @@ export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, child
     );
   }
 
-  const cliquer = () => {
-    ajouter(produit, quantite);
-    setAjoute(true);
-    setTimeout(() => setAjoute(false), 1500);
-  };
+  if (ligne) return <QuantitePanier ligne={ligne} produit={produit} />;
 
   return (
     <button
       type="button"
-      onClick={cliquer}
-      className={`bq-bouton ${bloc ? 'bq-bouton--bloc' : ''} ${ajoute ? 'bq-bouton--ok' : ''}`}
+      onClick={() => ajouter(produit, quantite)}
+      className={`bq-bouton ${bloc ? 'bq-bouton--bloc' : ''}`}
     >
-      {ajoute
-        ? (<><Check size={17} strokeWidth={2.5} aria-hidden="true" /> Ajouté</>)
-        : (<><Plus size={17} strokeWidth={2.5} aria-hidden="true" /> {children || 'Ajouter'}</>)}
+      <Plus size={17} strokeWidth={2.5} aria-hidden="true" /> {children || 'Ajouter'}
     </button>
   );
 }
@@ -143,7 +162,7 @@ export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, child
 /* ── Bouton rond « ajouter au panier » (tuiles) ───────────────────── */
 export function BoutonPanierRond({ produit, slug }) {
   const { ajouter } = usePanier();
-  const [ajoute, setAjoute] = useState(false);
+  const ligne = useLigneProduit(produit);
 
   if (aDesOptions(produit) && slug) {
     return (
@@ -153,18 +172,12 @@ export function BoutonPanierRond({ produit, slug }) {
     );
   }
   if (!produit.disponible) return null;
+  if (ligne) return <QuantitePanier ligne={ligne} produit={produit} petite />;
 
-  const cliquer = () => {
-    ajouter(produit, 1);
-    setAjoute(true);
-    setTimeout(() => setAjoute(false), 1300);
-  };
   return (
-    <button type="button" onClick={cliquer} className={`bq-rond ${ajoute ? 'est-ajoute' : ''}`}
-      aria-label={ajoute ? `${produit.nom} ajouté au panier` : `Ajouter ${produit.nom} au panier`}>
-      {ajoute
-        ? <Check size={20} strokeWidth={2.8} aria-hidden="true" />
-        : <Plus size={20} strokeWidth={2.6} aria-hidden="true" />}
+    <button type="button" onClick={() => ajouter(produit, 1)} className="bq-rond"
+      aria-label={`Ajouter ${produit.nom} au panier`}>
+      <Plus size={20} strokeWidth={2.6} aria-hidden="true" />
     </button>
   );
 }

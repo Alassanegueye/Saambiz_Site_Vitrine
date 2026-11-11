@@ -20,7 +20,6 @@ import Produit from './pages/Produit';
 import Panier from './pages/Panier';
 import Commande from './pages/Commande';
 import Confirmation from './pages/Confirmation';
-import Suivi from './pages/Suivi';
 
 /**
  * Le site d'une boutique, de bout en bout.
@@ -45,7 +44,6 @@ function useTitrePage(boutique, pathname) {
       '/contact': `Contact — ${suffixe}`,
       '/panier': `Mon panier — ${suffixe}`,
       '/commande': `Commander — ${suffixe}`,
-      '/suivi': `Suivre ma commande — ${suffixe}`,
     };
     const ici = pathname.replace(/\/+$/, '');
     const cle = Object.keys(parPage).find((k) => ici.endsWith(k));
@@ -157,8 +155,6 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
               <Route path="panier" element={<Panier boutique={boutique} />} />
               <Route path="commande" element={<Commande boutique={boutique} />} />
               <Route path="confirmation" element={<Confirmation boutique={boutique} />} />
-              <Route path="suivi" element={<Suivi boutique={boutique} />} />
-              <Route path="suivi/:reference" element={<Suivi boutique={boutique} />} />
               {/* Une sous-page inconnue ramène à la boutique, pas à une erreur :
                   le client a probablement suivi un lien tronqué. */}
               <Route path="*" element={<Accueil donnees={donnees} />} />
