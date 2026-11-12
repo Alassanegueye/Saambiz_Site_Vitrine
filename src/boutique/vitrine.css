@@ -2575,3 +2575,189 @@ html.page-boutique body { overflow-x: clip; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ═══ REFONTE : la boutique à ses couleurs ═══════════════════════════
+   Le haut de la boutique devient un grand bandeau à la couleur choisie par
+   le vendeur (en dégradé vers sa seconde couleur), le fond de page en porte
+   un voile, et les cartes blanches ressortent dessus. Les variables
+   --bq-haut-*, --bq-secondaire et --bq-fond viennent de theme.js. */
+
+.vitrine { --bq-haut-1: #0D1B3D; --bq-haut-2: #1C3A8A; --bq-secondaire: #FBB900; --bq-sur-secondaire: #12151C; --bq-fond: #F7F8FB; }
+.bq-main { background: var(--bq-fond); }
+
+/* ─── Bandeau d'identité ─── */
+.bq-id {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bq-haut-1) 0%, var(--bq-haut-2) 100%);
+  box-shadow: none;
+  border-radius: 0 0 28px 28px;
+  color: #FFFFFF;
+}
+.bq-id__interieur { position: relative; z-index: 1; padding-top: 28px; padding-bottom: 28px; }
+.bq-id__logo {
+  --taille: 78px;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.95), 0 12px 26px -10px rgba(0, 0, 0, 0.45);
+  background: #FFFFFF;
+}
+.bq-id__logo.bq-logo--initiale { background: #FFFFFF; color: var(--bq-haut-1); }
+.bq-id__nom { color: #FFFFFF; font-size: 26px; }
+.bq-id .bq-verifiee { color: #FFFFFF; }
+.bq-id__slogan { color: rgba(255, 255, 255, 0.82); }
+
+.bq-reperes { gap: 8px; }
+.bq-reperes > li {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.bq-reperes a,
+.bq-reperes svg,
+.bq-reperes__discret { color: #FFFFFF; }
+.bq-reperes__discret { opacity: 0.8; }
+.bq-reperes .bq-reperes__etoile { color: var(--bq-secondaire); fill: var(--bq-secondaire); }
+
+.bq-action,
+.vitrine a.bq-action {
+  min-height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  color: #FFFFFF;
+}
+.bq-action svg { color: #FFFFFF; }
+.bq-action:hover { background: rgba(255, 255, 255, 0.22); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45); }
+.bq-action--principale,
+.vitrine a.bq-action--principale {
+  background: #FFFFFF;
+  color: var(--bq-haut-1);
+  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.45);
+}
+.bq-action--principale svg { color: var(--bq-wa-fonce); }
+.bq-action--principale:hover { background: #F3F4F6; }
+
+/* ─── Catégories ─── */
+.bq-rayon { background: #FFFFFF; box-shadow: 0 4px 14px -10px rgba(16, 24, 40, 0.35); }
+.bq-rayon__icone { background: var(--bq-voile); color: var(--bq-accent-texte); }
+
+/* ─── Titres de section : une barre à la couleur de la boutique ─── */
+.bq-titre-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 21px;
+  font-weight: 800;
+}
+.bq-titre-section h2::before {
+  content: "";
+  flex-shrink: 0;
+  width: 5px;
+  height: 22px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--bq-accent), var(--bq-secondaire));
+}
+.bq-titre-section .bq-lien {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--bq-voile);
+  color: var(--bq-accent-texte);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ─── Cartes produits ─── */
+.bq-tuile {
+  border: 0;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px -14px rgba(16, 24, 40, 0.35);
+}
+.bq-tuile:hover { box-shadow: 0 14px 30px -14px rgba(16, 24, 40, 0.35); }
+.bq-tuile__media { background: var(--bq-teinte); }
+.bq-tuile__prix .bq-montant { color: var(--bq-accent-texte); font-size: 16px; font-weight: 800; }
+.bq-pastille--remise { background: var(--bq-secondaire); color: var(--bq-sur-secondaire); font-weight: 800; }
+
+/* ─── Boutons doux et pied ─── */
+.bq-bouton--doux { background: #FFFFFF; box-shadow: inset 0 0 0 1.5px var(--bq-bordure-accent); color: var(--bq-accent-texte); }
+.bq-apropos, .bq-infos { border-radius: 20px; }
+.bq-pied { border-radius: 28px 28px 0 0; }
+
+/* ─── Bandeau des pages intérieures (Nos promos, Nos produits…) ───
+   Le même dégradé que l'accueil, en plus mince. */
+.bq-bandeau {
+  background: linear-gradient(135deg, var(--bq-haut-1) 0%, var(--bq-haut-2) 100%);
+  box-shadow: none;
+  border-radius: 0 0 24px 24px;
+  color: #FFFFFF;
+}
+.bq-bandeau__interieur { padding-top: 20px; padding-bottom: 26px; }
+.bq-bandeau__titre { color: #FFFFFF; font-weight: 800; }
+.bq-bandeau__texte { color: rgba(255, 255, 255, 0.82); }
+.bq-bandeau .bq-fil,
+.bq-bandeau .bq-fil a,
+.bq-bandeau .bq-fil svg { color: rgba(255, 255, 255, 0.78); }
+.bq-bandeau .bq-fil [aria-current='page'] { color: #FFFFFF; }
+
+/* ─── Barre du haut : un trait de la couleur de la boutique ─── */
+.bq-haut { box-shadow: 0 1px 0 var(--bq-ligne), inset 0 3px 0 var(--bq-accent); }
+.bq-haut__logo.bq-logo--initiale { background: var(--bq-haut-1); color: #FFFFFF; }
+.vitrine .bq-titre-section a.bq-lien,
+.bq-titre-section button.bq-lien { text-decoration: none; }
+.vitrine .bq-titre-section a.bq-lien:hover,
+.bq-titre-section button.bq-lien:hover { background: var(--bq-voile-fort); }
+
+/* ─── Adaptation aux écrans ───────────────────────────────────────
+   Petits téléphones : tout tient sur la largeur sans se toucher.
+   Tablettes et ordinateurs : plus d'air, un logo et un nom plus grands. */
+@media (max-width: 400px) {
+  .bq-id__interieur { padding-top: 22px; padding-bottom: 22px; }
+  .bq-id__haut { gap: 12px; }
+  .bq-id__logo { --taille: 62px; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.95), 0 10px 22px -10px rgba(0, 0, 0, 0.45); }
+  .bq-id__nom { font-size: 22px; }
+  .bq-id__slogan { font-size: 13.5px; }
+  .bq-reperes > li { padding: 6px 10px; font-size: 12.5px; }
+  .bq-actions { gap: 6px; }
+  .bq-action,
+  .vitrine a.bq-action { min-height: 44px; padding: 0 6px; gap: 5px; font-size: 13px; }
+  .bq-action svg { width: 16px; height: 16px; }
+  .bq-titre-section { gap: 8px; }
+  .bq-titre-section h2 { font-size: 18px; gap: 8px; }
+  .bq-titre-section h2::before { height: 18px; width: 4px; }
+  .bq-titre-section .bq-lien { padding: 6px 10px; font-size: 12.5px; }
+  .bq-bandeau__titre { font-size: 23px; }
+}
+@media (max-width: 340px) {
+  /* Sur les plus petits écrans, les boutons passent l'icône au-dessus du mot. */
+  .bq-action,
+  .vitrine a.bq-action { flex-direction: column; gap: 2px; min-height: 52px; font-size: 12px; }
+}
+@media (min-width: 720px) {
+  .bq-id__interieur { padding-top: 36px; padding-bottom: 36px; }
+  .bq-id__logo { --taille: 92px; }
+  .bq-id__nom { font-size: 30px; }
+  .bq-id { border-radius: 0 0 36px 36px; }
+  .bq-bandeau { border-radius: 0 0 32px 32px; }
+  .bq-bandeau__interieur { padding-top: 26px; padding-bottom: 32px; }
+}
+@media (min-width: 1240px) {
+  .bq-id__nom { font-size: 34px; }
+  .bq-titre-section h2 { font-size: 23px; }
+}
+
+/* Fiche produit : la quantité et « Ajouter au panier » tiennent toujours
+   sur la largeur ; le bouton se resserre au lieu d'être coupé. */
+.bq-achat { min-width: 0; max-width: 100%; }
+.bq-achat > * { min-width: 0; }
+.bq-achat .bq-bouton { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 400px) {
+  .bq-achat { gap: 8px; }
+  .bq-achat .bq-bouton--grand { padding: 0 12px; font-size: 14px; }
+}
+@media (max-width: 340px) {
+  .bq-achat .bq-quantite button { width: 34px; }
+  .bq-achat .bq-quantite span { min-width: 20px; }
+  .bq-achat .bq-bouton--grand { padding: 0 8px; font-size: 13px; }
+}

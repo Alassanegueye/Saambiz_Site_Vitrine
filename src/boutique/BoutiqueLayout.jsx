@@ -135,7 +135,7 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
           racine du site : les composants lisent --bq-accent, --bq-papier… */}
       <div
         className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}${boutique.commandeActivee ? '' : ' vitrine--sans-commande'}${surFiche ? ' vitrine--fiche' : ''}`}
-        style={variablesTheme(boutique.theme.accent)}
+        style={variablesTheme(boutique.theme.accent, boutique.theme.secondaire)}
       >
         <BarreHaut boutique={boutique} aDesPromos={aDesPromos}
           ouvrirPanier={() => setPanierOuvert(true)}

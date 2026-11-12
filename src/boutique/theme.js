@@ -74,7 +74,7 @@ function rendreLisible(couleur, fond, cible, vers = NOIR) {
  * Le CSS ne connaît que ces noms : changer la dérivation ici suffit à
  * retoucher toutes les pages d'un coup.
  */
-export function variablesTheme(accentHex) {
+export function variablesTheme(accentHex, secondaireHex = null) {
   // Une couleur presque blanche ne laisserait pas voir les
   // boutons : on la fonce, en gardant sa teinte, jusqu'à ce qu'elle tienne.
   const accent = rendreLisible(versRgb(accentHex), BLANC, 1.9);
@@ -118,6 +118,25 @@ export function variablesTheme(accentHex) {
   const teinte = melanger(BLANC, accent, 0.07);
   const teinteLigne = melanger(BLANC, accent, 0.16);
 
+  // La seconde couleur choisie à la création (relevée dans le logo). Sans
+  // elle, on dérive une couleur voisine de l'accent, plus claire.
+  // Sans seconde couleur, les badges gardent l'orange des remises, commun à
+  // toutes les boutiques, et le dégradé s'éclaircit simplement.
+  const secondaireBrute = secondaireHex ? versRgb(secondaireHex) : { r: 194, g: 65, b: 12 };
+  // Fond de badge : lisible avec un texte blanc ou foncé, au choix du contraste.
+  const secondaire = secondaireBrute;
+  const surSecondaire = contraste(BLANC, secondaire) >= 3.2 ? BLANC : encre;
+
+  // Le grand bandeau du haut de la boutique : la couleur du vendeur, assez
+  // profonde pour qu'un texte blanc s'y lise, en dégradé vers sa seconde
+  // couleur. Un jaune vif devient un ambre profond, un rose un framboise.
+  const haut1 = rendreLisible(accent, BLANC, 4.6);
+  const haut2 = rendreLisible(
+    secondaireHex ? melanger(haut1, secondaireBrute, 0.45) : melanger(haut1, BLANC, 0.22),
+    BLANC,
+    4.6,
+  );
+
   return {
     '--bq-accent': css(accent),
     '--bq-accent-rgb': `${Math.round(accent.r)}, ${Math.round(accent.g)}, ${Math.round(accent.b)}`,
@@ -140,6 +159,14 @@ export function variablesTheme(accentHex) {
     '--bq-voile': rgba(accent, 0.08),
     '--bq-voile-fort': rgba(accent, 0.15),
     '--bq-bordure-accent': rgba(accent, 0.32),
+
+    '--bq-secondaire': css(secondaire),
+    '--bq-sur-secondaire': css(surSecondaire),
+    '--bq-haut-1': css(haut1),
+    '--bq-haut-2': css(haut2),
+    // Fond de page : l'accent à peine posé, pour que les cartes blanches
+    // ressortent et que la boutique garde sa couleur partout.
+    '--bq-fond': css(melanger(BLANC, accent, 0.045)),
 
     '--bq-pied': css(pied),
     '--bq-teinte': css(teinte),
