@@ -1,4 +1,5 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
+import { lazyFiable } from './utils/nouvelleVersion';
 import { Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 
@@ -7,8 +8,8 @@ import LandingPage from './pages/LandingPage';
    sur une devanture : il n'a aucune raison de télécharger au passage la page
    de présentation de la marketplace, ni l'inverse. Sur un forfait mobile
    sénégalais, ces kilo-octets se paient. */
-const BoutiqueLayout = lazy(() => import('./boutique/BoutiqueLayout'));
-const Apercu = lazy(() => import('./boutique/Apercu'));
+const BoutiqueLayout = lazyFiable(() => import('./boutique/BoutiqueLayout'));
+const Apercu = lazyFiable(() => import('./boutique/Apercu'));
 
 /* Écran d'attente le temps que le module de la boutique arrive. Volontairement
    nu : afficher un logo SaamBiz ici ferait clignoter une marque que le client
