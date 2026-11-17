@@ -59,9 +59,33 @@ async function appeler(chemin, options = {}) {
   return corps ? corps.data : null;
 }
 
+const CLE_APERCU = 'saambiz.apercu';
+
+/**
+ * Le vendeur qui ouvre son propre site depuis l'application arrive avec
+ * `?apercu` : ses passages ne doivent compter ni comme des visites ni comme
+ * des vues de produits. Le paramètre disparaît dès la première navigation
+ * interne, d'où sa mémoire dans l'onglet (sessionStorage) : un client, dans
+ * son propre onglet, ne l'a jamais.
+ */
+export function modeApercu() {
+  try {
+    if (new URLSearchParams(window.location.search).has('apercu')) {
+      window.sessionStorage.setItem(CLE_APERCU, '1');
+      return true;
+    }
+    return window.sessionStorage.getItem(CLE_APERCU) === '1';
+  } catch {
+    // Stockage refusé (navigation privée stricte) : on compte, faute de mieux.
+    return false;
+  }
+}
+
+const suffixeApercu = () => (modeApercu() ? '?apercu=1' : '');
+
 /** Page d'accueil : boutique, thème, catégories, produits et avis. */
 export const chargerBoutique = (slug) =>
-  appeler(`/vitrine/${encodeURIComponent(slug)}`);
+  appeler(`/vitrine/${encodeURIComponent(slug)}${suffixeApercu()}`);
 
 /** Catalogue paginé, filtré, trié. */
 export const chargerProduits = (slug, params = {}) => {
@@ -73,7 +97,9 @@ export const chargerProduits = (slug, params = {}) => {
 
 /** Fiche d'un produit + produits similaires de la même boutique. */
 export const chargerProduit = (slug, produitId) =>
-  appeler(`/vitrine/${encodeURIComponent(slug)}/produits/${encodeURIComponent(produitId)}`);
+  appeler(
+    `/vitrine/${encodeURIComponent(slug)}/produits/${encodeURIComponent(produitId)}${suffixeApercu()}`
+  );
 
 /** Passage en caisse — aucun compte requis. */
 export const envoyerCommande = (slug, corps) =>
