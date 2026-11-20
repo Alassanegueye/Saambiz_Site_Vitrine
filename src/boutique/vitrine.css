@@ -67,7 +67,7 @@ html.page-boutique body { overflow-x: clip; }
   --bq-large: 1200px;
   --bq-gouttiere: 16px;
   --bq-rythme: 40px;
-  --bq-haut-h: 60px;
+  --bq-haut-h: 66px;
 
   font-family: var(--bq-texte);
   font-size: 15px;
@@ -278,21 +278,44 @@ html.page-boutique body { overflow-x: clip; }
   align-items: center;
   gap: 8px;
 }
+/* La boutique : logo, nom et badge, et dessous sa note ou un mot d'accueil. */
 .bq-haut__marque {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   min-width: 0;
   margin-right: auto;
+}
+.bq-haut__logo { --taille: 44px; box-shadow: 0 0 0 1px var(--bq-ligne); }
+.bq-haut__logo.bq-logo--initiale { font-size: 19px; }
+.bq-haut__logo.bq-logo--bandeau { --taille: 36px; }
+.bq-haut__identite { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bq-haut__ligne { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.bq-haut__nom {
+  min-width: 0;
   font-family: var(--bq-titre);
-  font-size: 17px;
+  font-size: 16.5px;
   font-weight: 700;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--bq-encre);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.bq-haut__logo { --taille: 36px; }
-.bq-haut__logo.bq-logo--initiale { font-size: 16px; }
-.bq-haut__nom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bq-haut__badge { flex-shrink: 0; color: var(--bq-accent-texte); }
+.bq-haut__accroche {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.3;
+  color: var(--bq-encre-douce);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bq-haut__accroche--note { display: flex; align-items: center; gap: 4px; }
+.bq-haut__accroche--note strong { font-weight: 700; color: var(--bq-encre); }
+.bq-haut__etoile { flex-shrink: 0; color: var(--bq-etoile); fill: var(--bq-etoile); }
 
 /* Les pages : sur ordinateur seulement (voir GRANDS ÉCRANS). Le téléphone
    les trouve dans le menu. */
@@ -335,55 +358,36 @@ html.page-boutique body { overflow-x: clip; }
   background: var(--bq-remise);
 }
 
-.bq-haut__outils { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.bq-haut__suivi { display: none; }
+.bq-haut__outils { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-.bq-haut__icone {
+/* Le panier : un chariot, et son nombre d'articles en pastille — toujours
+   affiché, zéro compris. */
+.bq-haut__panier {
   position: relative;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
   width: 44px;
   height: 44px;
-  display: grid;
-  place-items: center;
+  padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 12px;
   background: none;
   color: var(--bq-encre);
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
-.bq-haut__icone:hover { background: var(--bq-voile); }
-.bq-haut__menu { margin-right: -6px; }
-
-.bq-haut__panier {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 44px;
-  height: 44px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  color: var(--bq-encre);
-  cursor: pointer;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
 .bq-haut__panier:hover { background: var(--bq-voile); }
-/* Le nombre d'articles, toujours affiché — zéro compris. Sur téléphone, en
-   pastille sur le sac. */
 .bq-haut__nombre {
   position: absolute;
-  top: 3px;
-  right: 1px;
+  top: 1px;
+  right: -1px;
   min-width: 19px;
   height: 19px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--bq-ligne);
-  color: var(--bq-encre);
+  background: var(--bq-bouton);
+  color: var(--bq-sur-bouton);
   box-shadow: 0 0 0 2px var(--bq-blanc);
   font-size: 11px;
   font-weight: 700;
@@ -391,12 +395,24 @@ html.page-boutique body { overflow-x: clip; }
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.bq-haut__nombre.est-plein {
-  background: var(--bq-bouton);
-  color: var(--bq-sur-bouton);
-  animation: bq-rebond 0.35s ease;
+.bq-haut__nombre.est-plein { animation: bq-rebond 0.35s ease; }
+
+/* Le menu : un carré doux, comme sur la maquette. */
+.bq-haut__menu {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bq-papier-fonce);
+  color: var(--bq-encre);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
-.bq-haut__panier-texte { display: none; font-size: 15px; font-weight: 600; }
+.bq-haut__menu:hover { background: var(--bq-voile-fort); }
 
 /* ─── MENU DU TÉLÉPHONE ────────────────────────────────────────── */
 .bq-menu__voile {
@@ -478,118 +494,219 @@ html.page-boutique body { overflow-x: clip; }
   box-shadow: 0 -1px 0 var(--bq-ligne);
 }
 
-/* ─── IDENTITÉ DE LA BOUTIQUE ──────────────────────────────────── */
-/* Le haut de l'accueil, sur la teinte de la boutique : son nom, ce qui
-   rassure, les gestes utiles ; sur ordinateur, trois de ses produits à
-   droite, comme une vitrine. */
-.bq-id {
-  background: var(--bq-teinte);
-  box-shadow: inset 0 -1px 0 var(--bq-teinte-ligne);
-}
-.bq-id__interieur {
+/* ─── LE HAUT DE L'ACCUEIL ────────────────────────────────────── */
+/* Le grand bandeau : les photos du vendeur, qui défilent ; à défaut, ses
+   couleurs. L'accroche se pose à gauche, sur un voile clair. */
+.bq-une {
   width: 100%;
   max-width: calc(var(--bq-large) + 2 * var(--bq-gouttiere));
   margin-inline: auto;
-  padding: 24px var(--bq-gouttiere) 26px;
+  padding: 14px var(--bq-gouttiere) 0;
 }
-.bq-id__principal { min-width: 0; }
-.bq-id__haut { display: flex; align-items: center; gap: 14px; }
-.bq-id__logo { --taille: 72px; box-shadow: 0 0 0 1px var(--bq-ligne), 0 8px 20px -12px rgba(16, 24, 40, 0.4); }
-.bq-id__logo.bq-logo--bandeau { --taille: 56px; }
-.bq-id__texte { flex: 1; min-width: 0; }
-.bq-id__nom {
+.bq-une__cadre {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 2px 8px;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  min-height: 220px;
+  border-radius: var(--bq-r-3);
+  background: var(--bq-teinte);
+}
+.bq-une__cadre--photos::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.86) 36%,
+    rgba(255, 255, 255, 0.38) 62%,
+    rgba(255, 255, 255, 0) 80%);
+  pointer-events: none;
+}
+.bq-une__cadre--couleur {
+  background: linear-gradient(135deg, var(--bq-haut-1) 0%, var(--bq-haut-2) 100%);
+  color: #FFFFFF;
+}
+/* Un grand rond pâle, pour que le bandeau sans photo ne soit pas plat. */
+.bq-une__cadre--couleur::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -70px;
+  bottom: -110px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.bq-une__texte {
+  position: relative;
+  width: min(66%, 560px);
+  padding: 22px 0 38px 18px;
+}
+.bq-une__cadre--couleur .bq-une__texte { width: min(88%, 640px); }
+.bq-une__logo { display: none; }
+.bq-une__titre {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--bq-encre);
   overflow-wrap: anywhere;
 }
-.bq-verifiee { color: var(--bq-verifie); flex-shrink: 0; }
-.bq-id__slogan { margin-top: 4px; font-size: 14.5px; line-height: 1.4; color: var(--bq-encre-douce); }
-
-.bq-reperes {
-  display: flex;
-  flex-wrap: wrap;
+.bq-une__cadre--couleur .bq-une__titre { color: #FFFFFF; }
+.bq-une__sous-titre {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--bq-encre-douce);
+}
+.bq-une__cadre--couleur .bq-une__sous-titre { color: rgba(255, 255, 255, 0.86); }
+.bq-une__bouton,
+.vitrine a.bq-une__bouton {
+  display: inline-flex;
   align-items: center;
-  gap: 8px 18px;
-  margin-top: 16px;
-  font-size: 14px;
-  line-height: 1.35;
-}
-.bq-reperes > li,
-.bq-reperes a { display: inline-flex; align-items: center; gap: 6px; color: var(--bq-encre); }
-.bq-reperes a { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color 0.15s ease; }
-.bq-reperes a:hover { text-decoration-color: currentColor; }
-.bq-reperes svg { flex-shrink: 0; color: var(--bq-accent-texte); }
-.bq-reperes .bq-reperes__etoile { color: var(--bq-etoile); fill: var(--bq-etoile); }
-.bq-reperes strong { font-weight: 700; }
-.bq-reperes__discret { color: var(--bq-encre-douce); }
-
-.bq-actions {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
   gap: 8px;
-  margin-top: 20px;
+  min-height: 40px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--bq-bouton);
+  color: var(--bq-sur-bouton);
+  font-size: 14px;
+  font-weight: 650;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px -10px rgba(var(--bq-accent-rgb), 0.9);
+  transition: background-color 0.15s ease;
 }
-.bq-action {
+.bq-une__bouton:hover { background: var(--bq-bouton-survol); }
+.vitrine .bq-une__cadre--couleur a.bq-une__bouton { background: #FFFFFF; color: var(--bq-haut-1); box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.45); }
+.vitrine .bq-une__cadre--couleur a.bq-une__bouton:hover { background: #F3F4F6; }
+
+/* Le défilement des photos (DefilePhotos.jsx). */
+.bq-defile { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+.bq-defile.est-glisse { cursor: grabbing; }
+.bq-defile__piste {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
   display: flex;
+  transition: transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+.bq-defile__diapo { flex: 0 0 100%; min-width: 0; height: 100%; background: var(--bq-teinte); }
+.bq-defile__diapo img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; }
+.bq-defile__points {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+/* Chaque point est une cible de 22 px de haut : visible petit, facile à toucher. */
+.bq-defile__point {
+  display: grid;
+  place-items: center;
+  height: 22px;
+  padding: 0 3px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.bq-defile__point::before {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(18, 21, 28, 0.28);
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+.bq-defile__point.est-actif::before { width: 18px; background: var(--bq-accent); }
+
+/* La bande des infos utiles, sous le bandeau. */
+.bq-infos-cle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px;
+  border-radius: var(--bq-r-2);
+  background: var(--bq-blanc);
+  box-shadow: 0 6px 20px -14px rgba(16, 24, 40, 0.35), inset 0 0 0 1px var(--bq-ligne);
+}
+.bq-infos-cle__liste {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.bq-infos-cle__liste > li { display: flex; min-width: 0; }
+/* Un nombre impair de cases : la dernière prend toute la ligne. */
+.bq-infos-cle__liste > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.bq-cle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 8px;
+  border-radius: 10px;
+}
+a.bq-cle { transition: background-color 0.15s ease; }
+a.bq-cle:hover { background: var(--bq-papier-fonce); }
+.bq-cle > svg { flex-shrink: 0; color: var(--bq-accent-texte); }
+.bq-cle__texte { display: flex; flex-direction: column; min-width: 0; }
+.bq-cle__texte small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Une adresse ou des horaires un peu longs passent sur deux lignes. */
+.bq-cle__texte strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: var(--bq-encre);
+  overflow-wrap: anywhere;
+}
+.bq-cle__texte small { font-size: 11.5px; line-height: 1.35; color: var(--bq-encre-douce); }
+.bq-infos-cle__geste { align-items: center; padding: 4px; }
+.bq-bouton-wa,
+.vitrine a.bq-bouton-wa {
+  flex: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 46px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--bq-blanc);
-  box-shadow: inset 0 0 0 1px var(--bq-ligne);
-  color: var(--bq-encre);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.2;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: box-shadow 0.15s ease, background-color 0.15s ease;
-}
-.vitrine a.bq-action { color: var(--bq-encre); }
-.bq-action svg { flex-shrink: 0; color: var(--bq-accent-texte); }
-.bq-action:hover { box-shadow: inset 0 0 0 1.5px var(--bq-bordure-accent); }
-.bq-action--principale,
-.vitrine a.bq-action--principale {
-  background: var(--bq-bouton);
-  color: var(--bq-sur-bouton);
-  box-shadow: none;
-}
-.bq-action--principale svg { color: inherit; }
-.bq-action--principale:hover { background: var(--bq-bouton-survol); box-shadow: none; }
-
-/* La vitrine : trois produits, un grand et deux petits. Ordinateur seulement. */
-.bq-id__vitrine { display: none; }
-.bq-id__piece { position: relative; min-height: 0; overflow: hidden; border-radius: 18px; background: var(--bq-blanc); }
-.bq-id__piece--1 { grid-row: 1 / 3; }
-.bq-id__piece-lien { display: block; width: 100%; height: 100%; }
-.bq-id__piece-image { width: 100%; height: 100%; object-fit: cover; }
-.bq-id__piece-image.bq-image--absente { opacity: 1; }
-.bq-id__piece-nom {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  max-width: calc(100% - 20px);
-  padding: 6px 12px;
+  min-height: 42px;
+  padding: 0 18px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--bq-encre);
+  background: var(--bq-wa-fonce);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 650;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: background-color 0.15s ease;
 }
+.bq-bouton-wa:hover { background: var(--bq-wa-survol); }
+/* « Partager » : sur ordinateur seulement ; le téléphone l'a dans le menu. */
+.bq-infos-cle__partage { display: none; }
+
+/* Badge « certifiée », sur la page À propos. */
+.bq-verifiee { color: var(--bq-verifie); flex-shrink: 0; }
 
 /* ─── EN-TÊTE DES PAGES ────────────────────────────────────────── */
 /* Nos produits, Nos promos, À propos, Contact : le fil d'Ariane et le
@@ -2370,8 +2487,9 @@ html.page-boutique body { overflow-x: clip; }
 }
 
 @media (max-width: 359px) {
-  .bq-id__nom { font-size: 21px; }
-  .bq-action { font-size: 13px; padding: 0 6px; gap: 6px; }
+  .bq-haut__accroche { font-size: 11.5px; }
+  .bq-une__titre { font-size: 20px; }
+  .bq-une__texte { width: 70%; }
   .bq-duo { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -2386,17 +2504,37 @@ html.page-boutique body { overflow-x: clip; }
 @media (min-width: 720px) {
   .vitrine { --bq-gouttiere: 24px; --bq-rythme: 52px; --bq-haut-h: 68px; }
 
-  .bq-haut__logo { --taille: 38px; }
-  .bq-haut__marque { font-size: 18px; }
+  .bq-haut__logo { --taille: 46px; }
+  .bq-haut__nom { font-size: 17.5px; }
 
-  .bq-id__interieur { padding-top: 34px; padding-bottom: 38px; }
-  .bq-id__haut { gap: 20px; }
-  .bq-id__logo { --taille: 92px; }
-  .bq-id__nom { font-size: 32px; }
-  .bq-id__slogan { font-size: 16px; }
-  .bq-reperes { margin-top: 18px; }
-  .bq-actions { grid-auto-columns: auto; justify-content: start; margin-top: 24px; }
-  .bq-action { padding: 0 20px; }
+  .bq-une { padding-top: 20px; }
+  .bq-une__cadre { min-height: 300px; border-radius: 24px; }
+  .bq-une__texte { width: min(56%, 560px); padding: 38px 0 46px 40px; }
+  .bq-une__titre { font-size: 34px; }
+  .bq-une__sous-titre { margin-top: 10px; font-size: 15.5px; }
+  .bq-une__bouton,
+  .vitrine a.bq-une__bouton { min-height: 46px; margin-top: 20px; padding: 0 22px; font-size: 15px; }
+
+  /* Les infos sur une ligne, séparées d'un filet. */
+  .bq-infos-cle { margin-top: 14px; padding: 8px; }
+  .bq-infos-cle__liste { display: flex; }
+  .bq-infos-cle__liste > li { flex: 1 1 0; }
+  .bq-infos-cle__liste > li + li:not(.bq-infos-cle__geste) { box-shadow: inset 1px 0 0 var(--bq-ligne); }
+  .bq-infos-cle__liste > li.bq-infos-cle__geste { flex: 0 0 auto; }
+  .bq-cle { padding: 10px 16px; }
+  .bq-cle__texte strong { -webkit-line-clamp: 1; }
+
+  .bq-une__logo {
+    --taille: 132px;
+    position: absolute;
+    top: 50%;
+    right: 48px;
+    display: inline-grid;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.18), 0 18px 40px -16px rgba(0, 0, 0, 0.5);
+  }
+  .bq-une__logo.bq-logo--bandeau { --taille: 96px; }
+  .bq-une__logo.bq-logo--initiale { background: #FFFFFF; color: var(--bq-haut-1); }
 
   .bq-bandeau__interieur { padding: 26px var(--bq-gouttiere) 34px; }
   .bq-bandeau__titre { font-size: 34px; }
@@ -2461,36 +2599,6 @@ html.page-boutique body { overflow-x: clip; }
   .bq-commande { grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start; }
   .bq-recap { position: sticky; top: calc(var(--bq-haut-h) + 20px); }
 
-  /* L'identité à gauche, la vitrine de trois produits à droite. */
-  .bq-id__interieur { padding-top: 52px; padding-bottom: 54px; }
-  .bq-id--vitrine .bq-id__interieur {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
-    gap: 56px;
-    align-items: center;
-  }
-  .bq-id__vitrine {
-    display: grid;
-    grid-template-columns: 1.25fr 1fr;
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    height: 380px;
-  }
-  .bq-id__logo { --taille: 104px; }
-  .bq-id__nom { font-size: 42px; line-height: 1.08; }
-  .bq-id__slogan { margin-top: 8px; font-size: 18px; }
-  /* Sans vitrine (moins de trois produits en photo), les gestes passent à
-     droite du nom : la bande reste équilibrée au lieu de laisser sa moitié
-     droite vide. */
-  .bq-id:not(.bq-id--vitrine) .bq-id__principal {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    column-gap: 40px;
-    align-items: center;
-  }
-  .bq-id:not(.bq-id--vitrine) .bq-reperes { grid-column: 1; }
-  .bq-id:not(.bq-id--vitrine) .bq-actions { grid-column: 2; grid-row: 1 / 3; margin-top: 0; }
-
   .bq-page-apropos { grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 64px; align-items: start; }
   .bq-page-apropos__actions .bq-bouton { flex: none; }
   .bq-carte-boutique { position: sticky; top: calc(var(--bq-haut-h) + 24px); }
@@ -2528,41 +2636,44 @@ html.page-boutique body { overflow-x: clip; }
 
 /* La barre complète : les pages au milieu, le panier et son libellé. */
 @media (min-width: 1024px) {
-  .vitrine { --bq-haut-h: 76px; }
+  .vitrine { --bq-haut-h: 78px; }
   .bq-haut__interieur { gap: 16px; }
-  .bq-haut__marque { flex: 0 1 auto; max-width: 260px; margin-right: 0; font-size: 19px; }
-  .bq-haut__logo { --taille: 42px; }
-  .bq-haut__logo.bq-logo--initiale { font-size: 18px; }
+  .bq-haut__marque { flex: 0 1 auto; max-width: 300px; margin-right: 0; }
+  .bq-haut__logo { --taille: 48px; }
+  .bq-haut__logo.bq-logo--initiale { font-size: 21px; }
+  .bq-haut__nom { font-size: 18px; }
+  .bq-haut__accroche { font-size: 13px; }
   .bq-nav { display: block; margin-inline: auto; }
   .bq-haut__menu { display: none; }
-  .bq-haut__panier { gap: 10px; padding: 0 10px 0 16px; box-shadow: inset 0 0 0 1px var(--bq-ligne); }
-  .bq-haut__panier:hover { background: var(--bq-blanc); box-shadow: inset 0 0 0 1.5px var(--bq-bordure-accent); }
-  .bq-haut__panier-texte { display: inline; }
-  .bq-haut__nombre { position: static; min-width: 24px; height: 24px; padding: 0 7px; box-shadow: none; font-size: 12.5px; line-height: 24px; }
+
+  .bq-une__cadre { min-height: 400px; }
+  .bq-une__cadre--couleur { min-height: 340px; }
+  .bq-une__texte { width: min(52%, 600px); padding: 52px 0 60px 60px; }
+  .bq-une__titre { font-size: 46px; line-height: 1.06; }
+  .bq-une__sous-titre { font-size: 17px; }
+  .bq-infos-cle__partage {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-height: 42px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bq-papier-fonce);
+    color: var(--bq-encre);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .bq-infos-cle__partage:hover { background: var(--bq-voile-fort); }
+  .bq-infos-cle__partage svg { color: var(--bq-accent-texte); }
 }
 
 @media (min-width: 1100px) {
   .vitrine { --bq-gouttiere: 32px; }
-  .bq-id--vitrine .bq-id__interieur { gap: 72px; }
-  .bq-id__vitrine { height: 400px; }
-}
-
-@media (min-width: 1240px) {
-  .bq-haut__suivi {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 44px;
-    padding: 0 14px;
-    border-radius: 999px;
-    font-size: 14.5px;
-    font-weight: 550;
-    white-space: nowrap;
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-  .vitrine a.bq-haut__suivi { color: var(--bq-encre-douce); }
-  .vitrine a.bq-haut__suivi:hover,
-  .vitrine a.bq-haut__suivi.est-actif { color: var(--bq-encre); background: var(--bq-voile); }
 }
 
 /* Le mouvement n'est là que pour accompagner ; s'il gêne, il disparaît. */
@@ -2584,60 +2695,6 @@ html.page-boutique body { overflow-x: clip; }
 
 .vitrine { --bq-haut-1: #0D1B3D; --bq-haut-2: #1C3A8A; --bq-secondaire: #FBB900; --bq-sur-secondaire: #12151C; --bq-fond: #F7F8FB; }
 .bq-main { background: var(--bq-fond); }
-
-/* ─── Bandeau d'identité ─── */
-.bq-id {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--bq-haut-1) 0%, var(--bq-haut-2) 100%);
-  box-shadow: none;
-  border-radius: 0 0 28px 28px;
-  color: #FFFFFF;
-}
-.bq-id__interieur { position: relative; z-index: 1; padding-top: 28px; padding-bottom: 28px; }
-.bq-id__logo {
-  --taille: 78px;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.95), 0 12px 26px -10px rgba(0, 0, 0, 0.45);
-  background: #FFFFFF;
-}
-.bq-id__logo.bq-logo--initiale { background: #FFFFFF; color: var(--bq-haut-1); }
-.bq-id__nom { color: #FFFFFF; font-size: 26px; }
-.bq-id .bq-verifiee { color: #FFFFFF; }
-.bq-id__slogan { color: rgba(255, 255, 255, 0.82); }
-
-.bq-reperes { gap: 8px; }
-.bq-reperes > li {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  color: #FFFFFF;
-  font-size: 13.5px;
-  font-weight: 600;
-}
-.bq-reperes a,
-.bq-reperes svg,
-.bq-reperes__discret { color: #FFFFFF; }
-.bq-reperes__discret { opacity: 0.8; }
-.bq-reperes .bq-reperes__etoile { color: var(--bq-secondaire); fill: var(--bq-secondaire); }
-
-.bq-action,
-.vitrine a.bq-action {
-  min-height: 48px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
-  color: #FFFFFF;
-}
-.bq-action svg { color: #FFFFFF; }
-.bq-action:hover { background: rgba(255, 255, 255, 0.22); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45); }
-.bq-action--principale,
-.vitrine a.bq-action--principale {
-  background: #FFFFFF;
-  color: var(--bq-haut-1);
-  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.45);
-}
-.bq-action--principale svg { color: var(--bq-wa-fonce); }
-.bq-action--principale:hover { background: #F3F4F6; }
 
 /* ─── Catégories ─── */
 .bq-rayon { background: #FFFFFF; box-shadow: 0 4px 14px -10px rgba(16, 24, 40, 0.35); }
@@ -2711,39 +2768,19 @@ html.page-boutique body { overflow-x: clip; }
 
 /* ─── Adaptation aux écrans ───────────────────────────────────────
    Petits téléphones : tout tient sur la largeur sans se toucher.
-   Tablettes et ordinateurs : plus d'air, un logo et un nom plus grands. */
+   Tablettes et ordinateurs : plus d'air. */
 @media (max-width: 400px) {
-  .bq-id__interieur { padding-top: 22px; padding-bottom: 22px; }
-  .bq-id__haut { gap: 12px; }
-  .bq-id__logo { --taille: 62px; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.95), 0 10px 22px -10px rgba(0, 0, 0, 0.45); }
-  .bq-id__nom { font-size: 22px; }
-  .bq-id__slogan { font-size: 13.5px; }
-  .bq-reperes > li { padding: 6px 10px; font-size: 12.5px; }
-  .bq-actions { gap: 6px; }
-  .bq-action,
-  .vitrine a.bq-action { min-height: 44px; padding: 0 6px; gap: 5px; font-size: 13px; }
-  .bq-action svg { width: 16px; height: 16px; }
   .bq-titre-section { gap: 8px; }
   .bq-titre-section h2 { font-size: 18px; gap: 8px; }
   .bq-titre-section h2::before { height: 18px; width: 4px; }
   .bq-titre-section .bq-lien { padding: 6px 10px; font-size: 12.5px; }
   .bq-bandeau__titre { font-size: 23px; }
 }
-@media (max-width: 340px) {
-  /* Sur les plus petits écrans, les boutons passent l'icône au-dessus du mot. */
-  .bq-action,
-  .vitrine a.bq-action { flex-direction: column; gap: 2px; min-height: 52px; font-size: 12px; }
-}
 @media (min-width: 720px) {
-  .bq-id__interieur { padding-top: 36px; padding-bottom: 36px; }
-  .bq-id__logo { --taille: 92px; }
-  .bq-id__nom { font-size: 30px; }
-  .bq-id { border-radius: 0 0 36px 36px; }
   .bq-bandeau { border-radius: 0 0 32px 32px; }
   .bq-bandeau__interieur { padding-top: 26px; padding-bottom: 32px; }
 }
 @media (min-width: 1240px) {
-  .bq-id__nom { font-size: 34px; }
   .bq-titre-section h2 { font-size: 23px; }
 }
 

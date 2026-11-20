@@ -1,18 +1,20 @@
 import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MessageCircle, Phone, X } from 'lucide-react';
+import { Check, MessageCircle, Phone, Share2, X } from 'lucide-react';
 import { LogoBoutique } from './IdentiteBoutique';
 import { estPageActive, pagesBoutique } from './navigation';
 import { lienTelephone, lienWhatsappBoutique } from './outils';
+import { usePartageBoutique } from './usePartage';
 
 /**
- * Le menu du téléphone : les pages de la boutique et
- * les deux façons de joindre le vendeur. Il glisse depuis la droite, au-dessus
+ * Le menu du téléphone : les pages de la boutique, les deux façons de
+ * joindre le vendeur, et le partage du lien de la boutique. Il glisse depuis la droite, au-dessus
  * de la page ; Échap, la croix ou un appui à côté le referment.
  */
 export default function MenuMobile({ boutique, ouvert, fermer, aDesPromos }) {
   const { pathname } = useLocation();
   const premier = useRef(null);
+  const { partager, copie } = usePartageBoutique(boutique);
 
   useEffect(() => {
     if (!ouvert) return undefined;
@@ -71,20 +73,24 @@ export default function MenuMobile({ boutique, ouvert, fermer, aDesPromos }) {
           </ul>
         </nav>
 
-        {(wa || telephone) && (
-          <div className="bq-menu__contact">
-            {wa && (
-              <a className="bq-bouton bq-bouton--wa bq-bouton--bloc" href={wa} target="_blank" rel="noopener noreferrer">
-                <MessageCircle size={18} strokeWidth={2.2} aria-hidden="true" /> Écrire sur WhatsApp
-              </a>
-            )}
-            {telephone && (
-              <a className="bq-bouton bq-bouton--doux bq-bouton--bloc" href={lienTelephone(telephone)}>
-                <Phone size={18} strokeWidth={2.2} aria-hidden="true" /> Appeler
-              </a>
-            )}
-          </div>
-        )}
+        <div className="bq-menu__contact">
+          {wa && (
+            <a className="bq-bouton bq-bouton--wa bq-bouton--bloc" href={wa} target="_blank" rel="noopener noreferrer">
+              <MessageCircle size={18} strokeWidth={2.2} aria-hidden="true" /> Écrire sur WhatsApp
+            </a>
+          )}
+          {telephone && (
+            <a className="bq-bouton bq-bouton--doux bq-bouton--bloc" href={lienTelephone(telephone)}>
+              <Phone size={18} strokeWidth={2.2} aria-hidden="true" /> Appeler
+            </a>
+          )}
+          <button type="button" className="bq-bouton bq-bouton--doux bq-bouton--bloc" onClick={partager} aria-live="polite">
+            {copie
+              ? <Check size={18} strokeWidth={2.4} aria-hidden="true" />
+              : <Share2 size={18} strokeWidth={2.2} aria-hidden="true" />}
+            {copie ? 'Lien copié' : 'Partager la boutique'}
+          </button>
+        </div>
       </div>
     </div>
   );

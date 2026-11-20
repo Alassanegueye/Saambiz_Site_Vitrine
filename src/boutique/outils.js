@@ -87,6 +87,25 @@ export function produitsEnVitrine(donnees) {
   return choix.length === 3 ? choix : [];
 }
 
+/**
+ * Une photo hébergée chez Cloudinary, servie à la largeur voulue et dans le
+ * format le plus léger que le navigateur accepte : un téléphone ne télécharge
+ * pas l'image prévue pour un grand écran. Une autre adresse revient telle
+ * quelle.
+ */
+export function imageALaLargeur(url, largeur) {
+  const u = String(url || '');
+  const i = u.indexOf('/upload/');
+  if (i < 0 || !/^https:\/\/res\.cloudinary\.com\//i.test(u)) return u;
+  return `${u.slice(0, i + 8)}f_auto,q_auto,c_limit,w_${largeur}/${u.slice(i + 8)}`;
+}
+
+/** Les tailles d'une photo Cloudinary pour `srcSet` ; rien pour une autre adresse. */
+export function taillesImage(url, largeurs = [640, 960, 1280, 1600]) {
+  if (!/^https:\/\/res\.cloudinary\.com\/.+\/upload\//i.test(String(url || ''))) return undefined;
+  return largeurs.map((l) => `${imageALaLargeur(url, l)} ${l}w`).join(', ');
+}
+
 /** L'adresse de la boutique sur une carte. */
 export const lienCarte = (adresse) => (adresse
   ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}`

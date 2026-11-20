@@ -2,14 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, MapPin, Clock, Phone, MessageCircle } from 'lucide-react';
 import { GrilleProduits, CarteProduit, Avantages, Reseaux } from '../composants';
-import IdentiteBoutique from '../IdentiteBoutique';
+import UneBoutique from '../UneBoutique';
 import IconeVitrine from '../IconeVitrine';
 import Catalogue from './Catalogue';
 import { formaterTelephone, lienCarte, lienTelephone, lienWhatsappBoutique, promosDeLAccueil } from '../outils';
 
 /**
  * La page d'accueil du site d'une boutique, faite pour être partagée aux
- * clients et commander sans compte : l'identité de la boutique, ses promos
+ * clients et commander sans compte : le bandeau photo et les infos utiles, ses promos
  * du moment, puis ce que le vendeur a choisi d'afficher — ses sections
  * (chacune sur une ligne qui défile) ou, à défaut, ses produits. En bas, un
  * aperçu de la boutique et de ses coordonnées, qui mènent aux pages
@@ -189,7 +189,7 @@ export default function Accueil({ donnees, apercu = false }) {
 
   return (
     <>
-      <IdentiteBoutique boutique={boutique} />
+      <UneBoutique boutique={boutique} />
 
       {avecSections && sections.categories !== false && categories.length > 1 && (
         <Categories categories={categories} icones={blocs.icones} slug={boutique.slug} />
