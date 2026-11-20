@@ -9,8 +9,8 @@ import { formaterNote } from './outils';
  * La barre du haut, la même sur toutes les pages.
  *
  * À gauche, la boutique : son logo, son nom (avec le badge « certifiée ») et,
- * dessous, sa note quand des clients en ont laissé une — sinon un mot
- * d'accueil. À droite, le panier avec son nombre d'articles, puis le menu.
+ * dessous, sa note quand des clients en ont laissé une. À droite, le panier
+ * avec son nombre d'articles, puis le menu.
  * Sur ordinateur, les pages (Accueil, Nos produits, Nos promos, À propos,
  * Contact) s'affichent au milieu et le menu disparaît.
  *
@@ -37,14 +37,12 @@ export default function BarreHaut({ boutique, ouvrirPanier, ouvrirMenu, menuOuve
                 <BadgeCheck size={17} strokeWidth={2.3} className="bq-haut__badge" aria-label="Boutique certifiée par SaamBiz" />
               )}
             </span>
-            {note ? (
+            {note && (
               <span className="bq-haut__accroche bq-haut__accroche--note">
                 <Star size={13} className="bq-haut__etoile" aria-hidden="true" />
                 <strong>{formaterNote(stats.note)}</strong>
                 <span>· {stats.avis} avis</span>
               </span>
-            ) : (
-              <span className="bq-haut__accroche">Bienvenue dans ma boutique 👋</span>
             )}
           </span>
         </Link>
