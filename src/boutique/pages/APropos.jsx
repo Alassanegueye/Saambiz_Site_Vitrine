@@ -31,6 +31,7 @@ export default function APropos({ boutique }) {
 
       <div className="bq-section bq-page-apropos">
         <div className="bq-page-apropos__texte">
+          <h2 className="bq-surtitre">Notre histoire</h2>
           {(paragraphes.length ? paragraphes : parDefaut).map((p, i) => <p key={i}>{p}</p>)}
           <div className="bq-page-apropos__actions">
             <Link to={`${base}/produits`} className="bq-bouton bq-bouton--grand">Voir nos produits</Link>

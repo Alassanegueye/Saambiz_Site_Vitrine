@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Minus, Plus, MessageCircle, ShieldCheck, Truck, Banknote, ChevronRight } from 'lucide-react';
 import { chargerProduit, formaterPrix } from '../api';
 import { ImageProduit, Prix, GrilleProduits, TitreSection, EtatVide } from '../composants';
 import { usePanier } from '../panierContexte';
 import { finDePromo, lienTelephone, lienWhatsapp } from '../outils';
+import ChoixOptions from '../ChoixOptions';
+import { choixParDefaut, groupesOptions, optionsManquantes } from '../options';
 
 /** Fiche d'un produit : galerie, prix, variantes, ajout au panier. */
 export default function Produit({ boutique }) {
@@ -86,7 +88,6 @@ function Galerie({ images, nom }) {
 }
 
 function FicheProduit({ boutique, produitId }) {
-  const navigate = useNavigate();
   const { ajouter } = usePanier();
 
   const [donnees, setDonnees] = useState(null);
@@ -94,6 +95,7 @@ function FicheProduit({ boutique, produitId }) {
   const [chargement, setChargement] = useState(true);
   const [quantite, setQuantite] = useState(1);
   const [variantes, setVariantes] = useState({});
+  const [tente, setTente] = useState(false);
 
   useEffect(() => {
     let annule = false;
@@ -139,19 +141,24 @@ function FicheProduit({ boutique, produitId }) {
      ({ tailles: [...], couleurs: [...] }). On rend donc ce qui vient, sans
      supposer les clés — un vendeur de chaussures a des pointures, un vendeur
      de tissus des métrages. */
-  const groupesVariantes = Object.entries(produit.attributs || {})
-    .filter(([, valeurs]) => Array.isArray(valeurs) && valeurs.length > 0);
+  const groupes = groupesOptions(produit);
+  // Une option à valeur unique (« Taille unique ») est choisie d'office.
+  const choisies = { ...choixParDefaut(groupes), ...variantes };
+  const manquantes = optionsManquantes(groupes, choisies);
 
   const ajouterAuPanier = () => {
     // Les variantes voyagent à part, pas dans le nom : la ligne de commande
     // enregistrée en base reprend le nom du produit au catalogue, un nom
     // bricolé ici n'y arriverait jamais. Le panier les garde, et le passage
     // en caisse les récapitule dans la note que lit le vendeur.
-    ajouter(produit, quantite, Object.keys(variantes).length ? variantes : null);
-    navigate(`/b/${boutique.slug}/panier`);
+    // Le client reste sur la fiche : un message confirme l'ajout et lui
+    // propose d'ouvrir le panier.
+    if (manquantes.length) { setTente(true); return; }
+    ajouter(produit, quantite, Object.keys(choisies).length ? choisies : null);
+    setQuantite(1);
   };
 
-  const varianteManquante = groupesVariantes.some(([cle]) => !variantes[cle]);
+  const varianteManquante = manquantes.length > 0;
   const numeroWa = boutique.whatsapp || boutique.telephone;
   const lienProduit = `${window.location.origin}/b/${boutique.slug}/produit/${produit.id}`;
   const question = lienWhatsapp(numeroWa, `Bonjour, j'ai une question sur « ${produit.nom} » : ${lienProduit}`);
@@ -195,29 +202,10 @@ function FicheProduit({ boutique, produitId }) {
                 : <span className="bq-etat bq-etat--ok">En stock</span>}
           </p>
 
-          {groupesVariantes.map(([cle, valeurs]) => (
-            <fieldset key={cle} className="bq-variantes">
-              <legend className="bq-variantes__titre">
-                {/* « Pointures disponibles » → « Pointure » : côté client, on
-                    choisit, la disponibilité va de soi. */}
-                {(produit.libelles?.[cle] || cle).replace(/\s+disponibles?$/i, '')}
-                {variantes[cle] && <span className="bq-variantes__choix"> : {String(variantes[cle])}</span>}
-              </legend>
-              <div className="bq-puces">
-                {valeurs.map((v) => (
-                  <button
-                    key={String(v)}
-                    type="button"
-                    className={`bq-puce bq-puce--option ${variantes[cle] === v ? 'est-active' : ''}`}
-                    onClick={() => setVariantes((a) => ({ ...a, [cle]: v }))}
-                    aria-pressed={variantes[cle] === v}
-                  >
-                    {String(v)}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-          ))}
+          {groupes.length > 0 && (
+            <ChoixOptions groupes={groupes} choix={choisies} manquantes={tente ? manquantes : []}
+              onChoisir={(cle, v) => setVariantes((a) => ({ ...a, [cle]: v }))} />
+          )}
 
           {boutique.commandeActivee && produit.disponible && (
             /* Sur téléphone, ce bloc se colle au bas de l'écran tant qu'on lit
@@ -237,10 +225,9 @@ function FicheProduit({ boutique, produitId }) {
                 type="button"
                 className={`bq-bouton bq-bouton--grand bq-bouton--bloc ${varianteManquante ? '' : 'bq-bouton--avec-prix'}`}
                 onClick={ajouterAuPanier}
-                disabled={varianteManquante}
               >
                 {varianteManquante
-                  ? 'Choisissez vos options'
+                  ? `Choisir : ${manquantes.map((m) => m.libelle.toLowerCase()).join(', ')}`
                   : (<><span>Ajouter au panier</span><span className="bq-bouton__prix">{formaterPrix(produit.prix * quantite)}</span></>)}
               </button>
             </div>

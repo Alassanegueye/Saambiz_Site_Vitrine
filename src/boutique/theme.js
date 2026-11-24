@@ -41,6 +41,49 @@ function melanger(a, b, t) {
   };
 }
 
+/** { r, g, b } → { h (0-360), s (0-1), l (0-1) }. */
+function versTsl({ r, g, b }) {
+  const [R, G, B] = [r / 255, g / 255, b / 255];
+  const max = Math.max(R, G, B);
+  const min = Math.min(R, G, B);
+  const l = (max + min) / 2;
+  if (max === min) return { h: 0, s: 0, l };
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h;
+  if (max === R) h = (G - B) / d + (G < B ? 6 : 0);
+  else if (max === G) h = (B - R) / d + 2;
+  else h = (R - G) / d + 4;
+  return { h: h * 60, s, l };
+}
+
+/** { h, s, l } → { r, g, b }. */
+function depuisTsl({ h, s, l }) {
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return { r: f(0) * 255, g: f(8) * 255, b: f(4) * 255 };
+}
+
+/**
+ * La couleur voisine d'un dégradé : même famille, teinte un peu tournée,
+ * plus vive et plus claire. Un bleu nuit donne un bleu roi, un vert forêt un
+ * vert émeraude — et non le gris qu'on obtient en mêlant du blanc.
+ */
+function voisine(couleur) {
+  const { h, s, l } = versTsl(couleur);
+  // Les jaunes et les orangés tournent vers le rouge (vers le vert, un or
+  // virerait au kaki) ; les autres, vers le bleu ou le violet.
+  const rotation = h >= 20 && h <= 100 ? -12 : 12;
+  // Un gris reste un gris : le faire tourner n'aurait aucun sens.
+  if (s < 0.08) return depuisTsl({ h, s, l: Math.min(0.42, l + 0.16) });
+  return depuisTsl({
+    h: (h + rotation + 360) % 360,
+    s: Math.min(0.85, s + 0.05),
+    l: Math.min(0.5, l + 0.12),
+  });
+}
+
 /** Luminance relative (WCAG). */
 function luminance({ r, g, b }) {
   const c = [r, g, b].map((v) => {
@@ -132,7 +175,7 @@ export function variablesTheme(accentHex, secondaireHex = null) {
   // couleur. Un jaune vif devient un ambre profond, un rose un framboise.
   const haut1 = rendreLisible(accent, BLANC, 4.6);
   const haut2 = rendreLisible(
-    secondaireHex ? melanger(haut1, secondaireBrute, 0.45) : melanger(haut1, BLANC, 0.22),
+    secondaireHex ? melanger(haut1, secondaireBrute, 0.45) : voisine(haut1),
     BLANC,
     4.6,
   );

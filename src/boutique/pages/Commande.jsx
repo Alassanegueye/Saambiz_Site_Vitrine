@@ -4,6 +4,7 @@ import { Truck, Store, Banknote, AlertCircle, Loader2 } from 'lucide-react';
 import { envoyerCommande, formaterPrix } from '../api';
 import { usePanier } from '../panierContexte';
 import { EntetePage, EtatVide } from '../composants';
+import { texteLigne } from '../options';
 
 /**
  * Le passage en caisse.
@@ -32,7 +33,7 @@ function lireClient() {
 }
 
 export default function Commande({ boutique }) {
-  const { lignes, sousTotal, versItems, detailVariantes, vider } = usePanier();
+  const { lignesChoisies: lignes, sousTotal, versItems, detailVariantes, retirerCommandees } = usePanier();
   const navigate = useNavigate();
   const base = `/b/${boutique.slug}`;
 
@@ -59,8 +60,8 @@ export default function Commande({ boutique }) {
     return (
       <div className="bq-section">
         <EtatVide
-          titre="Votre panier est vide"
-          texte="Ajoutez au moins un produit avant de commander."
+          titre="Aucun article à commander"
+          texte="Ajoutez un produit à votre panier, ou cochez ceux que vous voulez commander."
           action={<Link to={`${base}/produits`} className="bq-bouton">Voir nos produits</Link>}
         />
       </div>
@@ -121,7 +122,8 @@ export default function Commande({ boutique }) {
         }));
       } catch { /* stockage indisponible — sans conséquence */ }
 
-      vider();
+      // Les articles mis de côté (décochés) restent dans le panier.
+      retirerCommandees();
 
       // La confirmation reçoit le résultat par l'état de navigation : elle ne
       // le redemande pas au serveur, et un rechargement de la page ne
@@ -267,7 +269,10 @@ export default function Commande({ boutique }) {
             <ul className="bq-recap__articles">
               {lignes.map((l) => (
                 <li key={l.cle}>
-                  <span>{l.quantite} × {l.nom}</span>
+                  <span>
+                    {l.quantite} × {l.nom}
+                    {l.variantes && <small className="bq-recap__options">{texteLigne(l)}</small>}
+                  </span>
                   <strong>{formaterPrix(l.prix * l.quantite)}</strong>
                 </li>
               ))}

@@ -1,13 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Minus, Plus } from 'lucide-react';
 import { formaterPrix } from '../api';
 import { usePanier } from '../panierContexte';
-import { ImageProduit, EtatVide, EntetePage } from '../composants';
-import { libelleVariantes } from '../outils';
+import { EtatVide, EntetePage } from '../composants';
+import LignePanier from '../LignePanier';
+import { BarreSelection } from '../PanierFlottant';
 
-/** Le panier : relecture, ajustement des quantités, passage en caisse. */
+/** Le panier : relecture, choix des articles à commander, passage en caisse. */
 export default function Panier({ boutique }) {
-  const { lignes, changerQuantite, retirer, sousTotal, nombreArticles } = usePanier();
+  const { lignes, sousTotal, nombreArticles, nombreChoisis, toutCocher } = usePanier();
   const navigate = useNavigate();
   const base = `/b/${boutique.slug}`;
 
@@ -29,62 +29,24 @@ export default function Panier({ boutique }) {
         <p className="bq-bandeau__texte">{nombreArticles} article{nombreArticles > 1 ? 's' : ''}</p>
       </EntetePage>
       <div className="bq-section">
-
         <div className="bq-panier">
-          <ul className="bq-panier__lignes">
-            {lignes.map((l) => (
-              <li key={l.cle} className="bq-panier__ligne">
-                <ImageProduit src={l.image} alt={l.nom} className="bq-panier__image" />
-
-                <div className="bq-panier__texte">
-                  <Link to={`${base}/produit/${l.id}`} className="bq-panier__nom">{l.nom}</Link>
-
-                  {l.variantes && (
-                    <p className="bq-panier__options">
-                      {libelleVariantes(l.variantes)}
-                    </p>
-                  )}
-
-                  <p className="bq-panier__unitaire">{formaterPrix(l.prix)} l'unité</p>
-                </div>
-
-                <div className="bq-panier__controles">
-                  <div className="bq-quantite bq-quantite--petite" role="group" aria-label={`Quantité pour ${l.nom}`}>
-                    <button type="button" onClick={() => changerQuantite(l.cle, l.quantite - 1)} aria-label="Diminuer la quantité">
-                      <Minus size={14} strokeWidth={2.6} />
-                    </button>
-                    <span aria-live="polite">{l.quantite}</span>
-                    <button type="button" onClick={() => changerQuantite(l.cle, l.quantite + 1)} aria-label="Augmenter la quantité">
-                      <Plus size={14} strokeWidth={2.6} />
-                    </button>
-                  </div>
-
-                  <p className="bq-panier__total">{formaterPrix(l.prix * l.quantite)}</p>
-
-                  <button
-                    type="button"
-                    className="bq-supprimer"
-                    onClick={() => retirer(l.cle)}
-                    aria-label={`Retirer ${l.nom} du panier`}
-                  >
-                    <Trash2 size={16} strokeWidth={2} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="bq-panier__liste">
+            {lignes.length > 1 && <BarreSelection lignes={lignes} toutCocher={toutCocher} />}
+            <ul className="bq-lps">
+              {lignes.map((l) => <LignePanier key={l.uid || l.cle} ligne={l} slug={boutique.slug} />)}
+            </ul>
+          </div>
 
           <aside className="bq-recap">
             <h2>Récapitulatif</h2>
 
             <p className="bq-recap__ligne">
-              <span>Sous-total</span>
+              <span>Sous-total ({nombreChoisis} article{nombreChoisis > 1 ? 's' : ''})</span>
               <strong>{formaterPrix(sousTotal)}</strong>
             </p>
 
-            {/* Les frais de livraison sont fixés par la configuration du
-                backend et dépendent du mode choisi à l'étape suivante : les
-                annoncer ici sous forme de montant serait un chiffre inventé. */}
+            {/* Les frais de livraison dépendent du mode choisi à l'étape
+                suivante : les annoncer ici serait un chiffre inventé. */}
             <p className="bq-recap__ligne bq-recap__ligne--sourde">
               <span>Livraison</span>
               <span>calculée à l'étape suivante</span>
@@ -94,15 +56,21 @@ export default function Panier({ boutique }) {
               type="button"
               className="bq-bouton bq-bouton--grand bq-bouton--bloc"
               onClick={() => navigate(`${base}/commande`)}
-              disabled={!boutique.commandeActivee}
+              disabled={!boutique.commandeActivee || nombreChoisis === 0}
             >
-              Passer la commande
+              {nombreChoisis === 0 ? 'Cochez au moins un article' : 'Passer la commande'}
             </button>
 
             {!boutique.commandeActivee && (
               <p className="bq-recap__note">
                 Cette boutique ne prend pas les commandes en ligne. Contactez-la
                 directement pour finaliser votre achat.
+              </p>
+            )}
+
+            {nombreChoisis < nombreArticles && nombreChoisis > 0 && (
+              <p className="bq-recap__note">
+                Les articles décochés restent dans votre panier pour plus tard.
               </p>
             )}
 

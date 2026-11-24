@@ -7,6 +7,7 @@ import { promosDeLAccueil } from './outils';
 import BarreHaut from './BarreHaut';
 import MenuMobile from './MenuMobile';
 import PanierFlottant from './PanierFlottant';
+import AjoutRapide from './AjoutRapide';
 import BoutonWhatsapp from './BoutonWhatsapp';
 import Pied from './Pied';
 import './vitrine.css';
@@ -120,6 +121,7 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
   const [panierOuvert, setPanierOuvert] = useState(false);
   const [menuOuvert, setMenuOuvert] = useState(false);
   const fermerMenu = useCallback(() => setMenuOuvert(false), []);
+  const ouvrirPanier = useCallback(() => setPanierOuvert(true), []);
   usePageBoutique();
   const { boutique } = donnees;
   const base = `/b/${boutique.slug}`;
@@ -130,7 +132,7 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
   const aDesPromos = useMemo(() => promosDeLAccueil(donnees).length > 0, [donnees]);
 
   return (
-    <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug}>
+    <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug} ouvrirPanier={ouvrirPanier}>
       {/* Le thème du vendeur ne vit que dans ces variables CSS, posées sur la
           racine du site : les composants lisent --bq-accent, --bq-papier… */}
       <div
@@ -138,7 +140,7 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
         style={variablesTheme(boutique.theme.accent, boutique.theme.secondaire)}
       >
         <BarreHaut boutique={boutique} aDesPromos={aDesPromos}
-          ouvrirPanier={() => setPanierOuvert(true)}
+          ouvrirPanier={ouvrirPanier}
           ouvrirMenu={() => setMenuOuvert(true)} menuOuvert={menuOuvert} />
 
         <main className="bq-main">
@@ -172,6 +174,9 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
             le client y est déjà. */}
         <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert}
           bulle={!apercu && !/\/(panier|commande|confirmation)$/.test(chemin)} />
+        {/* Le choix de la taille, de la couleur et de la quantité, depuis
+            n'importe quelle liste de produits. */}
+        <AjoutRapide slug={boutique.slug} />
       </div>
     </FournisseurPanier>
   );

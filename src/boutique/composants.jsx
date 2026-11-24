@@ -120,23 +120,13 @@ function useLigneProduit(produit) {
 }
 
 /* ── Bouton « ajouter au panier » ────────────────────────────────── */
-export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, children }) {
-  const { ajouter } = usePanier();
+/* Un produit à options (taille, couleur…) ouvre la fenêtre d'ajout rapide :
+   le client choisit sans quitter la page qu'il parcourait. Sans options,
+   le produit part directement au panier. */
+export function BoutonAjouter({ produit, quantite = 1, bloc = false, children }) {
+  const { ajouter, choisirOptions } = usePanier();
   const ligne = useLigneProduit(produit);
-
-  // Un produit à options ne peut pas être ajouté depuis une liste : le
-  // bouton devient un lien vers la fiche, sans quoi la commande partirait
-  // avec une taille choisie par personne.
-  if (aDesOptions(produit) && slug) {
-    return (
-      <Link
-        to={`/b/${slug}/produit/${produit.id}`}
-        className={`bq-bouton bq-bouton--doux ${bloc ? 'bq-bouton--bloc' : ''}`}
-      >
-        Choisir
-      </Link>
-    );
-  }
+  const avecOptions = aDesOptions(produit);
 
   if (!produit.disponible) {
     return (
@@ -146,13 +136,14 @@ export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, child
     );
   }
 
-  if (ligne) return <QuantitePanier ligne={ligne} produit={produit} />;
+  if (ligne && !avecOptions) return <QuantitePanier ligne={ligne} produit={produit} />;
 
   return (
     <button
       type="button"
-      onClick={() => ajouter(produit, quantite)}
+      onClick={() => (avecOptions ? choisirOptions(produit) : ajouter(produit, quantite))}
       className={`bq-bouton ${bloc ? 'bq-bouton--bloc' : ''}`}
+      aria-haspopup={avecOptions ? 'dialog' : undefined}
     >
       <Plus size={17} strokeWidth={2.5} aria-hidden="true" /> {children || 'Ajouter'}
     </button>
@@ -160,24 +151,30 @@ export function BoutonAjouter({ produit, quantite = 1, bloc = false, slug, child
 }
 
 /* ── Bouton rond « ajouter au panier » (tuiles) ───────────────────── */
-export function BoutonPanierRond({ produit, slug }) {
-  const { ajouter } = usePanier();
+export function BoutonPanierRond({ produit }) {
+  const { ajouter, choisirOptions, lignes } = usePanier();
   const ligne = useLigneProduit(produit);
+  const avecOptions = aDesOptions(produit);
 
-  if (aDesOptions(produit) && slug) {
-    return (
-      <Link to={`/b/${slug}/produit/${produit.id}`} className="bq-rond" aria-label={`Choisir les options de ${produit.nom}`}>
-        <Plus size={20} strokeWidth={2.6} aria-hidden="true" />
-      </Link>
-    );
-  }
   if (!produit.disponible) return null;
-  if (ligne) return <QuantitePanier ligne={ligne} produit={produit} petite />;
+  if (ligne && !avecOptions) return <QuantitePanier ligne={ligne} produit={produit} petite />;
+
+  // Combien de pièces de ce produit sont déjà au panier, toutes options
+  // confondues : le client voit qu'il l'a déjà pris.
+  const dejaPris = avecOptions
+    ? lignes.filter((l) => l.id === produit.id).reduce((s, l) => s + l.quantite, 0)
+    : 0;
 
   return (
-    <button type="button" onClick={() => ajouter(produit, 1)} className="bq-rond"
-      aria-label={`Ajouter ${produit.nom} au panier`}>
+    <button
+      type="button"
+      onClick={() => (avecOptions ? choisirOptions(produit) : ajouter(produit, 1))}
+      className="bq-rond"
+      aria-haspopup={avecOptions ? 'dialog' : undefined}
+      aria-label={avecOptions ? `Choisir les options et ajouter ${produit.nom}` : `Ajouter ${produit.nom} au panier`}
+    >
       <Plus size={20} strokeWidth={2.6} aria-hidden="true" />
+      {dejaPris > 0 && <span className="bq-rond__nombre" aria-hidden="true">{dejaPris}</span>}
     </button>
   );
 }
@@ -216,7 +213,7 @@ export function CarteProduit({ produit, slug, format = 'carte' }) {
           </span>
         </Link>
         <div className="bq-ligne__action">
-          <BoutonAjouter produit={produit} slug={slug} />
+          <BoutonAjouter produit={produit} />
         </div>
       </article>
     );
@@ -240,7 +237,7 @@ export function CarteProduit({ produit, slug, format = 'carte' }) {
               <s><span className="sr-only">Au lieu de </span>{formaterPrix(produit.prixBarre)}</s>
             )}
           </p>
-          <BoutonPanierRond produit={produit} slug={slug} />
+          <BoutonPanierRond produit={produit} />
         </div>
         {produit.prixBarre != null && finDePromo(produit.finPromo) && (
           <p className="bq-tuile__fin">{finDePromo(produit.finPromo)}</p>
