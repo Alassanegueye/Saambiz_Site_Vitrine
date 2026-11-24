@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Store, Megaphone, TrendingUp, BellRing } from 'lucide-react';
+import { Play } from 'lucide-react';
 import hero1 from '../../assets/hero-1.webp';
 import hero1Sm from '../../assets/hero-1-sm.webp';
 import hero2 from '../../assets/hero-2.webp';
@@ -21,14 +21,6 @@ const PlayGlyph = () => (
     <path fill="#EA4335" d="M17 560l276-277 55 73-286 163c-17 10-34 13-45-3z" />
   </svg>
 );
-
-/* Les quatre promesses affichées sous les boutons. */
-const perks = [
-  { icon: <Store size={22} strokeWidth={1.6} />,      label: <>Créez votre<br />boutique</> },
-  { icon: <Megaphone size={22} strokeWidth={1.6} />,  label: <>Gérez vos<br />publicités</> },
-  { icon: <TrendingUp size={22} strokeWidth={1.6} />, label: <>Suivez vos<br />ventes</> },
-  { icon: <BellRing size={22} strokeWidth={1.6} />,   label: <>Notifiez vos<br />clients</> },
-];
 
 /* Deux compositions : chacune a son illustration (le décor occupe la moitié
    droite de l'image, la moitié gauche est laissée blanche pour le texte). */
@@ -143,15 +135,6 @@ const Hero = ({ scrollTo }) => {
             </button>
           </div>
 
-          <ul className="hero-perks">
-            {perks.map((p, i) => (
-              <li key={i} className="hero-perk">
-                <span className="hero-perk-ico" aria-hidden="true">{p.icon}</span>
-                <span className="hero-perk-label">{p.label}</span>
-              </li>
-            ))}
-          </ul>
-
           <div className="hero-stores">
             <button type="button" className="hero-store" onClick={() => scrollTo('download')}>
               <AppleGlyph />
@@ -185,8 +168,10 @@ const Hero = ({ scrollTo }) => {
           background: #FEFEFE;
           /* Tout l'écran à l'ouverture : le bandeau bleu du dessous
              n'apparaît qu'au défilement. */
-          min-height: max(100vh, calc(var(--nav-h) + 520px));
-          min-height: max(100svh, calc(var(--nav-h) + 520px));
+          /* --hauteur-ecran : la vraie hauteur de l'écran quand la page est
+             agrandie sur grand écran (voir useEchelleEcran). */
+          min-height: max(var(--hauteur-ecran, 100vh), calc(var(--nav-h) + 520px));
+          min-height: max(var(--hauteur-ecran, 100svh), calc(var(--nav-h) + 520px));
           display: flex; align-items: center;
           padding: calc(var(--nav-h) + 20px) 40px 32px;
         }
@@ -262,27 +247,6 @@ const Hero = ({ scrollTo }) => {
         .hero-btn-alt:hover { border-color: var(--navy); }
         .hero-btn-alt svg { color: var(--navy); }
 
-        /* ─── PROMESSES ─── */
-        .hero-perks {
-          list-style: none; display: flex; align-items: flex-start;
-          gap: 0; margin-bottom: 30px; max-width: 520px;
-        }
-        .hero-perk {
-          flex: 1 1 0; min-width: 0;
-          display: flex; flex-direction: column; align-items: center; gap: 9px;
-          padding: 0 8px;
-          border-left: 1px solid rgba(13,27,61,0.10);
-        }
-        .hero-perk:first-child { border-left: none; padding-left: 0; }
-        .hero-perk-ico { color: var(--navy); line-height: 0; }
-        /* Un accent or sur les deux promesses du milieu */
-        .hero-perk:nth-child(2) .hero-perk-ico,
-        .hero-perk:nth-child(3) .hero-perk-ico { color: var(--gold); }
-        .hero-perk-label {
-          font-size: 12.5px; font-weight: 500; line-height: 1.4;
-          color: var(--text-mid); text-align: center;
-        }
-
         /* ─── BADGES DE STORE ─── */
         .hero-stores { display: flex; flex-wrap: wrap; gap: 12px; }
         .hero-store {
@@ -337,7 +301,6 @@ const Hero = ({ scrollTo }) => {
           .hero-copy { text-align: center; margin: 0 auto; }
           .hero-sub { margin-left: auto; margin-right: auto; }
           .hero-actions, .hero-stores, .hero-dots { justify-content: center; }
-          .hero-perks { max-width: 460px; margin-left: auto; margin-right: auto; }
         }
         @media (max-width: 560px) {
           .hero-section { padding: calc(var(--nav-h) + 18px) 14px 0; }
@@ -345,9 +308,6 @@ const Hero = ({ scrollTo }) => {
           .hero-title { letter-spacing: -0.4px; }
           .hero-actions { gap: 12px; margin-bottom: 30px; }
           .hero-btn-main, .hero-btn-alt { width: 100%; justify-content: center; }
-          .hero-perks { gap: 0; margin-bottom: 28px; }
-          .hero-perk { padding: 0 4px; gap: 8px; }
-          .hero-perk-label { font-size: 11.5px; }
           .hero-store { flex: 1 1 auto; justify-content: center; padding: 9px 14px; }
           .hero-store strong { font-size: 15px; }
         }

@@ -1,4 +1,5 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
+import { lazyFiable } from './utils/nouvelleVersion';
 import { Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 
@@ -7,13 +8,17 @@ import LandingPage from './pages/LandingPage';
    sur une devanture : il n'a aucune raison de télécharger au passage la page
    de présentation de la marketplace, ni l'inverse. Sur un forfait mobile
    sénégalais, ces kilo-octets se paient. */
-const BoutiqueLayout = lazy(() => import('./boutique/BoutiqueLayout'));
-const Apercu = lazy(() => import('./boutique/Apercu'));
+const BoutiqueLayout = lazyFiable(() => import('./boutique/BoutiqueLayout'));
+const Apercu = lazyFiable(() => import('./boutique/Apercu'));
 
 /* Le suivi par lien : le client y arrive depuis son email, sans passer par
    une boutique — un même lien peut couvrir des commandes faites chez
    plusieurs vendeurs, il vit donc à la racine du site. */
-const SuiviParLien = lazy(() => import('./suivi/SuiviParLien'));
+// `lazyFiable` et non `lazy` : après un déploiement, le navigateur d'un
+// client peut garder en cache une page qui demande un morceau de code
+// disparu. Le lien de suivi s'ouvre souvent des jours après la commande —
+// c'est précisément le cas où cela arrive.
+const SuiviParLien = lazyFiable(() => import('./suivi/SuiviParLien'));
 
 /* Écran d'attente le temps que le module de la boutique arrive. Volontairement
    nu : afficher un logo SaamBiz ici ferait clignoter une marque que le client

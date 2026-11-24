@@ -1,22 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Routes, Route, useParams, useLocation, Link } from 'react-router-dom';
 import { chargerBoutique } from './api';
 import { variablesTheme } from './theme';
 import { FournisseurPanier } from './panier';
+import { promosDeLAccueil } from './outils';
 import BarreHaut from './BarreHaut';
+import MenuMobile from './MenuMobile';
 import PanierFlottant from './PanierFlottant';
+import AjoutRapide from './AjoutRapide';
+import BoutonWhatsapp from './BoutonWhatsapp';
 import Pied from './Pied';
-import AppelApplication from './AppelApplication';
-import InviteApplication from './InviteApplication';
 import './vitrine.css';
 
 import Accueil from './pages/Accueil';
 import Catalogue from './pages/Catalogue';
+import Promos from './pages/Promos';
+import APropos from './pages/APropos';
+import Contact from './pages/Contact';
 import Produit from './pages/Produit';
 import Panier from './pages/Panier';
 import Commande from './pages/Commande';
 import Confirmation from './pages/Confirmation';
-import Suivi from './pages/Suivi';
 
 /**
  * Le site d'une boutique, de bout en bout.
@@ -34,12 +38,16 @@ function useTitrePage(boutique, pathname) {
 
     const suffixe = boutique.nom;
     const parPage = {
-      '/catalogue': `Boutique — ${suffixe}`,
+      '/produits': `Nos produits — ${suffixe}`,
+      '/catalogue': `Nos produits — ${suffixe}`,
+      '/promos': `Nos promos — ${suffixe}`,
+      '/a-propos': `À propos — ${suffixe}`,
+      '/contact': `Contact — ${suffixe}`,
       '/panier': `Mon panier — ${suffixe}`,
       '/commande': `Commander — ${suffixe}`,
-      '/suivi': `Suivre ma commande — ${suffixe}`,
     };
-    const cle = Object.keys(parPage).find((k) => pathname.endsWith(k));
+    const ici = pathname.replace(/\/+$/, '');
+    const cle = Object.keys(parPage).find((k) => ici.endsWith(k));
     document.title = cle ? parPage[cle] : `${suffixe}${boutique.slogan ? ` — ${boutique.slogan}` : ''}`;
 
     // La description est lue par WhatsApp et Facebook quand le vendeur colle
@@ -93,34 +101,62 @@ function Introuvable({ message }) {
  * Partagé avec l'aperçu du tableau de bord (`apercu`), qui n'affiche que
  * l'accueil.
  */
+/**
+ * La page d'accueil SaamBiz coupe tout débordement horizontal avec
+ * `overflow-x: hidden` sur html et body (styles/global.css). Posé sur les
+ * deux, il fait du body un conteneur de défilement qui ne défile jamais :
+ * la barre du haut, collante, ne collait plus à rien. Le temps que le site
+ * d'une boutique est affiché, on passe à `overflow-x: clip`, qui coupe le
+ * débordement sans créer ce conteneur (voir vitrine.css).
+ */
+function usePageBoutique() {
+  useEffect(() => {
+    document.documentElement.classList.add('page-boutique');
+    return () => document.documentElement.classList.remove('page-boutique');
+  }, []);
+}
+
 export function CoquilleBoutique({ donnees, apercu = false }) {
   const location = useLocation();
   const [panierOuvert, setPanierOuvert] = useState(false);
+  const [menuOuvert, setMenuOuvert] = useState(false);
+  const fermerMenu = useCallback(() => setMenuOuvert(false), []);
+  const ouvrirPanier = useCallback(() => setPanierOuvert(true), []);
+  usePageBoutique();
   const { boutique } = donnees;
   const base = `/b/${boutique.slug}`;
-  const estAccueil = apercu || location.pathname.replace(/\/+$/, '') === base;
+  const chemin = location.pathname.replace(/\/+$/, '');
+  // Sur la fiche produit, le téléphone colle le bouton d'achat au bas de
+  // l'écran : le bouton WhatsApp flottant s'efface devant lui (voir vitrine.css).
+  const surFiche = !apercu && chemin.startsWith(`${base}/produit/`);
+  const aDesPromos = useMemo(() => promosDeLAccueil(donnees).length > 0, [donnees]);
 
   return (
-    <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug}>
+    <FournisseurPanier slug={apercu ? `apercu-${boutique.slug}` : boutique.slug} ouvrirPanier={ouvrirPanier}>
       {/* Le thème du vendeur ne vit que dans ces variables CSS, posées sur la
-          racine du site : les composants lisent --bq-accent, --bq-sur-accent… */}
+          racine du site : les composants lisent --bq-accent, --bq-papier… */}
       <div
-        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}`}
-        style={variablesTheme(boutique.theme.accent)}
+        className={`vitrine vitrine--${boutique.theme.modele}${apercu ? ' vitrine--apercu' : ''}${boutique.commandeActivee ? '' : ' vitrine--sans-commande'}${surFiche ? ' vitrine--fiche' : ''}`}
+        style={variablesTheme(boutique.theme.accent, boutique.theme.secondaire)}
       >
-        {!estAccueil && <BarreHaut boutique={boutique} />}
+        <BarreHaut boutique={boutique} aDesPromos={aDesPromos}
+          ouvrirPanier={ouvrirPanier}
+          ouvrirMenu={() => setMenuOuvert(true)} menuOuvert={menuOuvert} />
 
         <main className="bq-main">
           {apercu ? <Accueil donnees={donnees} apercu /> : (
             <Routes>
               <Route index element={<Accueil donnees={donnees} />} />
+              <Route path="produits" element={<Catalogue boutique={boutique} categories={donnees.categories} />} />
+              {/* L'ancienne adresse du catalogue, encore dans des liens partagés. */}
               <Route path="catalogue" element={<Catalogue boutique={boutique} categories={donnees.categories} />} />
+              <Route path="promos" element={<Promos boutique={boutique} />} />
+              <Route path="a-propos" element={<APropos boutique={boutique} />} />
+              <Route path="contact" element={<Contact boutique={boutique} />} />
               <Route path="produit/:produitId" element={<Produit boutique={boutique} />} />
               <Route path="panier" element={<Panier boutique={boutique} />} />
               <Route path="commande" element={<Commande boutique={boutique} />} />
               <Route path="confirmation" element={<Confirmation boutique={boutique} />} />
-              <Route path="suivi" element={<Suivi boutique={boutique} />} />
-              <Route path="suivi/:reference" element={<Suivi boutique={boutique} />} />
               {/* Une sous-page inconnue ramène à la boutique, pas à une erreur :
                   le client a probablement suivi un lien tronqué. */}
               <Route path="*" element={<Accueil donnees={donnees} />} />
@@ -128,16 +164,19 @@ export function CoquilleBoutique({ donnees, apercu = false }) {
           )}
         </main>
 
-        {/* L'appel à installer l'application, en bas de chaque page — sauf la
-            confirmation, qui a le sien. */}
-        {!location.pathname.endsWith('/confirmation') && (
-          <AppelApplication boutique={boutique} />
-        )}
-
         <Pied boutique={boutique} />
 
-        <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert} />
-        <InviteApplication boutique={boutique} />
+        {/* La pastille WhatsApp n'existe que sur le site public, pas dans
+            l'aperçu affiché par l'application ou le tableau de bord. */}
+        {!apercu && <BoutonWhatsapp boutique={boutique} />}
+        <MenuMobile boutique={boutique} ouvert={menuOuvert} fermer={fermerMenu} aDesPromos={aDesPromos} />
+        {/* Sur le panier et le passage en caisse, la bulle ferait doublon :
+            le client y est déjà. */}
+        <PanierFlottant boutique={boutique} ouvert={panierOuvert} setOuvert={setPanierOuvert}
+          bulle={!apercu && !/\/(panier|commande|confirmation)$/.test(chemin)} />
+        {/* Le choix de la taille, de la couleur et de la quantité, depuis
+            n'importe quelle liste de produits. */}
+        <AjoutRapide slug={boutique.slug} />
       </div>
     </FournisseurPanier>
   );

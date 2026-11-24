@@ -429,7 +429,7 @@ export default function LegalModal({ doc, onClose, onSwitch }) {
           /* La remise à zéro globale (margin: 0) annule le centrage natif. */
           position: fixed; inset: 0; margin: auto;
           width: min(100% - 2rem, 46rem);
-          max-height: min(100dvh - 3rem, 52rem);
+          max-height: min(var(--hauteur-ecran, 100dvh) - 3rem, 52rem);
           padding: 0; border: 0; border-radius: 16px;
           background: var(--white); color: var(--navy);
           box-shadow: 0 30px 80px -20px rgba(13,27,61,0.45);

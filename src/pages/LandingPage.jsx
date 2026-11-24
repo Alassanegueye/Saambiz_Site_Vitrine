@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowUp } from 'lucide-react';
 import '../styles/global.css';
 
+import IntroMarque from '../components/marque/IntroMarque';
 import Navbar from '../components/layout/Navbar';
+import useEchelleEcran from '../components/layout/useEchelleEcran';
 import Footer from '../components/layout/Footer';
 import Hero from '../components/sections/Hero';
 import VendorFeatures from '../components/sections/VendorFeatures';
@@ -24,6 +26,9 @@ function LandingPage() {
   const [showTop, setShowTop] = useState(false);
   const ticking = useRef(false);
 
+  // Grands écrans : même rendu qu'à 1440 px, en plus grand.
+  useEchelleEcran();
+
   /* Un seul écouteur de scroll pour tout l'état de la page :
      navbar (compacte / masquée), section courante
      et bouton de retour en haut. Les mesures passent par requestAnimationFrame
@@ -42,11 +47,14 @@ function LandingPage() {
       lastY = y;
 
       // Section courante : la dernière dont le haut est passé sous la navbar.
-      const line = y + window.innerHeight * 0.28;
+      // Mesure par getBoundingClientRect et non offsetTop : quand la page est
+      // agrandie (grands écrans), offsetTop reste en pixels de page alors que
+      // le défilement est en pixels d'écran.
+      const line = window.innerHeight * 0.28;
       let current = SECTION_IDS[0];
       for (const id of SECTION_IDS) {
         const el = document.getElementById(id);
-        if (el && el.offsetTop <= line) current = id;
+        if (el && el.getBoundingClientRect().top <= line) current = id;
       }
       setActive(current);
     };
@@ -101,6 +109,9 @@ function LandingPage() {
   return (
     <>
       <a className="skip-link" href="#main">Aller au contenu</a>
+
+      {/* Le logo se dessine à la première visite de la session. */}
+      <IntroMarque />
 
       <Navbar scrolled={scrolled} hidden={hidden} scrollTo={scrollTo} active={active} />
 

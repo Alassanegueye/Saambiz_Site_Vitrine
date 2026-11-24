@@ -108,6 +108,13 @@ export const envoyerCommande = (slug, corps) =>
     body: JSON.stringify(corps),
   });
 
+/** Message laissé sur la page Contact : il arrive dans « Messages » chez le vendeur. */
+export const envoyerMessage = (slug, corps) =>
+  appeler(`/vitrine/${encodeURIComponent(slug)}/message`, {
+    method: 'POST',
+    body: JSON.stringify(corps),
+  });
+
 /** Suivi d'une commande par sa référence et le numéro qui l'a passée. */
 export const suivreCommande = (reference, telephone) =>
   appeler(
@@ -133,5 +140,7 @@ export const demanderLienSuivi = (email) =>
   });
 
 /** Formatage des montants — le franc CFA n'a pas de décimales. */
-export const formaterPrix = (montant) =>
-  `${Math.round(Number(montant) || 0).toLocaleString('fr-FR')} FCFA`;
+export const formaterMontant = (montant) =>
+  Math.round(Number(montant) || 0).toLocaleString('fr-FR');
+
+export const formaterPrix = (montant) => `${formaterMontant(montant)} FCFA`;

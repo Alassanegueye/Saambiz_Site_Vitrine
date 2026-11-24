@@ -1,113 +1,71 @@
-import { Link } from 'react-router-dom';
-import { MapPin, Phone, Clock, Globe, MessageCircle } from 'lucide-react';
-// lucide ne fournit plus d'icônes de marque : voir icones.jsx.
-import { Facebook, Instagram, TikTok } from './icones';
+import { MapPin, Phone, MessageCircle } from 'lucide-react';
+import { LogoBoutique } from './IdentiteBoutique';
+import { Reseaux } from './composants';
+import { formaterTelephone, lienCarte, lienTelephone, lienWhatsappBoutique } from './outils';
 import logoBlanc from '../assets/brand/logo-white.png';
 
 /**
- * Le pied de page du site d'une boutique : contact, horaires, réseaux, puis
- * la mention SaamBiz.
+ * Le pied de page du site d'une boutique, volontairement court : le nom de
+ * la boutique, les trois moyens de la joindre, ses réseaux, puis la mention
+ * SaamBiz. Les liens vers les pages sont déjà dans la barre du haut (et le
+ * menu du téléphone) : les répéter ici allongeait la page pour rien.
  *
  * La marque de la plateforme n'apparaît qu'ici, discrètement. Le client est
  * venu voir un commerçant ; lui rappeler la marketplace en haut de chaque
  * page ne lui apporte rien et dilue la boutique.
  */
-
-/** Lien WhatsApp — le canal réel de la vente au Sénégal. */
-function lienWhatsapp(numero, nomBoutique) {
-  const propre = String(numero || '').replace(/\D/g, '');
-  if (!propre) return null;
-  const texte = encodeURIComponent(`Bonjour ${nomBoutique}, je vous contacte depuis votre site.`);
-  return `https://wa.me/${propre}?text=${texte}`;
-}
-
 export default function Pied({ boutique }) {
-  const base = `/b/${boutique.slug}`;
-  const wa = lienWhatsapp(boutique.whatsapp || boutique.telephone, boutique.nom);
-  const reseaux = boutique.reseaux || {};
-  const sections = boutique.theme.sections;
+  const wa = lienWhatsappBoutique(boutique);
+  const sections = boutique.theme.sections || {};
+  const adresse = boutique.localisation || boutique.ville;
+  const avecContact = sections.contact !== false && (boutique.telephone || wa || adresse);
 
   return (
     <footer className="bq-pied">
       <div className="bq-pied__haut">
-        <div className="bq-pied__bloc">
-          <h3>{boutique.nom}</h3>
-          {boutique.description && <p className="bq-pied__desc">{boutique.description}</p>}
-
-          {(reseaux.facebook || reseaux.instagram || reseaux.tiktok || reseaux.site) && (
-            <div className="bq-pied__reseaux">
-              {reseaux.facebook && (
-                <a href={reseaux.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <Facebook size={18} />
-                </a>
-              )}
-              {reseaux.instagram && (
-                <a href={reseaux.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <Instagram size={18} />
-                </a>
-              )}
-              {reseaux.tiktok && (
-                <a href={reseaux.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok">
-                  <TikTok size={18} />
-                </a>
-              )}
-              {reseaux.site && (
-                <a href={reseaux.site} target="_blank" rel="noopener noreferrer" aria-label="Site web">
-                  <Globe size={18} strokeWidth={2} />
-                </a>
-              )}
-            </div>
-          )}
+        <div className="bq-pied__marque">
+          <LogoBoutique boutique={boutique} className="bq-pied__logo" />
+          <div>
+            <p className="bq-pied__nom">{boutique.nom}</p>
+            {boutique.slogan && <p className="bq-pied__slogan">{boutique.slogan}</p>}
+          </div>
         </div>
 
-        {sections.contact && (
-          <div className="bq-pied__bloc">
-            <h4>Nous joindre</h4>
-            <ul className="bq-pied__liste">
-              {boutique.telephone && (
-                <li>
+        {avecContact && (
+          <ul className="bq-pied__contact" aria-label="Nous joindre">
+            {boutique.telephone && (
+              <li>
+                <a href={lienTelephone(boutique.telephone)}>
                   <Phone size={15} strokeWidth={2} aria-hidden="true" />
-                  <a href={`tel:${boutique.telephone}`}>{boutique.telephone}</a>
-                </li>
-              )}
-              {wa && (
-                <li>
-                  <MessageCircle size={15} strokeWidth={2} aria-hidden="true" />
-                  <a href={wa} target="_blank" rel="noopener noreferrer">Écrire sur WhatsApp</a>
-                </li>
-              )}
-              {(boutique.localisation || boutique.ville) && (
-                <li>
-                  <MapPin size={15} strokeWidth={2} aria-hidden="true" />
-                  <span>{boutique.localisation || boutique.ville}</span>
-                </li>
-              )}
-              {boutique.horaires && (
-                <li>
-                  <Clock size={15} strokeWidth={2} aria-hidden="true" />
-                  <span>{boutique.horaires}</span>
-                </li>
-              )}
-            </ul>
-          </div>
+                  {formaterTelephone(boutique.telephone)}
+                </a>
+              </li>
+            )}
+            {wa && (
+              <li>
+                <a href={wa} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle size={15} strokeWidth={2} aria-hidden="true" /> WhatsApp
+                </a>
+              </li>
+            )}
+            {adresse && (
+              <li>
+                <a href={lienCarte(adresse)} target="_blank" rel="noopener noreferrer">
+                  <MapPin size={15} strokeWidth={2} aria-hidden="true" /> {adresse}
+                </a>
+              </li>
+            )}
+          </ul>
         )}
 
-        <div className="bq-pied__bloc">
-          <h4>La boutique</h4>
-          <ul className="bq-pied__liste bq-pied__liste--nue">
-            <li><Link to={base}>Accueil</Link></li>
-            <li><Link to={`${base}/catalogue`}>Tous les produits</Link></li>
-            <li><Link to={`${base}/suivi`}>Suivre ma commande</Link></li>
-            {boutique.commandeActivee && <li><Link to={`${base}/panier`}>Mon panier</Link></li>}
-          </ul>
-        </div>
+        <Reseaux reseaux={boutique.reseaux} className="bq-reseaux--pied" />
       </div>
 
       <div className="bq-pied__bas">
-        <p>© {new Date().getFullYear()} {boutique.nom}. Tous droits réservés.</p>
+        <p>© {new Date().getFullYear()} {boutique.nom}</p>
         <a href="/" className="bq-pied__saambiz">
-          <span>Boutique propulsée par</span>
-          <img src={logoBlanc} alt="SaamBiz" />
+          <span>Boutique créée avec</span>
+          <img src={logoBlanc} alt="SaamBiz" width="88" height="21" />
         </a>
       </div>
     </footer>

@@ -2,6 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
+import { surveillerNouvelleVersion } from './utils/nouvelleVersion';
+
+// Onglet ouvert avant un déploiement : recharger plutôt qu'afficher une page vide.
+surveillerNouvelleVersion();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

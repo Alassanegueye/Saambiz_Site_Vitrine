@@ -1,6 +1,6 @@
 import {
   Monitor, Smartphone, Globe, BellRing, Link2, Share2, Download,
-  Copy, ShoppingBag, ArrowRight, CheckCircle2, Layers, Megaphone, Package,
+  Copy, ShoppingBag, CheckCircle2, Layers, Megaphone, Package,
 } from 'lucide-react';
 
 /* Cette section existe pour une raison précise : la boutique n'est plus
@@ -57,19 +57,19 @@ const canaux = [
 const parcours = [
   {
     num: '01',
-    icon: <Share2 size={17} />,
+    icon: <Share2 size={24} strokeWidth={2} />,
     title: 'Vous partagez votre lien',
     desc: 'Sur WhatsApp, en story Instagram, dans votre bio ou sur le QR code de votre boutique.',
   },
   {
     num: '02',
-    icon: <ShoppingBag size={17} />,
+    icon: <ShoppingBag size={24} strokeWidth={2} />,
     title: 'Le client commande sur le web',
     desc: "Il ouvre la boutique dans son navigateur et passe commande dès la première visite.",
   },
   {
     num: '03',
-    icon: <Download size={17} />,
+    icon: <Download size={24} strokeWidth={2} />,
     title: "Puis il installe l'application",
     desc: 'Pour suivre plusieurs boutiques au même endroit et être prévenu de vos nouveautés.',
   },
@@ -170,15 +170,17 @@ const Channels = ({ scrollTo }) => (
         <ol className="ch-steps">
           {parcours.map((p, i) => (
             <li key={p.num} className={`ch-step sr sr-d${i + 1}`}>
-              <span className="ch-step-ico" aria-hidden="true">{p.icon}</span>
+              <span className="ch-step-ico" aria-hidden="true">
+                {p.icon}
+                <span className="ch-step-num">{i + 1}</span>
+              </span>
               <span className="ch-step-body">
-                <span className="ch-step-num" aria-hidden="true">{p.num}</span>
                 <strong>{p.title}</strong>
                 <small>{p.desc}</small>
               </span>
-              {i < parcours.length - 1 && (
-                <span className="ch-step-arrow" aria-hidden="true"><ArrowRight size={16} /></span>
-              )}
+              {/* Trait vers l'étape suivante : il se dessine en or quand
+                  l'étape apparaît à l'écran. */}
+              {i < parcours.length - 1 && <span className="ch-step-arrow" aria-hidden="true" />}
             </li>
           ))}
         </ol>
@@ -333,55 +335,88 @@ const Channels = ({ scrollTo }) => (
       }
       .ch-card.is-highlight .ch-card-offre { color: var(--gold-ink); }
 
-      /* ─── PARCOURS ─── */
-      .ch-funnel {
-        margin-top: 10px; padding: 34px 32px 30px;
-        border-radius: var(--radius-xl);
-        background: var(--gray-bg);
-        border: 1px solid rgba(13,27,61,0.07);
-      }
-      .ch-funnel-head { text-align: center; margin-bottom: 26px; }
+      /* ─── PARCOURS ───
+         Posé directement sur le fond blanc, sans bloc ni cartes. Trois
+         étapes centrées, alignées sur le titre et le bouton : une pastille
+         ronde par étape, son numéro en médaillon, et un trait qui relie
+         chaque pastille à la suivante. Le trait se dessine en or quand les
+         étapes apparaissent — de gauche à droite, du lien vers l'appli.
+         La dernière pastille, l'application, est en or : c'est l'arrivée. */
+      .ch-funnel { margin-top: 88px; }
+      .ch-funnel-head { text-align: center; margin-bottom: 52px; }
       .ch-funnel-title {
-        font-size: 21px; font-weight: 700; letter-spacing: -0.3px;
-        color: var(--text-dark); margin-bottom: 6px;
+        font-size: clamp(24px, 2.2vw, 32px); font-weight: 700; letter-spacing: -0.6px;
+        line-height: 1.2; color: var(--text-dark); margin-bottom: 10px;
       }
-      .ch-funnel-sub { font-size: 13.5px; color: var(--text-light); }
+      .ch-funnel-sub { font-size: 15px; color: var(--text-light); }
 
       .ch-steps {
+        --ch-rond: 68px;
         list-style: none;
         display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px; margin-bottom: 28px;
+        gap: 48px;
+        max-width: 1020px; margin: 0 auto 52px;
       }
       .ch-step {
         position: relative;
-        display: flex; align-items: flex-start; gap: 13px;
-        padding: 18px 18px 17px;
-        background: var(--white); border-radius: var(--radius-md);
-        border: 1px solid rgba(13,27,61,0.07);
-        box-shadow: var(--shadow-xs);
+        display: flex; flex-direction: column; align-items: center; gap: 22px;
+        text-align: center;
       }
       .ch-step-ico {
-        width: 38px; height: 38px; flex-shrink: 0;
-        border-radius: 12px; display: grid; place-items: center;
+        position: relative; z-index: 1;
+        width: var(--ch-rond); height: var(--ch-rond); flex-shrink: 0;
+        border-radius: 50%; display: grid; place-items: center;
         background: var(--navy); color: var(--gold);
+        /* L'anneau blanc dégage la pastille du trait qui la rejoint. */
+        box-shadow: 0 0 0 10px var(--white), 0 18px 32px -14px rgba(13, 27, 61, 0.6);
       }
-      .ch-step-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
       .ch-step-num {
-        font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
-        color: var(--text-muted);
+        position: absolute; top: -3px; right: -3px;
+        width: 26px; height: 26px; border-radius: 50%;
+        display: grid; place-items: center;
+        background: var(--gold); color: var(--navy);
+        font-family: var(--font-display); font-size: 12.5px; font-weight: 700; line-height: 1;
+        box-shadow: 0 0 0 3px var(--white);
       }
-      .ch-step-body strong { font-size: 14px; font-weight: 700; color: var(--text-dark); }
-      .ch-step-body small { font-size: 12.5px; line-height: 1.6; color: var(--text-light); }
-      /* La flèche relie les cartes entre elles. Elle occupe exactement la
-         gouttière (16 px) : un pixel de plus et la carte suivante, peinte
-         après, la recouvrirait. */
-      .ch-step-arrow {
-        position: absolute; right: -16px; top: 50%;
-        transform: translateY(-50%);
-        color: var(--gray-mid); line-height: 0;
+      /* L'arrivée : l'application, en or. */
+      .ch-step:last-child .ch-step-ico {
+        background: var(--gold); color: var(--navy);
+        box-shadow: 0 0 0 10px var(--white), 0 18px 32px -14px rgba(176, 133, 11, 0.85);
+      }
+      .ch-step:last-child .ch-step-num { background: var(--navy); color: var(--gold); }
+
+      .ch-step-body { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
+      .ch-step-body strong {
+        font-family: var(--font-display);
+        font-size: 18px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.3;
+        color: var(--text-dark);
+      }
+      /* Lignes équilibrées : pas de mot seul sur la dernière ligne. */
+      .ch-step-body small {
+        font-size: 14px; line-height: 1.7; color: var(--text-light);
+        max-width: 30ch; text-wrap: balance;
       }
 
-      .ch-funnel-cta { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+      /* Trait d'une pastille à la suivante : il part du bord de l'anneau et
+         s'arrête avant l'anneau suivant (centre à centre : une colonne plus
+         une gouttière). Le rail gris est là d'emblée, l'or s'y dessine. */
+      .ch-step-arrow {
+        position: absolute; height: 2px; border-radius: 2px;
+        top: calc(var(--ch-rond) / 2 - 1px);
+        left: calc(50% + var(--ch-rond) / 2 + 16px);
+        right: calc(-50% - 48px + var(--ch-rond) / 2 + 16px);
+        background: var(--gray);
+      }
+      .ch-step-arrow::after {
+        content: ''; position: absolute; inset: 0; border-radius: inherit;
+        background: var(--gold);
+        transform: scaleX(0); transform-origin: left center;
+        transition: transform 0.9s cubic-bezier(0.65, 0, 0.25, 1) 0.45s;
+      }
+      .ch-step:nth-child(2) .ch-step-arrow::after { transition-delay: 1.25s; }
+      .ch-step.sr-in .ch-step-arrow::after { transform: scaleX(1); }
+
+      .ch-funnel-cta { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 
       /* ─── RESPONSIVE ─── */
       @media (max-width: 900px) {
@@ -389,9 +424,25 @@ const Channels = ({ scrollTo }) => (
         .ch-link { flex-direction: column; align-items: flex-start; padding: 20px; }
         .ch-url { width: 100%; }
         .ch-grid { grid-template-columns: 1fr; gap: 16px; }
-        .ch-steps { grid-template-columns: 1fr; }
-        .ch-step-arrow { display: none; }
-        .ch-funnel { padding: 28px 20px 26px; }
+        /* Sur téléphone, frise verticale : la pastille à gauche, le texte à
+           droite, le trait descend d'une pastille à la suivante. */
+        .ch-funnel { margin-top: 64px; }
+        .ch-funnel-head { margin-bottom: 36px; }
+        .ch-steps { --ch-rond: 54px; grid-template-columns: 1fr; gap: 34px; max-width: 520px; margin-bottom: 40px; }
+        .ch-step { flex-direction: row; align-items: flex-start; gap: 20px; text-align: left; }
+        .ch-step-ico { box-shadow: 0 0 0 7px var(--white), 0 14px 26px -12px rgba(13, 27, 61, 0.6); }
+        .ch-step:last-child .ch-step-ico { box-shadow: 0 0 0 7px var(--white), 0 14px 26px -12px rgba(176, 133, 11, 0.85); }
+        .ch-step-body { align-items: flex-start; gap: 6px; padding-top: 4px; }
+        .ch-step-body strong { font-size: 17px; }
+        .ch-step-body small { max-width: none; }
+        .ch-step-arrow {
+          width: 2px; height: auto; right: auto;
+          left: calc(var(--ch-rond) / 2 - 1px);
+          top: calc(var(--ch-rond) + 12px);
+          bottom: -22px;
+        }
+        .ch-step-arrow::after { transform: scaleY(0); transform-origin: center top; }
+        .ch-step.sr-in .ch-step-arrow::after { transform: scaleY(1); }
         .ch-funnel-cta .btn-gold { width: 100%; justify-content: center; }
       }
       @media (max-width: 560px) {
@@ -399,7 +450,7 @@ const Channels = ({ scrollTo }) => (
         .ch-card { padding: 20px 18px 18px; border-radius: 18px; }
         .ch-url-text { font-size: 13px; }
         .ch-url-copy { padding: 6px 10px; }
-        .ch-funnel-title { font-size: 19px; }
+        .ch-funnel-title { font-size: 22px; }
       }
     `}</style>
   </section>

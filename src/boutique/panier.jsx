@@ -52,8 +52,12 @@ function lireStockage(slug) {
   }
 }
 
-export function FournisseurPanier({ slug, children }) {
+export function FournisseurPanier({ slug, ouvrirPanier = null, children }) {
   const [lignes, setLignes] = useState(() => lireStockage(slug));
+  // Le produit dont le client choisit les options (fenêtre d'ajout rapide).
+  const [produitEnChoix, setProduitEnChoix] = useState(null);
+  // Le dernier ajout, pour le petit message « Ajouté au panier ».
+  const [annonce, setAnnonce] = useState(null);
 
   useEffect(() => {
     try {
@@ -71,24 +75,36 @@ export function FournisseurPanier({ slug, children }) {
       const existante = actuelles.find((l) => l.cle === cle);
       if (existante) {
         return actuelles.map((l) =>
-          l.cle === cle ? { ...l, quantite: Math.min(l.quantite + quantite, 99) } : l
+          l.cle === cle ? { ...l, quantite: Math.min(l.quantite + quantite, 99), exclue: false } : l
         );
       }
       // On enregistre une photographie du produit : nom, prix et image au
       // moment de l'ajout. Le panier reste donc lisible hors ligne, sans
       // recharger la fiche. Les prix sont revérifiés côté serveur au passage
       // en caisse — un panier vieux d'une semaine ne fige aucun prix.
+      // Les options du produit (attributs, libellés) voyagent aussi : le
+      // client peut changer de taille ou de couleur depuis le panier.
       return [...actuelles, {
         cle,
+        // Repère stable de la ligne : `cle` change quand le client change de
+        // taille, `uid` reste — la ligne garde sa place et son état à l'écran.
+        uid: `${cle}~${Date.now().toString(36)}`,
         id: produit.id,
         nom: produit.nom,
         prix: produit.prix,
         image: produit.image,
+        attributs: produit.attributs || null,
+        libelles: produit.libelles || null,
         variantes: variantes || null,
         quantite,
       }];
     });
+    setAnnonce({ n: Date.now(), nom: produit.nom, image: produit.image, quantite });
   }, []);
+
+  const choisirOptions = useCallback((produit) => setProduitEnChoix(produit), []);
+  const fermerChoix = useCallback(() => setProduitEnChoix(null), []);
+  const effacerAnnonce = useCallback(() => setAnnonce(null), []);
 
   const changerQuantite = useCallback((cle, quantite) => {
     const q = Math.max(0, Math.min(Number(quantite) || 0, 99));
@@ -99,26 +115,64 @@ export function FournisseurPanier({ slug, children }) {
     );
   }, []);
 
+  /**
+   * Changer la taille ou la couleur d'une ligne. Si le panier contient déjà
+   * ce produit avec ces options-là, les deux lignes fusionnent : deux lignes
+   * identiques côte à côte laisseraient croire à une erreur.
+   */
+  const changerVariantes = useCallback((cle, variantes) => {
+    setLignes((actuelles) => {
+      const ligne = actuelles.find((l) => l.cle === cle);
+      if (!ligne) return actuelles;
+      const nouvelle = cleLigne(ligne.id, variantes);
+      if (nouvelle === cle) return actuelles;
+      const jumelle = actuelles.find((l) => l.cle === nouvelle);
+      if (jumelle) {
+        return actuelles
+          .filter((l) => l.cle !== cle)
+          .map((l) => (l.cle === nouvelle
+            ? { ...l, quantite: Math.min(l.quantite + ligne.quantite, 99), exclue: false }
+            : l));
+      }
+      return actuelles.map((l) => (l.cle === cle ? { ...l, cle: nouvelle, variantes } : l));
+    });
+  }, []);
+
   const retirer = useCallback((cle) => {
     setLignes((actuelles) => actuelles.filter((l) => l.cle !== cle));
   }, []);
 
+  /**
+   * Cocher ou décocher une ligne. Une ligne décochée reste dans le panier
+   * mais ne part pas dans la commande : le client met un article de côté
+   * sans le perdre. On stocke `exclue` plutôt que `choisie` pour que les
+   * paniers enregistrés avant cette option restent entièrement cochés.
+   */
+  const basculer = useCallback((cle) => {
+    setLignes((actuelles) => actuelles.map((l) => (l.cle === cle ? { ...l, exclue: !l.exclue } : l)));
+  }, []);
+
+  const toutCocher = useCallback((coche) => {
+    setLignes((actuelles) => actuelles.map((l) => ({ ...l, exclue: !coche })));
+  }, []);
+
   const vider = useCallback(() => setLignes([]), []);
 
-  /**
-   * Forme attendue par l'API. Les lignes sont REGROUPÉES par produit :
-   * l'API reçoit une quantité totale par produitId, et vérifie le stock une
-   * seule fois par produit. Envoyer deux lignes du même article ferait passer
-   * deux contrôles de stock indépendants — deux fois « il en reste 3, tu en
-   * demandes 2 » — et laisserait sortir 4 pièces d'un stock de 3.
-   */
+  /** Après la commande : seules les lignes commandées quittent le panier. */
+  const retirerCommandees = useCallback(() => {
+    setLignes((actuelles) => actuelles.filter((l) => l.exclue));
+  }, []);
+
+  const choisies = useMemo(() => lignes.filter((l) => !l.exclue), [lignes]);
+
   // Une ligne par jeu d'options : le vendeur reçoit « 2 × Jus — Parfum :
   // Bissap » au lieu d'un total par produit qu'il devait démêler dans la note.
-  const versItems = useCallback(() => lignes.map((l) => ({
+  // Seules les lignes cochées partent.
+  const versItems = useCallback(() => choisies.map((l) => ({
     produitId: l.id,
     quantite: l.quantite,
     ...(l.variantes && Object.keys(l.variantes).length ? { options: l.variantes } : {}),
-  })), [lignes]);
+  })), [choisies]);
 
   /**
    * Le détail des variantes, en texte, pour la note de la commande.
@@ -129,7 +183,7 @@ export function FournisseurPanier({ slug, children }) {
    * rappeler son client pour savoir quelle taille préparer.
    */
   const detailVariantes = useCallback(() => {
-    const avecOptions = lignes.filter((l) => l.variantes && Object.keys(l.variantes).length);
+    const avecOptions = choisies.filter((l) => l.variantes && Object.keys(l.variantes).length);
     if (!avecOptions.length) return '';
     return avecOptions
       .map((l) => {
@@ -137,19 +191,36 @@ export function FournisseurPanier({ slug, children }) {
         return `${l.nom} × ${l.quantite} — ${options}`;
       })
       .join(' ; ');
-  }, [lignes]);
+  }, [choisies]);
 
   const valeur = useMemo(() => ({
     lignes,
+    produitEnChoix,
+    choisirOptions,
+    fermerChoix,
+    annonce,
+    effacerAnnonce,
+    ouvrirPanier,
+    // Les lignes cochées : celles qui partiront dans la commande.
+    lignesChoisies: choisies,
     ajouter,
     changerQuantite,
+    changerVariantes,
     retirer,
+    basculer,
+    toutCocher,
     vider,
+    retirerCommandees,
     versItems,
     detailVariantes,
+    // Le compteur de la barre et de la bulle : tout ce qui est dans le panier.
     nombreArticles: lignes.reduce((s, l) => s + l.quantite, 0),
-    sousTotal: lignes.reduce((s, l) => s + l.prix * l.quantite, 0),
-  }), [lignes, ajouter, changerQuantite, retirer, vider, versItems, detailVariantes]);
+    // Le total et le nombre à commander : les lignes cochées seulement.
+    nombreChoisis: choisies.reduce((s, l) => s + l.quantite, 0),
+    sousTotal: choisies.reduce((s, l) => s + l.prix * l.quantite, 0),
+  }), [lignes, produitEnChoix, choisirOptions, fermerChoix, annonce, effacerAnnonce, ouvrirPanier,
+    choisies, ajouter, changerQuantite, changerVariantes, retirer, basculer, toutCocher,
+    vider, retirerCommandees, versItems, detailVariantes]);
 
   return <ContextePanier.Provider value={valeur}>{children}</ContextePanier.Provider>;
 }

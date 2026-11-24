@@ -1,4 +1,4 @@
-import { ShieldCheck, Lock, RefreshCw, CreditCard, CheckCircle, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Lock, RefreshCw, CreditCard, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import logoWave from '../../assets/paiement/wave.webp';
 import logoOrangeMoney from '../../assets/paiement/orange-money.webp';
@@ -98,14 +98,6 @@ const PaymentSection = ({ scrollTo }) => (
           <div className="pv-wrap">
             <span className="glow-blob pv-glow" aria-hidden="true" />
             <PaymentFlow />
-            <span className="float-chip chip-confirmed" aria-hidden="true">
-              <CheckCircle2 size={13} />
-              Commande confirmée !
-            </span>
-            <span className="float-chip chip-refund" aria-hidden="true">
-              <RefreshCw size={13} />
-              Remboursé sous 48 h
-            </span>
           </div>
         </div>
       </div>
@@ -227,11 +219,6 @@ const PaymentSection = ({ scrollTo }) => (
         font-size: 11px; color: var(--text-muted); justify-content: center;
       }
 
-      .chip-confirmed { bottom: -18px; left: -22px; animation-delay: 0.3s; }
-      .chip-confirmed svg { color: var(--emerald); }
-      .chip-refund { top: -16px; right: -18px; animation-delay: 0.15s; }
-      .chip-refund svg { color: var(--navy-mid); }
-
       /* ─── BANDEAU ─── */
       .payment-banner {
         background: #0D1B3D;
@@ -267,8 +254,6 @@ const PaymentSection = ({ scrollTo }) => (
       @media (max-width: 560px) {
         .payment-section { padding: 70px 16px; }
         .payment-banner { padding: 26px 20px; border-radius: 20px; }
-        .chip-confirmed { left: -6px; }
-        .chip-refund { right: -6px; }
       }
     `}</style>
   </section>
