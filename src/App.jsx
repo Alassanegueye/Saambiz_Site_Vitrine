@@ -10,6 +10,11 @@ import LandingPage from './pages/LandingPage';
 const BoutiqueLayout = lazy(() => import('./boutique/BoutiqueLayout'));
 const Apercu = lazy(() => import('./boutique/Apercu'));
 
+/* Le suivi par lien : le client y arrive depuis son email, sans passer par
+   une boutique — un même lien peut couvrir des commandes faites chez
+   plusieurs vendeurs, il vit donc à la racine du site. */
+const SuiviParLien = lazy(() => import('./suivi/SuiviParLien'));
+
 /* Écran d'attente le temps que le module de la boutique arrive. Volontairement
    nu : afficher un logo SaamBiz ici ferait clignoter une marque que le client
    du vendeur ne connaît pas encore. */
@@ -37,6 +42,26 @@ export default function App() {
         element={
           <Suspense fallback={<Chargement />}>
             <BoutiqueLayout />
+          </Suspense>
+        }
+      />
+
+      {/* Suivi d'une commande par le lien reçu par email. Sans jeton, on
+          affiche directement le formulaire de demande : c'est l'adresse que
+          quelqu'un tape de mémoire quand il a perdu son lien. */}
+      <Route
+        path="/suivi/:jeton"
+        element={
+          <Suspense fallback={<Chargement />}>
+            <SuiviParLien />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/suivi"
+        element={
+          <Suspense fallback={<Chargement />}>
+            <SuiviParLien />
           </Suspense>
         }
       />

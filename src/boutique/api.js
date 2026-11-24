@@ -114,6 +114,24 @@ export const suivreCommande = (reference, telephone) =>
     `/vitrine/commande/${encodeURIComponent(reference)}?telephone=${encodeURIComponent(telephone)}`
   );
 
+/**
+ * Suivi par lien unique : le client n'a ni compte ni référence à retenir, il
+ * revient par le lien reçu par email.
+ *
+ * Le statut compte autant que le corps ici — 410 veut dire « le lien a
+ * expiré », 404 « il n'a jamais existé ». `ErreurApi` porte déjà le statut,
+ * l'écran s'en sert pour dire au client ce qu'il peut faire.
+ */
+export const suivreParLien = (jeton) =>
+  appeler(`/vitrine/suivi/${encodeURIComponent(jeton)}`);
+
+/** « J'ai perdu mon lien » : le serveur en renvoie un à cette adresse. */
+export const demanderLienSuivi = (email) =>
+  appeler('/vitrine/suivi/demander-lien', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+
 /** Formatage des montants — le franc CFA n'a pas de décimales. */
 export const formaterPrix = (montant) =>
   `${Math.round(Number(montant) || 0).toLocaleString('fr-FR')} FCFA`;

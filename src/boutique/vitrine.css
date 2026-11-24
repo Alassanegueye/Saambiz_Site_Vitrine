@@ -1928,3 +1928,93 @@
 .bq-invite p { margin-top: 8px; color: #5B6C8A; font-size: 14.5px; line-height: 1.5; }
 .bq-invite__stores { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
 .bq-invite__stores .bq-pop__store { justify-content: center; min-width: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUIVI PAR LIEN — les commandes d'un client sans compte
+   
+   Cette page s'ouvre depuis un email, souvent sur un téléphone, parfois
+   des semaines après la commande. Elle doit se lire seule : pas de menu de
+   boutique autour, pas de contexte à reconstituer.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.bq-suivi--lien {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.bq-suivi__intro {
+  margin: -6px 0 22px;
+  color: var(--bq-texte-doux, #5b6b8a);
+  font-size: 0.95rem;
+}
+
+.bq-suivi__commande {
+  background: #fff;
+  border: 1px solid var(--bq-bordure, #e6eaf2);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  margin-bottom: 16px;
+}
+
+/* La commande d'où vient le lien : c'est celle que le client est venu voir. */
+.bq-suivi__commande.est-ouverte {
+  border-color: var(--bq-accent, #0d1b3d);
+  box-shadow: 0 6px 24px rgba(13, 27, 61, 0.08);
+}
+
+.bq-suivi__entete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.bq-suivi__entete h2 { margin: 0; font-size: 1.05rem; }
+
+.bq-suivi__meta {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--bq-texte-doux, #5b6b8a);
+}
+
+.bq-suivi__lignes {
+  list-style: none;
+  margin: 16px 0 10px;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.bq-suivi__lignes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--bq-bordure, #e6eaf2);
+}
+
+.bq-suivi__lignes li:last-child { border-bottom: none; }
+
+.bq-suivi__totaux { margin: 6px 0 12px; font-size: 0.9rem; }
+.bq-suivi__totaux div { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.bq-suivi__totaux dt, .bq-suivi__totaux dd { margin: 0; }
+.bq-suivi__totaux .est-total { font-size: 1rem; font-weight: 700; }
+
+.bq-suivi__contact { margin: 10px 0 6px; font-size: 0.88rem; }
+.bq-suivi__note { margin-top: 22px; font-size: 0.8rem; color: var(--bq-texte-doux, #5b6b8a); }
+
+/* Les écrans d'attente, de lien expiré et de demande d'un nouveau lien. */
+.bq-suivi__etat {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--bq-texte-doux, #5b6b8a);
+}
+
+.bq-suivi__etat h1 { margin: 12px 0 8px; }
+.bq-suivi__etat p { margin: 0 0 18px; line-height: 1.65; }
+
+.bq-suivi__formulaire { text-align: left; margin-top: 22px; }
+.bq-suivi__formulaire .bq-bouton { width: 100%; justify-content: center; margin-top: 12px; }

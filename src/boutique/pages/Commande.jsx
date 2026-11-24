@@ -80,6 +80,16 @@ export default function Commande({ boutique }) {
     if (form.telephone.replace(/\D/g, '').length < 9) {
       return setErreur('Indiquez un numéro de téléphone valide, par exemple 77 123 45 67.');
     }
+    // L'email n'est plus facultatif : c'est là que part le lien de suivi,
+    // le seul moyen qu'a un client sans compte de revenir voir sa commande
+    // et de recevoir chaque changement d'étape.
+    const email = form.email.trim();
+    if (!email) {
+      return setErreur('Indiquez votre adresse email : c’est là que vous recevrez le lien de suivi de votre commande.');
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      return setErreur('Cette adresse email ne semble pas valide. Exemple : nom@exemple.com');
+    }
     if (form.modeLivraison === 'livraison' && !form.adresseLivraison.trim()) {
       return setErreur('Indiquez où livrer votre commande.');
     }
@@ -99,7 +109,7 @@ export default function Commande({ boutique }) {
           nom: form.nom.trim(),
           prenom: form.prenom.trim(),
           telephone: form.telephone.trim(),
-          email: form.email.trim() || undefined,
+          email,
         },
         items: versItems(),
         modeLivraison: form.modeLivraison,
@@ -169,14 +179,23 @@ export default function Commande({ boutique }) {
                 autoComplete="tel"
                 required
               />
-              <small>Le vendeur vous appellera sur ce numéro. Il vous servira aussi à suivre votre commande.</small>
+              <small>Le vendeur vous appellera sur ce numéro.</small>
             </label>
 
             <label className="bq-label">
-              <span className="bq-label__ligne">
-                Email <span className="bq-facultatif">facultatif</span>
-              </span>
-              <input type="email" value={form.email} onChange={changer('email')} autoComplete="email" />
+              Email
+              <input
+                type="email"
+                value={form.email}
+                onChange={changer('email')}
+                placeholder="nom@exemple.com"
+                autoComplete="email"
+                required
+              />
+              <small>
+                Vous y recevrez le lien pour suivre votre commande, et un message
+                à chaque étape.
+              </small>
             </label>
           </fieldset>
 
