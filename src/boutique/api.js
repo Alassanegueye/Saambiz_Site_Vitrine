@@ -21,10 +21,12 @@ const BASE = `${(import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')}/s
  * brodé" (reste 2) » derrière un « une erreur est survenue » inutile.
  */
 export class ErreurApi extends Error {
-  constructor(message, statut) {
+  constructor(message, statut, code = null) {
     super(message);
     this.name = 'ErreurApi';
     this.statut = statut;
+    // Code applicatif stable (`TELEPHONE_REQUIS`…), quand l'API en donne un.
+    this.code = code;
   }
 }
 
@@ -51,7 +53,8 @@ async function appeler(chemin, options = {}) {
   if (!reponse.ok || (corps && corps.success === false)) {
     throw new ErreurApi(
       (corps && corps.message) || 'Une erreur est survenue.',
-      reponse.status
+      reponse.status,
+      (corps && corps.code) || null
     );
   }
 
@@ -87,6 +90,29 @@ export const envoyerMessage = (slug, corps) =>
   appeler(`/vitrine/${encodeURIComponent(slug)}/message`, {
     method: 'POST',
     body: JSON.stringify(corps),
+  });
+
+/**
+ * Suivi sur saambiz.com : le numéro de commande SEUL (CMD-XXXX-XXXX-XXXX,
+ * impossible à deviner). Un ancien numéro (CMD-2026-XXXXXX) demande aussi le
+ * téléphone : l'API répond alors 400 TELEPHONE_REQUIS.
+ */
+export const suivreParNumero = (numero, telephone) => appeler(
+  `/vitrine/suivi/${encodeURIComponent(numero)}${telephone ? `?telephone=${encodeURIComponent(telephone)}` : ''}`
+);
+
+/** Adresse, téléphone ou note — tant que la boutique n'a pas accepté la commande. */
+export const modifierCommandeSuivie = (numero, changements) =>
+  appeler(`/vitrine/suivi/${encodeURIComponent(numero)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(changements),
+  });
+
+/** Annulation par le client — avant la préparation. */
+export const annulerCommandeSuivie = (numero, motif) =>
+  appeler(`/vitrine/suivi/${encodeURIComponent(numero)}/annuler`, {
+    method: 'POST',
+    body: JSON.stringify({ motif }),
   });
 
 /** Suivi d'une commande par sa référence et le numéro qui l'a passée. */

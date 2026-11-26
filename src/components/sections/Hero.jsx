@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Play } from 'lucide-react';
+import SuiviCommande from '../suivi/SuiviCommande';
 import hero1 from '../../assets/hero-1.webp';
 import hero1Sm from '../../assets/hero-1-sm.webp';
 import hero2 from '../../assets/hero-2.webp';
@@ -68,12 +69,19 @@ const Hero = ({ scrollTo }) => {
   const go = (i) => setIndex((i + slides.length) % slides.length);
 
   const onKey = (e) => {
+    // Les flèches dans le champ de suivi déplacent le curseur, pas le carrousel.
+    if (e.target.closest('input, textarea, select, [role="dialog"]')) return;
     if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1); }
     if (e.key === 'ArrowLeft')  { e.preventDefault(); go(index - 1); }
   };
 
   const touchX = useRef(null);
-  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  // La fenêtre de suivi est rendue hors du héros (portail), mais ses
+  // événements remontent quand même ici : un glissé dans la fenêtre ne
+  // change pas d'image.
+  const onTouchStart = (e) => {
+    touchX.current = e.target.closest('[role="dialog"], .sc') ? null : e.touches[0].clientX;
+  };
   const onTouchEnd = (e) => {
     if (touchX.current === null) return;
     const delta = e.changedTouches[0].clientX - touchX.current;
@@ -120,6 +128,10 @@ const Hero = ({ scrollTo }) => {
       {/* ─── TEXTE (identique à l'ancienne version) ─── */}
       <div className="hero-inner">
         <div className="hero-copy">
+          {/* Tout en haut : le client qui a commandé sur le site d'une
+              boutique suit sa commande avec son numéro. */}
+          <SuiviCommande />
+
           <div className="hero-copy-swap" key={index}>
             <h1 className="hero-title">{active.title}</h1>
             <p className="hero-sub">{active.sub}</p>

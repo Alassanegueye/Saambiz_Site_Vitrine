@@ -3213,3 +3213,101 @@ a.bq-cle:hover { background: var(--bq-papier-fonce); }
   .bq-bandeau { margin-top: 20px; border-radius: 24px; }
   .bq-bandeau__interieur { padding-left: 36px; padding-right: 36px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   APLATS — aucun dégradé sur le site des boutiques (26/11/2026)
+   ═══════════════════════════════════════════════════════════════
+   Les bandeaux, boutons, titres et pied de page prennent la couleur de la
+   boutique EN APLAT. Ce bloc vient en dernier : il l'emporte sur les
+   règles plus haut, sans les réécrire une à une. */
+
+/* Bandeau de l'accueil, sans photo : la couleur de la boutique. */
+.bq-une__cadre--couleur { background: var(--bq-haut-1); }
+/* Avec photos : un panneau blanc net derrière le texte, plus de fondu. */
+.bq-une__cadre--photos::before {
+  inset: 0 auto 0 0;
+  width: min(62%, 640px);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+/* Bandeau des pages intérieures (Nos produits, Nos promos…). */
+.bq-bandeau { background: var(--bq-haut-1); }
+.bq-bandeau::before { background: none; }
+
+/* Trait des titres de section : la couleur de la boutique seule. */
+.bq-titre-section h2::before,
+.bq-titre-section__trait { background: var(--bq-accent); }
+
+/* Boutons : aplat, ombre courte. */
+.bq-bouton:not(.bq-bouton--doux):not(.bq-bouton--sourd):not(.bq-bouton--wa) {
+  background-image: none;
+  box-shadow: 0 4px 12px -6px rgba(var(--bq-accent-rgb), 0.5);
+}
+
+/* Pied de page et carte de l'application : fonds unis. */
+.bq-pied { background: var(--bq-pied); }
+.bq-app__carte { background: #0D1B3D; }
+
+/* ─── Style : des cartes plus nettes ───
+   Un filet fin plutôt qu'une ombre diffuse : les produits se détachent sans
+   flotter, et la page paraît plus calme. */
+.bq-tuile {
+  border: 1px solid var(--bq-ligne);
+  box-shadow: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+@media (hover: hover) {
+  .bq-tuile:hover {
+    border-color: rgba(var(--bq-accent-rgb), 0.35);
+    box-shadow: 0 10px 24px -18px rgba(16, 24, 40, 0.45);
+    transform: translateY(-2px);
+  }
+}
+.bq-titre-section h2 { letter-spacing: -0.01em; }
+.bq-puce.est-active { box-shadow: none; }
+
+/* ─── Confirmation : où suivre la commande ─── */
+.bq-suivre {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  max-width: 560px;
+  margin: 22px auto 0;
+  padding: 18px;
+  border: 1px solid var(--bq-ligne);
+  border-radius: 16px;
+  background: #FFFFFF;
+  text-align: left;
+}
+.bq-suivre__icone {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bq-voile);
+  color: var(--bq-accent-texte, var(--bq-accent));
+}
+.bq-suivre__texte strong { display: block; font-size: 15.5px; color: var(--bq-encre, #12151C); }
+.bq-suivre__texte p { margin: 6px 0 14px; font-size: 14px; line-height: 1.55; color: var(--bq-encre-douce); }
+.bq-suivre__lien { text-decoration: none; }
+.bq-confirmation__memo {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  max-width: 560px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #FFF8E6;
+  color: #6B4E00;
+}
+.bq-confirmation__memo svg { flex: none; margin-top: 2px; }
+.bq-confirmation__memo strong { color: #4A3600; }
+@media (max-width: 520px) {
+  .bq-suivre { flex-direction: column; }
+  .bq-suivre__lien { width: 100%; justify-content: center; }
+}
+

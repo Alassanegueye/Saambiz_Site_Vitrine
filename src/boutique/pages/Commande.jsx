@@ -10,8 +10,9 @@ import { texteLigne } from '../options';
  * Le passage en caisse.
  *
  * Le formulaire le plus court possible : nom, téléphone, et l'adresse
- * seulement si le client se fait livrer. Pas de mot de passe, pas d'email
- * obligatoire, pas de confirmation par code. Chaque champ ajouté ici est une
+ * seulement si le client se fait livrer. Pas de mot de passe, pas d'email,
+ * pas de confirmation par code. Le client suit ensuite sa commande sur
+ * saambiz.com avec son numéro de commande. Chaque champ ajouté ici est une
  * commande perdue — et le client vient d'un lien WhatsApp, il n'a jamais
  * entendu parler de SaamBiz.
  *
@@ -42,7 +43,6 @@ export default function Commande({ boutique }) {
     prenom: memorise.prenom || '',
     nom: memorise.nom || '',
     telephone: memorise.telephone || '',
-    email: memorise.email || '',
     adresseLivraison: memorise.adresseLivraison || '',
     note: '',
     modeLivraison: 'livraison',
@@ -100,7 +100,6 @@ export default function Commande({ boutique }) {
           nom: form.nom.trim(),
           prenom: form.prenom.trim(),
           telephone: form.telephone.trim(),
-          email: form.email.trim() || undefined,
         },
         items: versItems(),
         modeLivraison: form.modeLivraison,
@@ -117,7 +116,6 @@ export default function Commande({ boutique }) {
           prenom: form.prenom.trim(),
           nom: form.nom.trim(),
           telephone: resultat.telephone,
-          email: form.email.trim(),
           adresseLivraison: form.adresseLivraison.trim(),
         }));
       } catch { /* stockage indisponible — sans conséquence */ }
@@ -173,14 +171,7 @@ export default function Commande({ boutique }) {
                   autoComplete="tel"
                   required
                 />
-                <small>Le vendeur vous appellera sur ce numéro. Il vous servira aussi à suivre votre commande.</small>
-              </label>
-
-              <label className="bq-label">
-                <span className="bq-label__ligne">
-                  Email <span className="bq-facultatif">facultatif</span>
-                </span>
-                <input type="email" value={form.email} onChange={changer('email')} autoComplete="email" />
+                <small>Le vendeur vous appellera sur ce numéro pour confirmer et livrer.</small>
               </label>
             </fieldset>
 
