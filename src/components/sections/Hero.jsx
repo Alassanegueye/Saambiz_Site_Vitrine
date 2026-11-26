@@ -182,10 +182,10 @@ const Hero = ({ scrollTo }) => {
              n'apparaît qu'au défilement. */
           /* --hauteur-ecran : la vraie hauteur de l'écran quand la page est
              agrandie sur grand écran (voir useEchelleEcran). */
-          min-height: max(var(--hauteur-ecran, 100vh), calc(var(--nav-h) + 520px));
-          min-height: max(var(--hauteur-ecran, 100svh), calc(var(--nav-h) + 520px));
+          min-height: max(var(--hauteur-ecran, 100vh), calc(var(--nav-h) + 500px));
+          min-height: max(var(--hauteur-ecran, 100svh), calc(var(--nav-h) + 500px));
           display: flex; align-items: center;
-          padding: calc(var(--nav-h) + 20px) 40px 32px;
+          padding: calc(var(--nav-h) + 4px) 40px 20px;
         }
         .hero-section:focus-visible { outline-offset: -6px; }
 
@@ -228,18 +228,18 @@ const Hero = ({ scrollTo }) => {
           font-size: clamp(27px, 2.9vw, 42px);
           font-weight: 700; line-height: 1.2;
           letter-spacing: -0.9px; color: var(--navy);
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
         .hero-title em { font-style: normal; color: var(--gold); }
         .hero-sub {
           font-size: clamp(14px, 1.05vw, 15.5px);
-          line-height: 1.7; color: var(--text-light);
-          max-width: 34em; margin-bottom: 28px; text-wrap: pretty;
+          line-height: 1.65; color: var(--text-light);
+          max-width: 34em; margin-bottom: 20px; text-wrap: pretty;
         }
         .hero-sub strong { color: var(--text-mid); font-weight: 700; }
 
         /* ─── BOUTONS ─── */
-        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
         .hero-btn-main {
           background: var(--navy); color: var(--white);
           border: none; padding: 14px 24px; border-radius: 10px;
@@ -274,7 +274,7 @@ const Hero = ({ scrollTo }) => {
         .hero-store strong { font-size: 14.5px; font-weight: 600; letter-spacing: -0.2px; }
 
         /* ─── PUCES ─── */
-        .hero-dots { display: flex; gap: 7px; margin-top: 22px; }
+        .hero-dots { display: flex; gap: 7px; margin-top: 16px; }
         .hero-dot {
           width: 8px; height: 8px; border-radius: 50%;
           border: none; padding: 0; background: rgba(13,27,61,0.18);
@@ -294,7 +294,7 @@ const Hero = ({ scrollTo }) => {
         @media (max-width: 1100px) {
           .hero-section {
             flex-direction: column; align-items: stretch; min-height: 0;
-            padding: calc(var(--nav-h) + 28px) 24px 0;
+            padding: calc(var(--nav-h) + 14px) 24px 0;
           }
           .hero-copy { max-width: 620px; }
           /* Le cadre reprend exactement la partie illustrée des images

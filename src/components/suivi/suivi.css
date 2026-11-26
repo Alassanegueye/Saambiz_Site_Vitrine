@@ -4,15 +4,15 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── Le champ, en haut de l'accueil ─── */
-.sc { position: relative; z-index: 2; max-width: 540px; margin-bottom: 28px; scroll-margin-top: 120px; }
+.sc { position: relative; z-index: 2; max-width: 540px; margin-bottom: 20px; scroll-margin-top: 120px; }
 .sc-formulaire {
-  padding: 16px;
+  padding: 13px 16px;
   border: 1px solid var(--gray);
   border-radius: 16px;
   background: var(--white);
   box-shadow: var(--shadow-sm);
 }
-.sc-entete { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.sc-entete { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
 .sc-entete__icone {
   flex: none; display: grid; place-items: center;
   width: 40px; height: 40px; border-radius: 11px;
