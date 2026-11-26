@@ -13,6 +13,7 @@ import PaymentSection from '../components/sections/PaymentSection';
 import Pricing from '../components/sections/Pricing';
 import Faq from '../components/sections/Faq';
 import DownloadCta from '../components/sections/DownloadCta';
+import { pageVue } from '../utils/suivi';
 
 /* Sections suivies par la navigation (ordre d'apparition dans la page) */
 const SECTION_IDS = ['hero', 'features', 'channels', 'payment', 'pricing', 'faq', 'download'];
@@ -28,6 +29,11 @@ function LandingPage() {
 
   // Grands écrans : même rendu qu'à 1440 px, en plus grand.
   useEchelleEcran();
+
+  // Fréquentation de la page, lue dans l'administration (« Site vitrine »).
+  useEffect(() => {
+    pageVue('/', 'Accueil SaamBiz');
+  }, []);
 
   /* Un seul écouteur de scroll pour tout l'état de la page :
      navbar (compacte / masquée), section courante
