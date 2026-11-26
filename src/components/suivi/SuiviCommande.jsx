@@ -19,15 +19,9 @@ import './suivi.css';
  */
 export default function SuiviCommande() {
   const [numero, setNumero] = useState('');
-  // Le téléphone du dernier passage en caisse sur ce téléphone ou cet
-  // ordinateur (sites des boutiques, clé saambiz.client) : déjà rempli.
-  const [telephone, setTelephone] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('saambiz.client') || '{}').telephone || '';
-    } catch {
-      return '';
-    }
-  });
+  // Jamais prérempli : sur un appareil partagé, le numéro d'un autre client
+  // n'a rien à faire dans ce champ.
+  const [telephone, setTelephone] = useState('');
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState(null);
   // Le champ en cause, encadré en rouge : le numéro ou le téléphone.
@@ -99,7 +93,7 @@ export default function SuiviCommande() {
             value={numero}
             onChange={(e) => { setNumero(e.target.value.toUpperCase()); setErreur(null); setChampFautif(null); }}
             onBlur={() => numero && setNumero(mettreEnFormeNumero(numero))}
-            placeholder="CMD-XXXX-XXXX-XXXX"
+            placeholder="Numéro de commande"
             autoComplete="off"
             autoCapitalize="characters"
             autoCorrect="off"
@@ -114,8 +108,8 @@ export default function SuiviCommande() {
             type="tel"
             value={telephone}
             onChange={(e) => { setTelephone(e.target.value); setErreur(null); setChampFautif(null); }}
-            placeholder="Votre téléphone"
-            autoComplete="tel"
+            placeholder="Téléphone"
+            autoComplete="off"
             required
             aria-describedby={erreur ? 'sc-erreur' : undefined}
             aria-invalid={Boolean(erreur) && champFautif === 'tel'}
