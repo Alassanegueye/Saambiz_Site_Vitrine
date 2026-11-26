@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { Search, AlertCircle, Loader2, Check } from 'lucide-react';
+import { Search, AlertCircle, Loader2 } from 'lucide-react';
 import { suivreCommande, formaterPrix } from '../api';
+import { Progression } from '../Progression';
 import { EntetePage, ImageProduit } from '../composants';
 
 /**
@@ -12,55 +13,6 @@ import { EntetePage, ImageProduit } from '../composants';
  * et WhatsApp, elle est courte, et elle finit recopiée dans des conversations
  * de groupe.
  */
-
-/* Les étapes visibles par le client. « annulee » n'y figure pas : ce n'est
-   pas une étape du parcours mais sa fin, affichée à part. */
-const ETAPES = [
-  { cle: 'en_attente', libelle: 'Commande reçue', texte: 'Le vendeur a été prévenu.' },
-  { cle: 'confirmee', libelle: 'Confirmée', texte: 'Le vendeur a accepté votre commande.' },
-  { cle: 'en_preparation', libelle: 'En préparation', texte: 'Vos articles sont rassemblés.' },
-  { cle: 'prete', libelle: 'Prête', texte: 'Votre commande est prête.' },
-  { cle: 'en_livraison', libelle: 'En route', texte: 'Le livreur est en chemin.' },
-  { cle: 'livree', libelle: 'Livrée', texte: 'Bonne réception !' },
-];
-
-function Progression({ statut, modeLivraison }) {
-  if (statut === 'annulee') {
-    return (
-      <p className="bq-suivi__annulee" role="status">
-        Cette commande a été annulée. Contactez le vendeur si c'est une erreur.
-      </p>
-    );
-  }
-
-  // Un retrait sur place ne passe pas par « En route » : afficher une étape
-  // que la commande ne franchira jamais laisse croire à un blocage.
-  const etapes = modeLivraison === 'retrait'
-    ? ETAPES.filter((e) => e.cle !== 'en_livraison')
-    : ETAPES;
-
-  const indexActuel = etapes.findIndex((e) => e.cle === statut);
-
-  return (
-    <ol className="bq-progression">
-      {etapes.map((etape, i) => {
-        const faite = indexActuel >= 0 && i < indexActuel;
-        const encours = i === indexActuel;
-        return (
-          <li key={etape.cle} className={`bq-progression__etape ${faite ? 'est-faite' : ''} ${encours ? 'est-encours' : ''}`}>
-            <span className="bq-progression__puce" aria-hidden="true">
-              {faite ? <Check size={13} strokeWidth={3} /> : i + 1}
-            </span>
-            <span className="bq-progression__texte">
-              <strong>{etape.libelle}</strong>
-              {encours && <span>{etape.texte}</span>}
-            </span>
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
 
 export default function Suivi({ boutique }) {
   const { reference: refUrl } = useParams();
