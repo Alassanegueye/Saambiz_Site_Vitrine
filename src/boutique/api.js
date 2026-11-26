@@ -93,26 +93,28 @@ export const envoyerMessage = (slug, corps) =>
   });
 
 /**
- * Suivi sur saambiz.com : le numéro de commande SEUL (CMD-XXXX-XXXX-XXXX,
- * impossible à deviner). Un ancien numéro (CMD-2026-XXXXXX) demande aussi le
- * téléphone : l'API répond alors 400 TELEPHONE_REQUIS.
+ * Suivi sur saambiz.com : le numéro de commande ET le téléphone donné en
+ * commandant. Un autre téléphone : 403 « ne correspond pas ».
  */
 export const suivreParNumero = (numero, telephone) => appeler(
-  `/vitrine/suivi/${encodeURIComponent(numero)}${telephone ? `?telephone=${encodeURIComponent(telephone)}` : ''}`
+  `/vitrine/suivi/${encodeURIComponent(numero)}?telephone=${encodeURIComponent(telephone || '')}`
 );
 
-/** Adresse, téléphone ou note — tant que la boutique n'a pas accepté la commande. */
-export const modifierCommandeSuivie = (numero, changements) =>
+/**
+ * Adresse, téléphone de livraison ou note — tant que la boutique n'a pas
+ * accepté la commande. `telephoneClient` : celui donné en commandant.
+ */
+export const modifierCommandeSuivie = (numero, telephoneClient, changements) =>
   appeler(`/vitrine/suivi/${encodeURIComponent(numero)}`, {
     method: 'PATCH',
-    body: JSON.stringify(changements),
+    body: JSON.stringify({ ...changements, telephoneClient }),
   });
 
 /** Annulation par le client — avant la préparation. */
-export const annulerCommandeSuivie = (numero, motif) =>
+export const annulerCommandeSuivie = (numero, telephoneClient, motif) =>
   appeler(`/vitrine/suivi/${encodeURIComponent(numero)}/annuler`, {
     method: 'POST',
-    body: JSON.stringify({ motif }),
+    body: JSON.stringify({ motif, telephoneClient }),
   });
 
 /** Suivi d'une commande par sa référence et le numéro qui l'a passée. */

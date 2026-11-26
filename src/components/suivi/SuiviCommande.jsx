@@ -2,29 +2,39 @@ import { useEffect, useRef, useState } from 'react';
 import { PackageSearch, ArrowRight, Loader2, CircleAlert } from 'lucide-react';
 import { suivreParNumero } from '../../boutique/api';
 import FenetreCommande from './FenetreCommande';
-import { estAncienNumero, mettreEnFormeNumero } from './etapes';
+import { mettreEnFormeNumero } from './etapes';
 import './suivi.css';
 
 /**
  * « Suivre ma commande », en haut de l'accueil de saambiz.com.
  *
  * Pour le client qui a commandé sur le site d'une boutique sans avoir
- * l'application : il entre son numéro de commande, la fenêtre de la commande
- * s'ouvre (état d'avancement, modification, annulation). Le numéro suffit —
- * il est long et tiré au hasard, impossible à deviner. Un ancien numéro,
- * plus court, demande en plus le téléphone utilisé.
+ * l'application : il entre son numéro de commande et le téléphone donné en
+ * commandant, la fenêtre de la commande s'ouvre (état d'avancement,
+ * modification, annulation). Le serveur vérifie que le téléphone est bien
+ * celui de la personne qui a commandé.
  *
  * La page de confirmation d'une commande renvoie ici par `/#suivi` : le
  * champ reçoit alors le focus.
  */
 export default function SuiviCommande() {
   const [numero, setNumero] = useState('');
-  const [telephone, setTelephone] = useState('');
-  const [demanderTelephone, setDemanderTelephone] = useState(false);
+  // Le téléphone du dernier passage en caisse sur ce téléphone ou cet
+  // ordinateur (sites des boutiques, clé saambiz.client) : déjà rempli.
+  const [telephone, setTelephone] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('saambiz.client') || '{}').telephone || '';
+    } catch {
+      return '';
+    }
+  });
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState(null);
+  // Le champ en cause, encadré en rouge : le numéro ou le téléphone.
+  const [champFautif, setChampFautif] = useState(null);
   const [commande, setCommande] = useState(null);
   const champ = useRef(null);
+  const champTel = useRef(null);
 
   useEffect(() => {
     if (window.location.hash !== '#suivi') return undefined;
@@ -41,23 +51,26 @@ export default function SuiviCommande() {
     const forme = mettreEnFormeNumero(numero);
     if (forme.replace(/[^0-9A-Z]/g, '').length < 12) {
       setErreur('Entrez votre numéro de commande complet, par exemple CMD-7KQ4-M2XD-9HTB.');
+      setChampFautif('numero');
       champ.current?.focus();
       return;
     }
-    const ancien = estAncienNumero(forme);
-    if (ancien && telephone.replace(/\D/g, '').length < 9) {
-      setDemanderTelephone(true);
-      setErreur('Pour une commande passée avant le 26 novembre 2026, indiquez aussi le numéro de téléphone utilisé.');
+    if (telephone.replace(/\D/g, '').length < 9) {
+      setErreur('Entrez le numéro de téléphone donné en commandant.');
+      setChampFautif('tel');
+      champTel.current?.focus();
       return;
     }
     setNumero(forme);
     setEnCours(true);
     setErreur(null);
     try {
-      setCommande(await suivreParNumero(forme, ancien ? telephone : undefined));
+      setCommande(await suivreParNumero(forme, telephone));
     } catch (err) {
-      if (err.code === 'TELEPHONE_REQUIS') setDemanderTelephone(true);
       setErreur(err.message);
+      const tel = err.code === 'TELEPHONE_INCORRECT' || err.code === 'TELEPHONE_REQUIS';
+      setChampFautif(tel ? 'tel' : err.statut === 404 ? 'numero' : null);
+      if (tel) champTel.current?.focus();
     } finally {
       setEnCours(false);
     }
@@ -72,7 +85,7 @@ export default function SuiviCommande() {
           </span>
           <div>
             <label className="sc-entete__titre" htmlFor="sc-numero">Suivre ma commande</label>
-            <p className="sc-entete__texte">Commandé sur le site d’une boutique ? Entrez votre numéro de commande.</p>
+            <p className="sc-entete__texte">Commandé sur le site d’une boutique ? Entrez votre numéro de commande et votre téléphone.</p>
           </div>
         </div>
 
@@ -84,7 +97,7 @@ export default function SuiviCommande() {
             type="text"
             inputMode="text"
             value={numero}
-            onChange={(e) => { setNumero(e.target.value.toUpperCase()); setErreur(null); }}
+            onChange={(e) => { setNumero(e.target.value.toUpperCase()); setErreur(null); setChampFautif(null); }}
             onBlur={() => numero && setNumero(mettreEnFormeNumero(numero))}
             placeholder="CMD-XXXX-XXXX-XXXX"
             autoComplete="off"
@@ -93,19 +106,21 @@ export default function SuiviCommande() {
             spellCheck="false"
             maxLength={24}
             aria-describedby={erreur ? 'sc-erreur' : undefined}
-            aria-invalid={Boolean(erreur)}
+            aria-invalid={Boolean(erreur) && champFautif === 'numero'}
           />
-          {demanderTelephone && (
-            <input
-              className="sc-champ sc-champ--tel"
-              type="tel"
-              value={telephone}
-              onChange={(e) => { setTelephone(e.target.value); setErreur(null); }}
-              placeholder="Téléphone utilisé"
-              autoComplete="tel"
-              aria-label="Numéro de téléphone utilisé pour la commande"
-            />
-          )}
+          <input
+            ref={champTel}
+            className="sc-champ sc-champ--tel"
+            type="tel"
+            value={telephone}
+            onChange={(e) => { setTelephone(e.target.value); setErreur(null); setChampFautif(null); }}
+            placeholder="Votre téléphone"
+            autoComplete="tel"
+            required
+            aria-describedby={erreur ? 'sc-erreur' : undefined}
+            aria-invalid={Boolean(erreur) && champFautif === 'tel'}
+            aria-label="Numéro de téléphone donné en commandant"
+          />
           <button type="submit" className="sc-bouton" disabled={enCours}>
             {enCours
               ? <><Loader2 size={17} strokeWidth={2.4} className="sc-tourne" aria-hidden="true" /> Recherche…</>
@@ -123,7 +138,7 @@ export default function SuiviCommande() {
       {commande && (
         <FenetreCommande
           commande={commande}
-          telephone={demanderTelephone ? telephone : undefined}
+          telephone={telephone}
           onChange={setCommande}
           onClose={() => { setCommande(null); champ.current?.focus(); }}
         />

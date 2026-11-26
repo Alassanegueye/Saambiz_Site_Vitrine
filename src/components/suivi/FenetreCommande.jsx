@@ -77,6 +77,7 @@ export default function FenetreCommande({ commande, telephone, onChange, onClose
   };
 
   const actualiser = () => executer('actualiser', () => suivreParNumero(commande.reference, telephone));
+  // Le téléphone donné en commandant : il prouve que c'est bien le client.
 
   const ouvrirEdition = () => {
     setForm({
@@ -93,13 +94,13 @@ export default function FenetreCommande({ commande, telephone, onChange, onClose
     e.preventDefault();
     const changements = { telephone: form.telephone, note: form.note };
     if (!retrait) changements.adresseLivraison = form.adresseLivraison;
-    if (await executer('modifier', () => modifierCommandeSuivie(commande.reference, changements), 'Votre commande a été modifiée. La boutique est prévenue.')) {
+    if (await executer('modifier', () => modifierCommandeSuivie(commande.reference, telephone, changements), 'Votre commande a été modifiée. La boutique est prévenue.')) {
       setEdition(false);
     }
   };
 
   const annuler = async () => {
-    if (await executer('annuler', () => annulerCommandeSuivie(commande.reference, motif.trim() || undefined), 'Votre commande a été annulée. La boutique est prévenue.')) {
+    if (await executer('annuler', () => annulerCommandeSuivie(commande.reference, telephone, motif.trim() || undefined), 'Votre commande a été annulée. La boutique est prévenue.')) {
       setAnnulation(false);
     }
   };
@@ -201,7 +202,7 @@ export default function FenetreCommande({ commande, telephone, onChange, onClose
                   </label>
                 )}
                 <label className="sc-etiquette">
-                  Téléphone
+                  Téléphone pour la livraison
                   <input type="tel" value={form.telephone} autoComplete="tel"
                     onChange={(e) => setForm({ ...form, telephone: e.target.value })} />
                 </label>

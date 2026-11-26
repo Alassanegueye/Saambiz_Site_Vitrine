@@ -88,8 +88,6 @@ export function mettreEnFormeNumero(saisie) {
   return brut.length ? ['CMD', ...groupes].join('-') : '';
 }
 
-/** Ancien numéro (avant le 26/11/2026) : il faut aussi le téléphone. */
-export const estAncienNumero = (numero) => /^CMD-20\d{2}-[0-9A-Z]{6}$/.test(String(numero || '').trim().toUpperCase());
 
 export const formaterDateHeure = (date) => {
   try {

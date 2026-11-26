@@ -110,8 +110,9 @@ export default function Confirmation({ boutique }) {
           <div className="bq-suivre__texte">
             <strong>Suivez votre commande sur saambiz.com</strong>
             <p>
-              Entrez votre numéro de commande en haut de la page d'accueil de
-              saambiz.com : vous y verrez où en est votre commande, et vous
+              Entrez votre numéro de commande et votre téléphone en haut de la
+              page d'accueil de saambiz.com : vous y verrez où en est votre
+              commande, et vous
               pourrez la modifier ou l'annuler tant que la boutique ne l'a pas
               préparée.
             </p>
